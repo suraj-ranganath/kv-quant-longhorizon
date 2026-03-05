@@ -28,10 +28,10 @@ METHOD_ORDER = [
 VIDEO_RE = re.compile(r"prompt_(\d+)_seed_(\d+)\.mp4$")
 
 QUANT_VRAM_NOTE = (
-    "Why quantized methods can show higher peak VRAM in this dashboard: "
-    "the current Self-Forcing hook keeps full BF16 cache tensors (`k`/`v`) allocated, "
-    "then adds quantized `quant_state`, and also allocates transient dequantized/work buffers "
-    "during cache read/write. So this is not yet a pure in-place KV memory replacement."
+    "Peak VRAM is an instantaneous maximum. Quantized methods still dequantize KV to BF16 "
+    "for attention compute and allocate temporary quant/dequant scratch buffers, so peak VRAM "
+    "can be similar to or slightly above BF16 even when compressed KV bytes are much lower. "
+    "This integration has removed the earlier persistent BF16+quantized dual-cache residency."
 )
 
 
@@ -450,6 +450,7 @@ def render_header() -> None:
         """,
         unsafe_allow_html=True,
     )
+    st.info(QUANT_VRAM_NOTE, icon="ℹ️")
 
 
 def render_overview(df: pd.DataFrame) -> None:
@@ -496,7 +497,6 @@ def render_overview(df: pd.DataFrame) -> None:
         )
 
     st.markdown("### Unified method table")
-    st.info(QUANT_VRAM_NOTE, icon="ℹ️")
     display_cols = [
         "method",
         "videos",
