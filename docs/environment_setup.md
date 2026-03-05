@@ -38,3 +38,20 @@ cd third_party/VBench
 pip install -e .
 cd -
 ```
+
+## Dashboard environment (optional)
+
+Use either `qvg_sf_infer` or a separate lightweight env:
+
+```bash
+conda create -n qvg_sf_dashboard python=3.10 -y
+conda activate qvg_sf_dashboard
+pip install --upgrade pip
+pip install -r requirements-dashboard.txt
+```
+
+Launch:
+
+```bash
+./scripts/13_launch_dashboard.sh
+```

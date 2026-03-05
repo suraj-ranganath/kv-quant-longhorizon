@@ -112,6 +112,7 @@ QVG implementation is blocked until baseline suite is green and benchmarked.
 - Runnable generation scripts for BF16 and baseline quantization methods.
 - Baseline KV quantizer implementations: RTN, KIVI, QuaRot-KV-only.
 - Evaluation scripts for fidelity, VBench, efficiency, and drift curve.
+- Streamlit dashboard for presentation-grade result exploration across multiple runs.
 - Saved result artifacts:
   - videos
   - raw metrics JSON
@@ -249,3 +250,29 @@ Push after each meaningful checkpoint.
 
 Suggested initial commit message:
 - `docs: add full replication plan for QVG on Self-Forcing-Wan-1.3B`
+
+## 13) Dashboard (Presentation + Comparison)
+The project includes a Streamlit dashboard at `dashboard/app.py` to present results and compare methods visually.
+
+Key capabilities:
+- Select between `live/current` and archived runs under `results/archive/*`.
+- Compare methods side-by-side with video playback for the same prompt ID.
+- Inspect unified metrics across fidelity, VBench, and efficiency.
+- View prompt-level runtime/VRAM analytics from generation logs.
+- Export summary table artifacts for reporting.
+
+Install dependencies in your preferred environment:
+
+```bash
+pip install -r requirements-dashboard.txt
+```
+
+Launch:
+
+```bash
+./scripts/13_launch_dashboard.sh
+```
+
+Optional:
+- `DASHBOARD_PYTHON=/path/to/python ./scripts/13_launch_dashboard.sh`
+- `PORT=8502 ./scripts/13_launch_dashboard.sh`
