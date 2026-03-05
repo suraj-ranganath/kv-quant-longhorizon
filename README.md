@@ -276,3 +276,22 @@ Launch:
 Optional:
 - `DASHBOARD_PYTHON=/path/to/python ./scripts/13_launch_dashboard.sh`
 - `PORT=8502 ./scripts/13_launch_dashboard.sh`
+
+## 14) Run Naming and Isolation
+To keep experiments reproducible and prevent overwriting outputs, full pipeline runs are stored under:
+
+`results/runs/<unix_timestamp>_<run_name>/`
+
+Example:
+
+```bash
+GPU_LIST=2,3,4,5 MAX_PROMPTS=10 ./scripts/09_run_full_research_pipeline.sh --run-name longhorizon_10prompts
+```
+
+Each run directory contains:
+- `videos/`
+- `metrics/`
+- `logs/`
+- `tables/`
+- `plots/`
+- `run_meta.json` (run name, timestamp, run ID)

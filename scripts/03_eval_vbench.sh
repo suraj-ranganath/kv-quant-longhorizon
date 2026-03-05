@@ -3,11 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-python}"
+RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 METHOD="${1:?usage: 03_eval_vbench.sh <METHOD> [VIDEOS_DIR]}"
-VIDEOS_DIR="${2:-${ROOT_DIR}/results/videos/${METHOD}}"
+VIDEOS_DIR="${2:-${RUN_ROOT}/videos/${METHOD}}"
 PROMPT_FILE="${3:-${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt}"
-OUT_DIR="${ROOT_DIR}/results/metrics/vbench_${METHOD}"
-FINAL_JSON="${ROOT_DIR}/results/metrics/vbench_${METHOD}.json"
+OUT_DIR="${4:-${RUN_ROOT}/metrics/vbench_${METHOD}}"
+FINAL_JSON="${5:-${RUN_ROOT}/metrics/vbench_${METHOD}.json}"
 
 mkdir -p "${OUT_DIR}"
 

@@ -192,6 +192,31 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
             )
         )
 
+    runs_root = results_root / "runs"
+    if runs_root.exists():
+        for d in sorted([p for p in runs_root.iterdir() if p.is_dir()], reverse=True):
+            metric_dir = d / "metrics"
+            log_dir = d / "logs"
+            video_dir = d / "videos"
+            table_dir = d / "tables"
+            has_data = (
+                (video_dir.exists() and any(video_dir.glob("*/*.mp4")))
+                or (log_dir.exists() and any(log_dir.glob("generation_*.jsonl")))
+                or (metric_dir.exists() and any(metric_dir.glob("*.json")))
+            )
+            if not has_data:
+                continue
+            runs.append(
+                RunLayout(
+                    label=f"runs/{d.name}",
+                    root=d,
+                    metric_dirs=[p for p in [metric_dir, d] if p.exists()],
+                    log_dirs=[p for p in [log_dir, d] if p.exists()],
+                    video_dirs=[p for p in [video_dir, d] if p.exists()],
+                    table_dirs=[p for p in [table_dir, d] if p.exists()],
+                )
+            )
+
     archive_root = results_root / "archive"
     if archive_root.exists():
         for d in sorted([p for p in archive_root.iterdir() if p.is_dir()], reverse=True):
@@ -363,6 +388,16 @@ def load_fidelity_per_video(run: RunLayout, method: str) -> dict[str, dict[str, 
             if video_name:
                 out[video_name] = item
     return out
+
+
+@st.cache_data(show_spinner=False)
+def load_run_meta(run: RunLayout) -> dict[str, Any]:
+    meta_path = run.root / "run_meta.json"
+    if meta_path.exists():
+        payload = _read_json(meta_path)
+        if isinstance(payload, dict):
+            return payload
+    return {}
 
 
 def render_header() -> None:
@@ -767,6 +802,11 @@ def main() -> None:
 
     st.sidebar.markdown("## Run snapshot")
     st.sidebar.markdown(f"`{selected_run.label}`")
+    run_meta = load_run_meta(selected_run)
+    if run_meta:
+        st.sidebar.caption(
+            f"run_name={run_meta.get('run_name', '-')}, ts={run_meta.get('run_timestamp_unix', '-')}"
+        )
     st.sidebar.metric("Methods", len(selected_methods))
     total_videos = int(metric_df["videos"].sum()) if not metric_df.empty else 0
     st.sidebar.metric("Videos found", total_videos)

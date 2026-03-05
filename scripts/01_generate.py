@@ -79,8 +79,10 @@ def reset_kv_state(pipeline, quantizer):
     for block in pipeline.kv_cache1:
         block["global_end_index"].fill_(0)
         block["local_end_index"].fill_(0)
-        block["k"].zero_()
-        block["v"].zero_()
+        if isinstance(block.get("k"), torch.Tensor) and block["k"].numel() > 0:
+            block["k"].zero_()
+        if isinstance(block.get("v"), torch.Tensor) and block["v"].numel() > 0:
+            block["v"].zero_()
         if quantizer is not None:
             block["quantizer"] = quantizer
             block["quant_state"] = None
@@ -134,9 +136,10 @@ def run(args: argparse.Namespace) -> None:
     device = torch.device(args.device)
     method_name, quantizer = parse_method(args.method, args.bits, args.block_size)
 
-    output_dir = REPO_ROOT / "results" / "videos" / method_name
-    logs_dir = REPO_ROOT / "results" / "logs"
-    metrics_dir = REPO_ROOT / "results" / "metrics"
+    results_root = args.results_root if args.results_root.is_absolute() else (REPO_ROOT / args.results_root)
+    output_dir = results_root / "videos" / method_name
+    logs_dir = results_root / "logs"
+    metrics_dir = results_root / "metrics"
     output_dir.mkdir(parents=True, exist_ok=True)
     logs_dir.mkdir(parents=True, exist_ok=True)
     metrics_dir.mkdir(parents=True, exist_ok=True)
@@ -178,8 +181,16 @@ def run(args: argparse.Namespace) -> None:
     if quantizer is not None:
         quantizer.reset_stats()
         for block in pipeline.kv_cache1:
+            block["kv_cache_size"] = int(block["k"].shape[1])
+            block["batch_size"] = int(block["k"].shape[0])
+            block["num_heads"] = int(block["k"].shape[2])
+            block["head_dim"] = int(block["k"].shape[3])
             block["quantizer"] = quantizer
             block["quant_state"] = None
+            # Keep quantized state as the primary cache representation.
+            # This avoids persistent BF16 KV residency for quantized methods.
+            block["k"] = torch.empty(0, dtype=torch.bfloat16, device=device)
+            block["v"] = torch.empty(0, dtype=torch.bfloat16, device=device)
 
     run_log_path = logs_dir / f"generation_{method_name}.jsonl"
     run_log_f = run_log_path.open("a", encoding="utf-8")
@@ -245,7 +256,13 @@ def run(args: argparse.Namespace) -> None:
         run_log_f.close()
 
     if pipeline.kv_cache1 is not None:
-        bf16_kv_bytes = int(sum((b["k"].numel() + b["v"].numel()) * 2 for b in pipeline.kv_cache1))
+        bf16_kv_bytes = 0
+        for b in pipeline.kv_cache1:
+            if all(k in b for k in ("kv_cache_size", "batch_size", "num_heads", "head_dim")):
+                elems = int(b["batch_size"]) * int(b["kv_cache_size"]) * int(b["num_heads"]) * int(b["head_dim"])
+                bf16_kv_bytes += elems * 2 * 2  # K+V, bf16
+            elif isinstance(b.get("k"), torch.Tensor) and isinstance(b.get("v"), torch.Tensor):
+                bf16_kv_bytes += int((b["k"].numel() + b["v"].numel()) * 2)
     else:
         bf16_kv_bytes = 0
 
@@ -260,7 +277,7 @@ def run(args: argparse.Namespace) -> None:
         for b in pipeline.kv_cache1:
             if b.get("quant_state") is not None:
                 compressed_kv_bytes += int(quantizer.memory_bytes(b["quant_state"]))
-            else:
+            elif isinstance(b.get("k"), torch.Tensor) and isinstance(b.get("v"), torch.Tensor):
                 compressed_kv_bytes += int((b["k"].numel() + b["v"].numel()) * 2)
 
     efficiency = {
@@ -300,6 +317,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--fps", type=int, default=16)
     parser.add_argument("--device", type=str, default="cuda:0")
+    parser.add_argument("--results-root", type=Path, default=REPO_ROOT / "results")
     parser.add_argument("--use-ema", action="store_true", default=True)
     parser.add_argument("--low-memory", action="store_true", help="Enable official dynamic-swap low-memory mode.")
     parser.add_argument("--dry-run", action="store_true")

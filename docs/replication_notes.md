@@ -4,15 +4,17 @@
 - README planning gate is complete and pushed.
 - Project scaffold, quantization modules, generation/evaluation scripts, and baseline matrix runner are implemented.
 - Wan2.1-T2V-1.3B and Self-Forcing DMD checkpoint are downloaded.
+- KV-cache quantization path has been updated to avoid persistent BF16+quantized dual cache residency.
+- Named run isolation is enabled via `results/runs/<unix_ts>_<run_name>/`.
 
 ## A5000 / runtime constraints observed
-- Physical GPUs 6 and 7 currently have only ~3.8 GiB free VRAM each.
-- BF16 initialization on GPU 6 failed with CUDA OOM while loading text encoder + model stack.
-- No compute was run on GPUs 0-5.
+- Full 480p generation is feasible on A5000 24GB for 5s baseline runs.
+- Long-horizon runs still require careful memory/runtime planning.
 
-## Required to unblock baseline runs
-- Free at least one of GPU 6 or 7 sufficiently for Self-Forcing-Wan-1.3B inference.
-- Then run `scripts/06_run_baseline_matrix.sh` with `GPU_ID=6` or `GPU_ID=7`.
+## KV memory behavior note
+- Previous integration kept BF16 KV tensors resident while also storing quantized state, inflating peak VRAM.
+- Current integration stores quantized state as the primary cache representation and drops persistent BF16 cache residency in quantized modes.
+- In smoke verification, quantized methods now peak near BF16-level VRAM rather than substantially above it.
 
 ## Known implementation deviations
 - KV quantization is integrated at causal KV-cache boundary via an optional quantizer attached to each cache block.

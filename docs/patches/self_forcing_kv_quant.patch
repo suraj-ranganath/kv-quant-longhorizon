@@ -1,16 +1,30 @@
 diff --git a/wan/modules/causal_model.py b/wan/modules/causal_model.py
-index 98e398a..0ba17e9 100644
+index 98e398a..5c0f839 100644
 --- a/wan/modules/causal_model.py
 +++ b/wan/modules/causal_model.py
-@@ -197,11 +197,19 @@ class CausalWanSelfAttention(nn.Module):
+@@ -197,11 +197,33 @@ class CausalWanSelfAttention(nn.Module):
                  q, grid_sizes, freqs, start_frame=current_start_frame).type_as(v)
              roped_key = causal_rope_apply(
                  k, grid_sizes, freqs, start_frame=current_start_frame).type_as(v)
 +            quantizer = kv_cache.get("quantizer", None)
-+            if quantizer is not None and kv_cache.get("quant_state") is not None:
-+                cache_k, cache_v = quantizer.dequantize_kv(kv_cache["quant_state"], meta={"tensor_dtype": v.dtype})
-+                cache_k = cache_k.to(device=v.device, dtype=v.dtype)
-+                cache_v = cache_v.to(device=v.device, dtype=v.dtype)
++            if quantizer is not None:
++                kv_cache_size = kv_cache.get("kv_cache_size", None)
++                if kv_cache_size is None:
++                    if isinstance(kv_cache.get("k"), torch.Tensor) and kv_cache["k"].ndim >= 2:
++                        kv_cache_size = int(kv_cache["k"].shape[1])
++                    else:
++                        kv_cache_size = int(self.max_attention_size)
++
++                if kv_cache.get("quant_state") is not None:
++                    cache_k, cache_v = quantizer.dequantize_kv(kv_cache["quant_state"], meta={"tensor_dtype": v.dtype})
++                    cache_k = cache_k.to(device=v.device, dtype=v.dtype)
++                    cache_v = cache_v.to(device=v.device, dtype=v.dtype)
++                elif isinstance(kv_cache.get("k"), torch.Tensor) and kv_cache["k"].ndim == 4 and kv_cache["k"].shape[1] == kv_cache_size:
++                    cache_k = kv_cache["k"]
++                    cache_v = kv_cache["v"]
++                else:
++                    cache_k = torch.zeros([b, kv_cache_size, n, d], dtype=v.dtype, device=v.device)
++                    cache_v = torch.zeros_like(cache_k)
 +            else:
 +                cache_k = kv_cache["k"]
 +                cache_v = kv_cache["v"]
@@ -23,7 +37,7 @@ index 98e398a..0ba17e9 100644
              num_new_tokens = roped_query.shape[1]
              if self.local_attn_size != -1 and (current_end > kv_cache["global_end_index"].item()) and (
                      num_new_tokens + kv_cache["local_end_index"].item() > kv_cache_size):
-@@ -210,29 +218,31 @@ class CausalWanSelfAttention(nn.Module):
+@@ -210,29 +232,38 @@ class CausalWanSelfAttention(nn.Module):
                  # Clone the source slice to avoid overlapping memory error
                  num_evicted_tokens = num_new_tokens + kv_cache["local_end_index"].item() - kv_cache_size
                  num_rolled_tokens = kv_cache["local_end_index"].item() - num_evicted_tokens - sink_tokens
@@ -61,7 +75,14 @@ index 98e398a..0ba17e9 100644
              kv_cache["global_end_index"].fill_(current_end)
              kv_cache["local_end_index"].fill_(local_end_index)
 +            if quantizer is not None:
++                kv_cache["kv_cache_size"] = int(cache_k.shape[1])
++                kv_cache["batch_size"] = int(cache_k.shape[0])
++                kv_cache["num_heads"] = int(cache_k.shape[2])
++                kv_cache["head_dim"] = int(cache_k.shape[3])
 +                kv_cache["quant_state"] = quantizer.quantize_kv(cache_k, cache_v, meta={"tensor_dtype": v.dtype})
++                # Drop persistent BF16 cache residency for quantized methods.
++                kv_cache["k"] = cache_k.new_empty(0)
++                kv_cache["v"] = cache_v.new_empty(0)
  
          # output
          x = x.flatten(2)

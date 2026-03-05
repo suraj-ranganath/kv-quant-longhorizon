@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INFER_PYTHON="${INFER_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python}"
 EVAL_PYTHON="${EVAL_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_eval/bin/python}"
+RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 GPU_ID="${GPU_ID:-2}"
 MAX_PROMPTS="${MAX_PROMPTS:-}"
 SEED="${SEED:-0}"
@@ -30,13 +31,14 @@ for method in "${METHODS[@]}"; do
     --seed "${SEED}" \
     --device cuda:0 \
     --use-ema \
+    --results-root "${RUN_ROOT}" \
     "${EXTRA_ARGS[@]}"
 
 done
 
 for method in "${METHODS[@]}"; do
   echo "[vbench] ${method}"
-  CUDA_VISIBLE_DEVICES="${GPU_ID}" PYTHON_BIN="${EVAL_PYTHON}" "${ROOT_DIR}/scripts/03_eval_vbench.sh" "${method}" "${ROOT_DIR}/results/videos/${method}" "${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt"
+  CUDA_VISIBLE_DEVICES="${GPU_ID}" PYTHON_BIN="${EVAL_PYTHON}" RUN_ROOT="${RUN_ROOT}" "${ROOT_DIR}/scripts/03_eval_vbench.sh" "${method}" "${RUN_ROOT}/videos/${method}" "${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt" "${RUN_ROOT}/metrics/vbench_${method}" "${RUN_ROOT}/metrics/vbench_${method}.json"
 done
 
 for method in "${METHODS[@]}"; do
@@ -45,10 +47,10 @@ for method in "${METHODS[@]}"; do
   fi
   echo "[fidelity] ${method}"
   "${INFER_PYTHON}" "${ROOT_DIR}/scripts/02_eval_fidelity.py" \
-    --bf16-dir "${ROOT_DIR}/results/videos/BF16" \
-    --candidate-dir "${ROOT_DIR}/results/videos/${method}" \
-    --output "${ROOT_DIR}/results/metrics/fidelity_${method}.json" \
+    --bf16-dir "${RUN_ROOT}/videos/BF16" \
+    --candidate-dir "${RUN_ROOT}/videos/${method}" \
+    --output "${RUN_ROOT}/metrics/fidelity_${method}.json" \
     --device cpu
 done
 
-"${INFER_PYTHON}" "${ROOT_DIR}/scripts/05_summarize_results.py"
+"${INFER_PYTHON}" "${ROOT_DIR}/scripts/05_summarize_results.py" --results-root "${RUN_ROOT}"

@@ -27,18 +27,23 @@ def main() -> None:
         nargs="+",
         default=["BF16", "RTN_INT4", "RTN_INT2", "KIVI_INT4", "KIVI_INT2", "QUAROT_KV_INT4", "QUAROT_KV_INT2"],
     )
-    parser.add_argument("--metrics-dir", type=Path, default=Path("results/metrics"))
-    parser.add_argument("--out-csv", type=Path, default=Path("results/tables/baseline_summary.csv"))
-    parser.add_argument("--out-md", type=Path, default=Path("results/tables/baseline_summary.md"))
+    parser.add_argument("--results-root", type=Path, default=Path("results"))
+    parser.add_argument("--metrics-dir", type=Path, default=Path("metrics"))
+    parser.add_argument("--out-csv", type=Path, default=Path("tables/baseline_summary.csv"))
+    parser.add_argument("--out-md", type=Path, default=Path("tables/baseline_summary.md"))
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parents[1]
+    results_root = args.results_root if args.results_root.is_absolute() else (root / args.results_root)
+    metrics_dir = args.metrics_dir if args.metrics_dir.is_absolute() else (results_root / args.metrics_dir)
+    out_csv = args.out_csv if args.out_csv.is_absolute() else (results_root / args.out_csv)
+    out_md = args.out_md if args.out_md.is_absolute() else (results_root / args.out_md)
     rows = []
 
     for method in args.methods:
-        fidelity = load_json_or_none(root / args.metrics_dir / f"fidelity_{method}.json")
-        vbench = load_json_or_none(root / args.metrics_dir / f"vbench_{method}.json")
-        efficiency = load_json_or_none(root / args.metrics_dir / f"efficiency_{method}.json")
+        fidelity = load_json_or_none(metrics_dir / f"fidelity_{method}.json")
+        vbench = load_json_or_none(metrics_dir / f"vbench_{method}.json")
+        efficiency = load_json_or_none(metrics_dir / f"efficiency_{method}.json")
 
         row = {
             "method": method,
@@ -77,8 +82,8 @@ def main() -> None:
 
         rows.append(row)
 
-    args.out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with (root / args.out_csv).open("w", newline="", encoding="utf-8") as f:
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with out_csv.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
@@ -94,9 +99,9 @@ def main() -> None:
             )
         )
 
-    (root / args.out_md).write_text("\n".join(md_lines) + "\n", encoding="utf-8")
-    print(f"Wrote {(root / args.out_csv)}")
-    print(f"Wrote {(root / args.out_md)}")
+    out_md.write_text("\n".join(md_lines) + "\n", encoding="utf-8")
+    print(f"Wrote {out_csv}")
+    print(f"Wrote {out_md}")
 
 
 if __name__ == "__main__":

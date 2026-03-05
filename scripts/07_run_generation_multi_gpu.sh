@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INFER_PYTHON="${INFER_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python}"
+RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 SEED="${SEED:-0}"
 MAX_PROMPTS="${MAX_PROMPTS:-}"
 PYTORCH_ALLOC="${PYTORCH_ALLOC:-expandable_segments:True}"
@@ -21,7 +22,8 @@ METHODS=(
   QUAROT_KV_INT2
 )
 
-mkdir -p "${ROOT_DIR}/results/logs"
+mkdir -p "${RUN_ROOT}/logs" "${RUN_ROOT}/videos" "${RUN_ROOT}/metrics" "${RUN_ROOT}/tables" "${RUN_ROOT}/plots"
+echo "[run_root] ${RUN_ROOT}"
 
 EXTRA_ARGS=()
 if [[ -n "${MAX_PROMPTS}" ]]; then
@@ -39,7 +41,7 @@ while [[ "${start}" -lt "${num_methods}" ]]; do
     idx=$((start + slot))
     method="${METHODS[$idx]}"
     gpu="${GPUS[$slot]}"
-    log_file="${ROOT_DIR}/results/logs/generate_${method}.log"
+    log_file="${RUN_ROOT}/logs/generate_${method}.log"
 
     echo "[launch] method=${method} gpu=${gpu} log=${log_file}"
     (
@@ -50,6 +52,7 @@ while [[ "${start}" -lt "${num_methods}" ]]; do
         --seed "${SEED}" \
         --device cuda:0 \
         --use-ema \
+        --results-root "${RUN_ROOT}" \
         "${EXTRA_ARGS[@]}"
     ) >"${log_file}" 2>&1 &
     pids+=("$!")
@@ -64,7 +67,7 @@ while [[ "${start}" -lt "${num_methods}" ]]; do
 done
 
 if [[ "${failed}" -ne 0 ]]; then
-  echo "One or more generation jobs failed. Check results/logs/generate_*.log"
+  echo "One or more generation jobs failed. Check ${RUN_ROOT}/logs/generate_*.log"
   exit 1
 fi
 
