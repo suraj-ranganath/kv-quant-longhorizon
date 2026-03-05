@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+
+# Artifacts
+results/videos/*
+results/metrics/*
+results/logs/*
+results/plots/*
+results/tables/*
+!results/videos/.gitkeep
+!results/metrics/.gitkeep
+!results/logs/.gitkeep
+!results/plots/.gitkeep
+!results/tables/.gitkeep
+
+# Models / checkpoints
+checkpoints/*
+wan_models/*
+!checkpoints/.gitkeep
+!wan_models/.gitkeep
+
+# Env / editor
+.venv/
+.env
+.DS_Store
+
+# Third-party clones (recreated via scripts)
+third_party/*
+!third_party/.gitkeep

@@ -1,0 +1,9 @@
+# Inference environment (Self-Forcing + baselines)
+-r third_party/Self-Forcing/requirements.txt
+omegaconf
+einops
+tqdm
+lpips
+scikit-image
+imageio
+ffmpeg-python
