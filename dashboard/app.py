@@ -233,8 +233,9 @@ def _metric_column_config() -> dict[str, Any]:
 
 
 @st.cache_data(show_spinner=False)
-def discover_runs(results_root: Path) -> list[RunLayout]:
-    runs: list[RunLayout] = []
+def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
+    results_root = Path(results_root_str)
+    runs: list[dict[str, Any]] = []
 
     current_metrics = results_root / "metrics"
     current_logs = results_root / "logs"
@@ -251,14 +252,14 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
 
     if current_has_data:
         runs.append(
-            RunLayout(
-                label="workspace/current",
-                root=results_root,
-                metric_dirs=[current_metrics],
-                log_dirs=[current_logs],
-                video_dirs=[current_videos],
-                table_dirs=[current_tables],
-            )
+            {
+                "label": "workspace/current",
+                "root": str(results_root),
+                "metric_dirs": [str(current_metrics)],
+                "log_dirs": [str(current_logs)],
+                "video_dirs": [str(current_videos)],
+                "table_dirs": [str(current_tables)],
+            }
         )
 
     runs_root = results_root / "runs"
@@ -276,14 +277,14 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
             if not has_data:
                 continue
             runs.append(
-                RunLayout(
-                    label=f"runs/{d.name}",
-                    root=d,
-                    metric_dirs=[p for p in [metric_dir, d] if p.exists()],
-                    log_dirs=[p for p in [log_dir, d] if p.exists()],
-                    video_dirs=[p for p in [video_dir, d] if p.exists()],
-                    table_dirs=[p for p in [table_dir, d] if p.exists()],
-                )
+                {
+                    "label": f"runs/{d.name}",
+                    "root": str(d),
+                    "metric_dirs": [str(p) for p in [metric_dir, d] if p.exists()],
+                    "log_dirs": [str(p) for p in [log_dir, d] if p.exists()],
+                    "video_dirs": [str(p) for p in [video_dir, d] if p.exists()],
+                    "table_dirs": [str(p) for p in [table_dir, d] if p.exists()],
+                }
             )
 
     archive_root = results_root / "archive"
@@ -294,16 +295,33 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
             video_dirs = [d / "videos", d]
             table_dirs = [d / "tables", d]
             runs.append(
-                RunLayout(
-                    label=f"archive/{d.name}",
-                    root=d,
-                    metric_dirs=[p for p in metric_dirs if p.exists()],
-                    log_dirs=[p for p in log_dirs if p.exists()],
-                    video_dirs=[p for p in video_dirs if p.exists()],
-                    table_dirs=[p for p in table_dirs if p.exists()],
-                )
+                {
+                    "label": f"archive/{d.name}",
+                    "root": str(d),
+                    "metric_dirs": [str(p) for p in metric_dirs if p.exists()],
+                    "log_dirs": [str(p) for p in log_dirs if p.exists()],
+                    "video_dirs": [str(p) for p in video_dirs if p.exists()],
+                    "table_dirs": [str(p) for p in table_dirs if p.exists()],
+                }
             )
 
+    return runs
+
+
+def discover_runs(results_root: Path) -> list[RunLayout]:
+    payloads = discover_runs_payload(str(results_root))
+    runs: list[RunLayout] = []
+    for p in payloads:
+        runs.append(
+            RunLayout(
+                label=p["label"],
+                root=Path(p["root"]),
+                metric_dirs=[Path(x) for x in p["metric_dirs"]],
+                log_dirs=[Path(x) for x in p["log_dirs"]],
+                video_dirs=[Path(x) for x in p["video_dirs"]],
+                table_dirs=[Path(x) for x in p["table_dirs"]],
+            )
+        )
     return runs
 
 
