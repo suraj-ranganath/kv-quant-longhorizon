@@ -954,28 +954,44 @@ def main() -> None:
         else:
             delete_labels = [r.label for r in deletable_runs]
             target_label = st.selectbox("Delete run", delete_labels, key="delete_target_label")
-            confirm_text = st.text_input(
-                "Type run label to confirm",
-                key="delete_confirm_text",
-                help="Must match exactly.",
-            )
             if st.button("Delete selected run", type="secondary"):
-                if confirm_text != target_label:
-                    st.error("Confirmation text does not match selected run label.")
-                else:
-                    ok, msg = _delete_run_directory(run_options[target_label])
-                    if ok:
-                        st.success(msg)
+                st.session_state["delete_pending_label"] = target_label
+                st.rerun()
+
+    pending_label = st.session_state.get("delete_pending_label")
+    if pending_label:
+        @st.dialog("Confirm Run Deletion")
+        def confirm_delete_dialog() -> None:
+            st.warning(f"Delete run `{pending_label}`? This action cannot be undone.")
+            pending_run = run_options.get(pending_label)
+            if pending_run is not None:
+                st.code(str(pending_run.root), language="text")
+            else:
+                st.caption("Run no longer exists in the current index.")
+
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("Cancel", key="delete_run_cancel_btn"):
+                    st.session_state.pop("delete_pending_label", None)
+                    st.rerun()
+            with c2:
+                if st.button("Delete", type="primary", key="delete_run_confirm_btn"):
+                    if pending_run is None:
+                        st.session_state.pop("delete_pending_label", None)
                         st.cache_data.clear()
-                        updated_runs = discover_runs(RESULTS_ROOT)
-                        if updated_runs:
-                            newest = max(updated_runs, key=_extract_run_unix_ts)
-                            st.session_state["selected_run_label"] = newest.label
-                        else:
-                            st.session_state.pop("selected_run_label", None)
                         st.rerun()
+                    ok, _ = _delete_run_directory(pending_run)
+                    st.session_state.pop("delete_pending_label", None)
+                    st.cache_data.clear()
+                    updated_runs = discover_runs(RESULTS_ROOT)
+                    if updated_runs:
+                        newest = max(updated_runs, key=_extract_run_unix_ts)
+                        st.session_state["selected_run_label"] = newest.label
                     else:
-                        st.error(msg)
+                        st.session_state.pop("selected_run_label", None)
+                    st.rerun()
+
+        confirm_delete_dialog()
 
     methods = list_methods(selected_run)
     if not methods:
