@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -77,6 +78,25 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
         return int(run.root.stat().st_mtime)
     except Exception:
         return 0
+
+
+def _is_deletable_run(run: RunLayout) -> bool:
+    return run.label.startswith("runs/") or run.label.startswith("archive/")
+
+
+def _delete_run_directory(run: RunLayout) -> tuple[bool, str]:
+    if not _is_deletable_run(run):
+        return False, "Only runs under runs/ or archive/ can be deleted from the dashboard."
+    if not run.root.exists():
+        return False, f"Run path does not exist: {run.root}"
+    try:
+        resolved = run.root.resolve()
+        if resolved == RESULTS_ROOT.resolve():
+            return False, "Refusing to delete results root."
+        shutil.rmtree(resolved)
+        return True, f"Deleted {run.label}"
+    except Exception as exc:
+        return False, f"Delete failed for {run.label}: {exc}"
 
 
 def _is_nonempty_dir(path: Path) -> bool:
@@ -926,6 +946,36 @@ def main() -> None:
         st.cache_data.clear()
         st.session_state["selected_run_label"] = latest_run.label
         st.rerun()
+
+    deletable_runs = [r for r in runs if _is_deletable_run(r)]
+    with st.sidebar.expander("Run management"):
+        if not deletable_runs:
+            st.caption("No deletable runs found.")
+        else:
+            delete_labels = [r.label for r in deletable_runs]
+            target_label = st.selectbox("Delete run", delete_labels, key="delete_target_label")
+            confirm_text = st.text_input(
+                "Type run label to confirm",
+                key="delete_confirm_text",
+                help="Must match exactly.",
+            )
+            if st.button("Delete selected run", type="secondary"):
+                if confirm_text != target_label:
+                    st.error("Confirmation text does not match selected run label.")
+                else:
+                    ok, msg = _delete_run_directory(run_options[target_label])
+                    if ok:
+                        st.success(msg)
+                        st.cache_data.clear()
+                        updated_runs = discover_runs(RESULTS_ROOT)
+                        if updated_runs:
+                            newest = max(updated_runs, key=_extract_run_unix_ts)
+                            st.session_state["selected_run_label"] = newest.label
+                        else:
+                            st.session_state.pop("selected_run_label", None)
+                        st.rerun()
+                    else:
+                        st.error(msg)
 
     methods = list_methods(selected_run)
     if not methods:
