@@ -7,6 +7,7 @@ EVAL_PYTHON="${EVAL_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_eval/bin/python}"
 RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 GPU_ID="${GPU_ID:-2}"
 MAX_PROMPTS="${MAX_PROMPTS:-}"
+NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-}"
 SEED="${SEED:-0}"
 
 METHODS=(
@@ -22,6 +23,9 @@ METHODS=(
 EXTRA_ARGS=()
 if [[ -n "${MAX_PROMPTS}" ]]; then
   EXTRA_ARGS+=(--max-prompts "${MAX_PROMPTS}")
+fi
+if [[ -n "${NUM_OUTPUT_FRAMES}" ]]; then
+  EXTRA_ARGS+=(--num-output-frames "${NUM_OUTPUT_FRAMES}")
 fi
 
 for method in "${METHODS[@]}"; do

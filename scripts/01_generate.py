@@ -210,6 +210,14 @@ def run(args: argparse.Namespace) -> None:
         device=device,
         low_memory=low_memory,
     )
+    num_frame_per_block = int(getattr(pipeline, "num_frame_per_block", 1))
+    if args.num_output_frames % num_frame_per_block != 0:
+        lower = args.num_output_frames - (args.num_output_frames % num_frame_per_block)
+        upper = lower + num_frame_per_block
+        raise ValueError(
+            f"--num-output-frames={args.num_output_frames} must be divisible by num_frame_per_block={num_frame_per_block}. "
+            f"Try {lower} or {upper}."
+        )
 
     # Pre-initialize cache once so we can attach quantizer handles.
     pipeline._initialize_kv_cache(batch_size=1, dtype=torch.bfloat16, device=device)

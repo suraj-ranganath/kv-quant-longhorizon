@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUN_NAME="${RUN_NAME:-baseline}"
 RUN_TS="${RUN_TS:-$(date +%s)}"
+NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -38,7 +39,8 @@ cat > "${RUN_ROOT}/run_meta.json" <<EOF
   "safe_run_name": "${SAFE_RUN_NAME}",
   "run_timestamp_unix": ${RUN_TS},
   "run_id": "${RUN_ID}",
-  "run_root": "${RUN_ROOT}"
+  "run_root": "${RUN_ROOT}",
+  "num_output_frames": "${NUM_OUTPUT_FRAMES}"
 }
 EOF
 
