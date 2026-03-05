@@ -34,6 +34,11 @@ QUANT_VRAM_NOTE = (
     "can be similar to or slightly above BF16 even when compressed KV bytes are much lower. "
     "This integration has removed the earlier persistent BF16+quantized dual-cache residency."
 )
+KV_BYTES_NOTE = (
+    "KV byte fields come from each method's efficiency log at run end. "
+    "`bf16_kv_bytes` is the BF16 cache-size baseline for the same cache shape, and "
+    "`compressed_kv_bytes` is the quantized cache footprint reported by the quantizer state."
+)
 
 
 @dataclass
@@ -171,8 +176,23 @@ def _metric_column_config() -> dict[str, Any]:
         ),
         "compression_ratio": st.column_config.NumberColumn(
             "compression_ratio",
-            help="Estimated BF16 KV bytes divided by estimated compressed KV bytes. Higher is better for compression.",
+            help="bf16_kv_bytes / compressed_kv_bytes from efficiency logs. Higher is better for compression.",
             format="%.4f",
+        ),
+        "bf16_kv_bytes_gb": st.column_config.NumberColumn(
+            "bf16_kv_bytes_gb",
+            help=f"BF16 KV bytes converted to GB. {KV_BYTES_NOTE}",
+            format="%.4f GB",
+        ),
+        "compressed_kv_bytes_gb": st.column_config.NumberColumn(
+            "compressed_kv_bytes_gb",
+            help=f"Compressed KV bytes converted to GB. {KV_BYTES_NOTE}",
+            format="%.4f GB",
+        ),
+        "compressed_kv_bytes": st.column_config.NumberColumn(
+            "compressed_kv_bytes",
+            help=f"Compressed KV bytes (raw integer). {KV_BYTES_NOTE}",
+            format="%d",
         ),
         "avg_runtime_s_per_prompt": st.column_config.NumberColumn(
             "avg_runtime_s_per_prompt",
@@ -368,6 +388,10 @@ def build_metric_table(run: RunLayout, methods: list[str]) -> pd.DataFrame:
             "imaging_quality": _extract_vbench_scalar(vbench.get("imaging_quality") if isinstance(vbench, dict) else None),
             "subject_consistency": _extract_vbench_scalar(vbench.get("subject_consistency") if isinstance(vbench, dict) else None),
             "aesthetic_quality": _extract_vbench_scalar(vbench.get("aesthetic_quality") if isinstance(vbench, dict) else None),
+            "bf16_kv_bytes": efficiency.get("bf16_kv_bytes"),
+            "compressed_kv_bytes": efficiency.get("compressed_kv_bytes"),
+            "bf16_kv_bytes_gb": (float(efficiency["bf16_kv_bytes"]) / (1024**3)) if efficiency.get("bf16_kv_bytes") is not None else None,
+            "compressed_kv_bytes_gb": (float(efficiency["compressed_kv_bytes"]) / (1024**3)) if efficiency.get("compressed_kv_bytes") is not None else None,
             "compression_ratio": efficiency.get("compression_ratio"),
             "total_runtime_s": efficiency.get("total_runtime_s"),
             "avg_runtime_s_per_prompt": efficiency.get("avg_runtime_s_per_prompt"),
@@ -544,6 +568,7 @@ def render_overview(df: pd.DataFrame) -> None:
         )
 
     st.markdown("### Unified method table")
+    st.caption(KV_BYTES_NOTE)
     display_cols = [
         "method",
         "videos",
@@ -555,6 +580,8 @@ def render_overview(df: pd.DataFrame) -> None:
         "imaging_quality",
         "subject_consistency",
         "aesthetic_quality",
+        "compressed_kv_bytes_gb",
+        "compressed_kv_bytes",
         "compression_ratio",
         "avg_runtime_s_per_prompt",
         "runtime_overhead_pct_vs_bf16",
