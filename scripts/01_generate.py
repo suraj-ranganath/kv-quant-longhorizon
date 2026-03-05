@@ -8,6 +8,8 @@ import re
 import subprocess
 import sys
 import time
+import threading
+import math
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -129,6 +131,40 @@ def tensor_shape_to_resolution(video: torch.Tensor) -> Tuple[int, int]:
     return int(h), int(w)
 
 
+def _sample_vram(device: torch.device, start_time: float, out_samples: List[Dict[str, float]]) -> None:
+    out_samples.append(
+        {
+            "t_s": time.perf_counter() - start_time,
+            "allocated_bytes": int(torch.cuda.memory_allocated(device)),
+            "reserved_bytes": int(torch.cuda.memory_reserved(device)),
+        }
+    )
+
+
+def collect_vram_trace(
+    device: torch.device,
+    interval_s: float,
+    stop_event: threading.Event,
+    out_samples: List[Dict[str, float]],
+) -> None:
+    start_time = time.perf_counter()
+    _sample_vram(device, start_time, out_samples)
+    while not stop_event.is_set():
+        time.sleep(interval_s)
+        _sample_vram(device, start_time, out_samples)
+    _sample_vram(device, start_time, out_samples)
+
+
+def downsample_trace(samples: List[Dict[str, float]], max_points: int) -> List[Dict[str, float]]:
+    if max_points <= 0 or len(samples) <= max_points:
+        return samples
+    stride = int(math.ceil(len(samples) / max_points))
+    reduced = samples[::stride]
+    if reduced[-1]["t_s"] != samples[-1]["t_s"]:
+        reduced.append(samples[-1])
+    return reduced
+
+
 def run(args: argparse.Namespace) -> None:
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for Self-Forcing generation.")
@@ -194,6 +230,10 @@ def run(args: argparse.Namespace) -> None:
 
     run_log_path = logs_dir / f"generation_{method_name}.jsonl"
     run_log_f = run_log_path.open("a", encoding="utf-8")
+    vram_trace_f = None
+    if args.log_vram_trace:
+        vram_trace_path = logs_dir / f"vram_trace_{method_name}.jsonl"
+        vram_trace_f = vram_trace_path.open("a", encoding="utf-8")
 
     total_runtime_s = 0.0
     peak_vram_bytes = 0
@@ -212,6 +252,16 @@ def run(args: argparse.Namespace) -> None:
             )
 
             torch.cuda.reset_peak_memory_stats(device)
+            vram_samples: List[Dict[str, float]] = []
+            trace_stop_event = threading.Event()
+            trace_thread = None
+            if args.log_vram_trace and args.vram_sample_interval_s > 0:
+                trace_thread = threading.Thread(
+                    target=collect_vram_trace,
+                    args=(device, args.vram_sample_interval_s, trace_stop_event, vram_samples),
+                    daemon=True,
+                )
+                trace_thread.start()
             start = time.perf_counter()
             with torch.no_grad():
                 video, latents = pipeline.inference(
@@ -221,7 +271,19 @@ def run(args: argparse.Namespace) -> None:
                     low_memory=low_memory,
                 )
             runtime_s = time.perf_counter() - start
+            if trace_thread is not None:
+                trace_stop_event.set()
+                trace_thread.join(timeout=5.0)
             peak = int(torch.cuda.max_memory_allocated(device))
+            if not vram_samples:
+                vram_samples = [
+                    {
+                        "t_s": 0.0,
+                        "allocated_bytes": int(torch.cuda.memory_allocated(device)),
+                        "reserved_bytes": int(torch.cuda.memory_reserved(device)),
+                    }
+                ]
+            vram_samples = downsample_trace(vram_samples, args.vram_max_points)
 
             total_runtime_s += runtime_s
             peak_vram_bytes = max(peak_vram_bytes, peak)
@@ -248,12 +310,31 @@ def run(args: argparse.Namespace) -> None:
                     "peak_vram_bytes": peak,
                     "output_video": str(out_path.relative_to(REPO_ROOT)),
                     "latents_shape": list(latents.shape),
+                    "vram_trace_points": len(vram_samples),
                 }
                 run_log_f.write(json.dumps(record, ensure_ascii=False) + "\n")
                 run_log_f.flush()
+                if vram_trace_f is not None:
+                    vram_trace_f.write(
+                        json.dumps(
+                            {
+                                "method": method_name,
+                                "prompt_id": prompt_id,
+                                "seed": prompt_seed + sample_idx,
+                                "runtime_s": runtime_s,
+                                "peak_vram_bytes": peak,
+                                "samples": vram_samples,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
+                    vram_trace_f.flush()
 
     finally:
         run_log_f.close()
+        if vram_trace_f is not None:
+            vram_trace_f.close()
 
     if pipeline.kv_cache1 is not None:
         bf16_kv_bytes = 0
@@ -320,6 +401,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--results-root", type=Path, default=REPO_ROOT / "results")
     parser.add_argument("--use-ema", action="store_true", default=True)
     parser.add_argument("--low-memory", action="store_true", help="Enable official dynamic-swap low-memory mode.")
+    parser.add_argument(
+        "--log-vram-trace",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enable per-prompt VRAM usage trace logging to logs/vram_trace_<method>.jsonl",
+    )
+    parser.add_argument("--vram-sample-interval-s", type=float, default=0.2, help="VRAM trace sampling interval in seconds.")
+    parser.add_argument("--vram-max-points", type=int, default=1000, help="Maximum stored points per prompt trace.")
     parser.add_argument("--dry-run", action="store_true")
     return parser
 

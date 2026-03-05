@@ -314,6 +314,24 @@ def load_generation_records(run: RunLayout, method: str) -> list[dict[str, Any]]
 
 
 @st.cache_data(show_spinner=False)
+def load_vram_trace_records(run: RunLayout, method: str) -> list[dict[str, Any]]:
+    path = _find_file(run.log_dirs, f"vram_trace_{method}.jsonl")
+    if path is None:
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows
+
+
+@st.cache_data(show_spinner=False)
 def load_metric_payload(run: RunLayout, prefix: str, method: str) -> dict[str, Any] | None:
     path = _find_file(run.metric_dirs, f"{prefix}_{method}.json")
     if path is None:
@@ -708,6 +726,69 @@ def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
         fig.update_layout(height=360, showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
 
+    st.markdown("### VRAM usage curves")
+    trace_rows: list[dict[str, Any]] = []
+    for method in methods:
+        for rec in load_vram_trace_records(run, method):
+            prompt_id = rec.get("prompt_id")
+            if prompt_id is None:
+                continue
+            seed = rec.get("seed")
+            for sample in rec.get("samples", []):
+                allocated_bytes = sample.get("allocated_bytes")
+                reserved_bytes = sample.get("reserved_bytes")
+                t_s = sample.get("t_s")
+                if allocated_bytes is None or reserved_bytes is None or t_s is None:
+                    continue
+                trace_rows.append(
+                    {
+                        "method": method,
+                        "prompt_id": int(prompt_id),
+                        "seed": int(seed) if seed is not None else None,
+                        "t_s": float(t_s),
+                        "allocated_gb": float(allocated_bytes) / (1024**3),
+                        "reserved_gb": float(reserved_bytes) / (1024**3),
+                    }
+                )
+
+    if trace_rows:
+        trace_df = pd.DataFrame(trace_rows)
+        prompt_ids = sorted(trace_df["prompt_id"].unique().tolist())
+        c3, c4, c5 = st.columns([1, 1, 2])
+        with c3:
+            trace_prompt_id = st.selectbox("Trace prompt ID", prompt_ids, index=0)
+        with c4:
+            trace_metric = st.selectbox("Trace metric", ["allocated_gb", "reserved_gb"], index=0)
+        with c5:
+            trace_methods = st.multiselect(
+                "Trace methods",
+                options=methods,
+                default=[m for m in ["BF16", "RTN_INT4", "KIVI_INT4", "QUAROT_KV_INT4"] if m in methods] or methods,
+            )
+        filtered = trace_df[(trace_df["prompt_id"] == trace_prompt_id) & (trace_df["method"].isin(trace_methods))]
+        if not filtered.empty:
+            fig = px.line(
+                filtered.sort_values(["method", "t_s"]),
+                x="t_s",
+                y=trace_metric,
+                color="method",
+                title=f"Per-process VRAM over time (prompt {trace_prompt_id})",
+                color_discrete_sequence=px.colors.qualitative.Bold,
+            )
+            fig.update_layout(height=380, xaxis_title="time (s)", yaxis_title=trace_metric.replace("_", " "))
+            st.plotly_chart(fig, use_container_width=True)
+            peak_summary = (
+                filtered.groupby("method", as_index=False)[trace_metric]
+                .max()
+                .rename(columns={trace_metric: f"peak_{trace_metric}"})
+                .sort_values(f"peak_{trace_metric}", ascending=False)
+            )
+            st.dataframe(peak_summary, use_container_width=True, hide_index=True)
+        else:
+            st.info("No VRAM trace points found for selected prompt/method filters.")
+    else:
+        st.info("No VRAM trace logs found in this run. New runs will include `logs/vram_trace_<method>.jsonl`.")
+
     st.markdown("### Prompt-level table")
     out_cols = [
         "method",
@@ -755,6 +836,7 @@ def render_artifacts(run: RunLayout) -> None:
         metrics_files.extend(sorted(d.glob("*.json")))
     for d in run.log_dirs:
         logs_files.extend(sorted(d.glob("generation_*.jsonl")))
+        logs_files.extend(sorted(d.glob("vram_trace_*.jsonl")))
     for d in run.table_dirs:
         table_files.extend(sorted(d.glob("baseline_summary.*")))
 

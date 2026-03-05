@@ -259,6 +259,7 @@ Key capabilities:
 - Compare methods side-by-side with video playback for the same prompt ID.
 - Inspect unified metrics across fidelity, VBench, and efficiency.
 - View prompt-level runtime/VRAM analytics from generation logs.
+- Plot per-prompt VRAM usage curves over time (`allocated` and `reserved`) for method overlays.
 - Export summary table artifacts for reporting.
 
 Install dependencies in your preferred environment:
