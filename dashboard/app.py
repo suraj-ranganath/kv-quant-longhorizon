@@ -27,6 +27,13 @@ METHOD_ORDER = [
 
 VIDEO_RE = re.compile(r"prompt_(\d+)_seed_(\d+)\.mp4$")
 
+QUANT_VRAM_NOTE = (
+    "Why quantized methods can show higher peak VRAM in this dashboard: "
+    "the current Self-Forcing hook keeps full BF16 cache tensors (`k`/`v`) allocated, "
+    "then adds quantized `quant_state`, and also allocates transient dequantized/work buffers "
+    "during cache read/write. So this is not yet a pure in-place KV memory replacement."
+)
+
 
 @dataclass
 class RunLayout:
@@ -83,6 +90,77 @@ def _order_methods(methods: set[str]) -> list[str]:
     ordered = [m for m in METHOD_ORDER if m in methods]
     extras = sorted(m for m in methods if m not in METHOD_ORDER)
     return ordered + extras
+
+
+def _metric_column_config() -> dict[str, Any]:
+    return {
+        "method": st.column_config.TextColumn("method", help="Quantization method name."),
+        "videos": st.column_config.NumberColumn(
+            "videos",
+            help="Number of generated videos discovered for the method in this run.",
+            format="%d",
+        ),
+        "logged_prompts": st.column_config.NumberColumn(
+            "logged_prompts",
+            help="Number of prompt records found in generation logs.",
+            format="%d",
+        ),
+        "psnr": st.column_config.NumberColumn(
+            "psnr",
+            help="Peak Signal-to-Noise Ratio vs BF16 reference. Higher is better.",
+            format="%.4f",
+        ),
+        "ssim": st.column_config.NumberColumn(
+            "ssim",
+            help="Structural Similarity vs BF16 reference. Higher is better.",
+            format="%.4f",
+        ),
+        "lpips": st.column_config.NumberColumn(
+            "lpips",
+            help="LPIPS vs BF16 reference. Lower is better.",
+            format="%.4f",
+        ),
+        "background_consistency": st.column_config.NumberColumn(
+            "background_consistency",
+            help="VBench background_consistency. Higher is better.",
+            format="%.4f",
+        ),
+        "imaging_quality": st.column_config.NumberColumn(
+            "imaging_quality",
+            help="VBench imaging_quality. Higher is better.",
+            format="%.4f",
+        ),
+        "subject_consistency": st.column_config.NumberColumn(
+            "subject_consistency",
+            help="VBench subject_consistency. Higher is better.",
+            format="%.4f",
+        ),
+        "aesthetic_quality": st.column_config.NumberColumn(
+            "aesthetic_quality",
+            help="VBench aesthetic_quality. Higher is better.",
+            format="%.4f",
+        ),
+        "compression_ratio": st.column_config.NumberColumn(
+            "compression_ratio",
+            help="Estimated BF16 KV bytes divided by estimated compressed KV bytes. Higher is better for compression.",
+            format="%.4f",
+        ),
+        "avg_runtime_s_per_prompt": st.column_config.NumberColumn(
+            "avg_runtime_s_per_prompt",
+            help="Average end-to-end generation time per prompt in seconds. Lower is faster.",
+            format="%.3f s",
+        ),
+        "runtime_overhead_pct_vs_bf16": st.column_config.NumberColumn(
+            "runtime_overhead_pct_vs_bf16",
+            help="Percent runtime change relative to BF16 in the same run.",
+            format="%.2f%%",
+        ),
+        "peak_vram_gb": st.column_config.NumberColumn(
+            "peak_vram_gb",
+            help=f"Peak GPU memory in GB. {QUANT_VRAM_NOTE}",
+            format="%.3f GB",
+        ),
+    }
 
 
 @st.cache_data(show_spinner=False)
@@ -348,21 +426,42 @@ def render_overview(df: pd.DataFrame) -> None:
     with c1:
         best_psnr = df["psnr"].max(skipna=True)
         label = df.loc[df["psnr"].idxmax(), "method"] if df["psnr"].notna().any() else "-"
-        st.metric("Best PSNR", f"{best_psnr:.3f}" if pd.notna(best_psnr) else "-", label)
+        st.metric(
+            "Best PSNR",
+            f"{best_psnr:.3f}" if pd.notna(best_psnr) else "-",
+            label,
+            help="Peak Signal-to-Noise Ratio vs BF16 reference. Higher is better.",
+        )
     with c2:
         best_lpips = df["lpips"].min(skipna=True)
         label = df.loc[df["lpips"].idxmin(), "method"] if df["lpips"].notna().any() else "-"
-        st.metric("Best LPIPS (lower)", f"{best_lpips:.4f}" if pd.notna(best_lpips) else "-", label)
+        st.metric(
+            "Best LPIPS (lower)",
+            f"{best_lpips:.4f}" if pd.notna(best_lpips) else "-",
+            label,
+            help="LPIPS vs BF16 reference. Lower is better.",
+        )
     with c3:
         best_comp = df["compression_ratio"].max(skipna=True)
         label = df.loc[df["compression_ratio"].idxmax(), "method"] if df["compression_ratio"].notna().any() else "-"
-        st.metric("Best Compression", f"{best_comp:.2f}x" if pd.notna(best_comp) else "-", label)
+        st.metric(
+            "Best Compression",
+            f"{best_comp:.2f}x" if pd.notna(best_comp) else "-",
+            label,
+            help="Estimated KV-cache compression ratio (BF16 bytes / compressed bytes). Higher is better.",
+        )
     with c4:
         min_runtime = df["avg_runtime_s_per_prompt"].min(skipna=True)
         label = df.loc[df["avg_runtime_s_per_prompt"].idxmin(), "method"] if df["avg_runtime_s_per_prompt"].notna().any() else "-"
-        st.metric("Fastest / Prompt", _format_seconds(min_runtime) if pd.notna(min_runtime) else "-", label)
+        st.metric(
+            "Fastest / Prompt",
+            _format_seconds(min_runtime) if pd.notna(min_runtime) else "-",
+            label,
+            help="Average generation runtime per prompt. Lower is better.",
+        )
 
     st.markdown("### Unified method table")
+    st.info(QUANT_VRAM_NOTE, icon="ℹ️")
     display_cols = [
         "method",
         "videos",
@@ -380,7 +479,12 @@ def render_overview(df: pd.DataFrame) -> None:
         "peak_vram_gb",
     ]
     table_df = df[display_cols].copy()
-    st.dataframe(table_df, use_container_width=True, hide_index=True)
+    st.dataframe(
+        table_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_metric_column_config(),
+    )
 
     chart_row_1 = st.columns(2)
     with chart_row_1[0]:
@@ -552,7 +656,27 @@ def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
         "prompt",
     ]
     existing = [c for c in out_cols if c in df.columns]
-    st.dataframe(df[existing].sort_values(["prompt_id", "method"]), use_container_width=True, hide_index=True)
+    st.dataframe(
+        df[existing].sort_values(["prompt_id", "method"]),
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "method": st.column_config.TextColumn("method", help="Quantization method name."),
+            "prompt_id": st.column_config.NumberColumn("prompt_id", help="Prompt ID from prompt file.", format="%d"),
+            "seed": st.column_config.NumberColumn("seed", help="Deterministic seed used for this prompt.", format="%d"),
+            "wall_clock_runtime_s": st.column_config.NumberColumn(
+                "wall_clock_runtime_s", help="End-to-end generation runtime for this prompt.", format="%.3f s"
+            ),
+            "peak_vram_gb": st.column_config.NumberColumn(
+                "peak_vram_gb",
+                help=f"Peak GPU memory for this prompt. {QUANT_VRAM_NOTE}",
+                format="%.3f GB",
+            ),
+            "total_frames": st.column_config.NumberColumn("total_frames", help="Total generated frames.", format="%d"),
+            "output_video": st.column_config.TextColumn("output_video", help="Relative output video path."),
+            "prompt": st.column_config.TextColumn("prompt", help="Prompt text."),
+        },
+    )
 
 
 def render_artifacts(run: RunLayout) -> None:
