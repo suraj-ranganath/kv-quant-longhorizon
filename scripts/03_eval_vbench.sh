@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 METHOD="${1:?usage: 03_eval_vbench.sh <METHOD> [VIDEOS_DIR]}"
 VIDEOS_DIR="${2:-${ROOT_DIR}/results/videos/${METHOD}}"
 PROMPT_FILE="${3:-${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt}"
@@ -11,7 +12,7 @@ FINAL_JSON="${ROOT_DIR}/results/metrics/vbench_${METHOD}.json"
 mkdir -p "${OUT_DIR}"
 
 PROMPT_MAP_JSON="${OUT_DIR}/prompt_map.json"
-python - <<'PY' "${VIDEOS_DIR}" "${PROMPT_FILE}" "${PROMPT_MAP_JSON}"
+"${PYTHON_BIN}" - <<'PY' "${VIDEOS_DIR}" "${PROMPT_FILE}" "${PROMPT_MAP_JSON}"
 import json
 import re
 import sys
@@ -35,7 +36,7 @@ out_json.write_text(json.dumps(mapping, indent=2, ensure_ascii=False), encoding=
 print(f"prompt_map_size={len(mapping)}")
 PY
 
-python "${ROOT_DIR}/third_party/VBench/evaluate.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/third_party/VBench/evaluate.py" \
   --videos_path "${VIDEOS_DIR}" \
   --mode custom_input \
   --prompt_file "${PROMPT_MAP_JSON}" \

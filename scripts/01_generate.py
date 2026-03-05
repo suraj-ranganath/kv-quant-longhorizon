@@ -26,6 +26,7 @@ if str(SELF_FORCING_ROOT) not in sys.path:
 from kv_quant.factory import create_quantizer
 from pipeline import CausalInferencePipeline, CausalDiffusionInferencePipeline
 from utils.misc import set_seed
+from demo_utils.memory import DynamicSwapInstaller, get_cuda_free_memory_gb
 
 
 def parse_method(method: str, bits: Optional[int], block_size: int):
@@ -85,7 +86,14 @@ def reset_kv_state(pipeline, quantizer):
             block["quant_state"] = None
 
 
-def initialize_pipeline(config_path: Path, default_config_path: Path, checkpoint_path: Path, use_ema: bool, device: torch.device):
+def initialize_pipeline(
+    config_path: Path,
+    default_config_path: Path,
+    checkpoint_path: Path,
+    use_ema: bool,
+    device: torch.device,
+    low_memory: bool,
+):
     config = OmegaConf.load(str(default_config_path))
     config = OmegaConf.merge(config, OmegaConf.load(str(config_path)))
 
@@ -104,7 +112,10 @@ def initialize_pipeline(config_path: Path, default_config_path: Path, checkpoint
     pipeline.generator.load_state_dict(state_dict[key])
 
     pipeline = pipeline.to(dtype=torch.bfloat16)
-    pipeline.text_encoder.to(device)
+    if low_memory:
+        DynamicSwapInstaller.install_model(pipeline.text_encoder, device=device)
+    else:
+        pipeline.text_encoder.to(device)
     pipeline.generator.to(device)
     pipeline.vae.to(device)
     return pipeline
@@ -151,12 +162,14 @@ def run(args: argparse.Namespace) -> None:
         return
 
     set_seed(args.seed)
+    low_memory = args.low_memory or get_cuda_free_memory_gb(device) < 40
     pipeline = initialize_pipeline(
         config_path=args.config_path,
         default_config_path=args.default_config_path,
         checkpoint_path=args.checkpoint_path,
         use_ema=args.use_ema,
         device=device,
+        low_memory=low_memory,
     )
 
     # Pre-initialize cache once so we can attach quantizer handles.
@@ -194,7 +207,7 @@ def run(args: argparse.Namespace) -> None:
                     noise=sampled_noise,
                     text_prompts=[prompt] * args.num_samples,
                     return_latents=True,
-                    low_memory=False,
+                    low_memory=low_memory,
                 )
             runtime_s = time.perf_counter() - start
             peak = int(torch.cuda.max_memory_allocated(device))
@@ -288,6 +301,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fps", type=int, default=16)
     parser.add_argument("--device", type=str, default="cuda:0")
     parser.add_argument("--use-ema", action="store_true", default=True)
+    parser.add_argument("--low-memory", action="store_true", help="Enable official dynamic-swap low-memory mode.")
     parser.add_argument("--dry-run", action="store_true")
     return parser
 

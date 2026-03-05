@@ -16,5 +16,14 @@ if [[ ! -f "${PATCH_FILE}" ]]; then
 fi
 
 cd "${SF_DIR}"
-git apply --check "${PATCH_FILE}" && git apply "${PATCH_FILE}"
-echo "Applied KV quantization hook patch to Self-Forcing causal_model.py"
+if git apply --check "${PATCH_FILE}" >/dev/null 2>&1; then
+  git apply "${PATCH_FILE}"
+  echo "Applied KV quantization hook patch to Self-Forcing causal_model.py"
+else
+  if git apply --reverse --check "${PATCH_FILE}" >/dev/null 2>&1; then
+    echo "Patch already applied in Self-Forcing causal_model.py"
+  else
+    echo "Patch cannot be applied cleanly; please verify third_party/Self-Forcing state."
+    exit 1
+  fi
+fi

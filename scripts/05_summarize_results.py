@@ -13,6 +13,13 @@ def load_json_or_none(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def extract_vbench_score(v):
+    # VBench output format is usually: [aggregate_score, details]
+    if isinstance(v, list) and v:
+        return v[0]
+    return v
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Summarize baseline metrics into CSV and Markdown tables.")
     parser.add_argument(
@@ -56,10 +63,10 @@ def main() -> None:
             row["lpips"] = agg.get("lpips")
 
         if vbench is not None:
-            row["background_consistency"] = vbench.get("background_consistency")
-            row["imaging_quality"] = vbench.get("imaging_quality")
-            row["subject_consistency"] = vbench.get("subject_consistency")
-            row["aesthetic_quality"] = vbench.get("aesthetic_quality")
+            row["background_consistency"] = extract_vbench_score(vbench.get("background_consistency"))
+            row["imaging_quality"] = extract_vbench_score(vbench.get("imaging_quality"))
+            row["subject_consistency"] = extract_vbench_score(vbench.get("subject_consistency"))
+            row["aesthetic_quality"] = extract_vbench_score(vbench.get("aesthetic_quality"))
 
         if efficiency is not None:
             row["compression_ratio"] = efficiency.get("compression_ratio")

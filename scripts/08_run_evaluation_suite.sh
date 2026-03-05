@@ -4,9 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INFER_PYTHON="${INFER_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python}"
 EVAL_PYTHON="${EVAL_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_eval/bin/python}"
-GPU_ID="${GPU_ID:-2}"
-MAX_PROMPTS="${MAX_PROMPTS:-}"
-SEED="${SEED:-0}"
+GPU_ID="${GPU_ID:-0}"
 
 METHODS=(
   BF16
@@ -18,25 +16,14 @@ METHODS=(
   QUAROT_KV_INT2
 )
 
-EXTRA_ARGS=()
-if [[ -n "${MAX_PROMPTS}" ]]; then
-  EXTRA_ARGS+=(--max-prompts "${MAX_PROMPTS}")
-fi
-
-for method in "${METHODS[@]}"; do
-  echo "[run] ${method}"
-  CUDA_VISIBLE_DEVICES="${GPU_ID}" "${INFER_PYTHON}" "${ROOT_DIR}/scripts/01_generate.py" \
-    --method "${method}" \
-    --seed "${SEED}" \
-    --device cuda:0 \
-    --use-ema \
-    "${EXTRA_ARGS[@]}"
-
-done
+mkdir -p "${ROOT_DIR}/results/logs"
 
 for method in "${METHODS[@]}"; do
   echo "[vbench] ${method}"
-  CUDA_VISIBLE_DEVICES="${GPU_ID}" PYTHON_BIN="${EVAL_PYTHON}" "${ROOT_DIR}/scripts/03_eval_vbench.sh" "${method}" "${ROOT_DIR}/results/videos/${method}" "${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt"
+  CUDA_VISIBLE_DEVICES="${GPU_ID}" PYTHON_BIN="${EVAL_PYTHON}" \
+    "${ROOT_DIR}/scripts/03_eval_vbench.sh" "${method}" "${ROOT_DIR}/results/videos/${method}" "${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt" \
+    >"${ROOT_DIR}/results/logs/vbench_${method}.log" 2>&1
+
 done
 
 for method in "${METHODS[@]}"; do
@@ -48,7 +35,11 @@ for method in "${METHODS[@]}"; do
     --bf16-dir "${ROOT_DIR}/results/videos/BF16" \
     --candidate-dir "${ROOT_DIR}/results/videos/${method}" \
     --output "${ROOT_DIR}/results/metrics/fidelity_${method}.json" \
-    --device cpu
+    --device cpu \
+    >"${ROOT_DIR}/results/logs/fidelity_${method}.log" 2>&1
+
 done
 
 "${INFER_PYTHON}" "${ROOT_DIR}/scripts/05_summarize_results.py"
+
+echo "Evaluation suite completed."
