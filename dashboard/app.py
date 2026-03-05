@@ -6,6 +6,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from datetime import datetime, timezone
 
 import pandas as pd
 import plotly.express as px
@@ -43,6 +44,34 @@ class RunLayout:
     log_dirs: list[Path]
     video_dirs: list[Path]
     table_dirs: list[Path]
+
+
+def _parse_archive_timestamp(name: str) -> int:
+    # Expected: YYYYMMDDTHHMMSSZ
+    try:
+        dt = datetime.strptime(name, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+        return int(dt.timestamp())
+    except Exception:
+        return 0
+
+
+def _extract_run_unix_ts(run: RunLayout) -> int:
+    meta_path = run.root / "run_meta.json"
+    if meta_path.exists():
+        payload = _read_json(meta_path)
+        if isinstance(payload, dict):
+            ts = payload.get("run_timestamp_unix")
+            if isinstance(ts, (int, float)):
+                return int(ts)
+    m = re.match(r"^runs/(\d+)_", run.label)
+    if m:
+        return int(m.group(1))
+    if run.label.startswith("archive/"):
+        return _parse_archive_timestamp(run.label.split("/", 1)[1])
+    try:
+        return int(run.root.stat().st_mtime)
+    except Exception:
+        return 0
 
 
 def _is_nonempty_dir(path: Path) -> bool:
@@ -183,7 +212,7 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
     if current_has_data:
         runs.append(
             RunLayout(
-                label="live/current",
+                label="workspace/current",
                 root=results_root,
                 metric_dirs=[current_metrics],
                 log_dirs=[current_logs],
@@ -775,11 +804,18 @@ def main() -> None:
 
     run_options = {run.label: run for run in runs}
     st.sidebar.markdown("## Run selection")
-    selected_label = st.sidebar.selectbox("Choose run", list(run_options.keys()), index=0)
+    labels = list(run_options.keys())
+    latest_run = max(runs, key=_extract_run_unix_ts)
+
+    if "selected_run_label" not in st.session_state or st.session_state["selected_run_label"] not in run_options:
+        st.session_state["selected_run_label"] = latest_run.label
+
+    selected_label = st.sidebar.selectbox("Choose run", labels, key="selected_run_label")
     selected_run = run_options[selected_label]
 
     if st.sidebar.button("Refresh run index"):
         st.cache_data.clear()
+        st.session_state["selected_run_label"] = latest_run.label
         st.rerun()
 
     methods = list_methods(selected_run)
