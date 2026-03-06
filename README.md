@@ -315,7 +315,7 @@ For reproducible runs we keep a local snapshot:
 - Source: `third_party/StoryEval/prompts/all_prompts.txt`
 - Local copy used by runners: `data/prompts/storyeval/all_prompts.txt`
 
-### StoryEval Runner (Planned CLI)
+### StoryEval Runner (Implemented)
 ```bash
 CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scripts/run_storyeval.py \
   --run_id storyeval_$(date +%s) \
@@ -330,6 +330,8 @@ Expected behavior:
 - Compute `raw_frames = round(duration_sec * fps)`.
 - Align to Self-Forcing chunking using `target_frames = ceil(raw_frames / chunk_size) * chunk_size`.
 - Log requested vs effective duration in per-prompt metadata.
+- Stable prompt IDs follow StoryEval mapping ported in `benchmarks/t2v/storyeval.py`:
+  - `sentence_to_filename(prompt)` from upstream `third_party/StoryEval/utils.py`.
 
 ### StoryEval Results Layout
 `results/benchmarks/storyeval/<run_id>/`
@@ -346,8 +348,21 @@ Expected behavior:
   - Imaging-quality over prefix clips every N frames (default 50).
   - Save JSON + plot for reporting.
 
+Run evaluation:
+```bash
+RUN_DIR="results/benchmarks/storyeval/<run_id>"
+
+python scripts/eval_storyeval_vbench.py --run_dir "${RUN_DIR}"
+python scripts/eval_storyeval_drift.py --run_dir "${RUN_DIR}" --max_prompts_for_drift 20
+python scripts/summarize_storyeval.py --run_dir "${RUN_DIR}"
+```
+
 ### StoryEval in Dashboard
 The Streamlit dashboard will include StoryEval run browsing under `results/benchmarks/storyeval/*` with:
 - run table (run_id/date/count/runtime/aggregate metrics),
 - drift plot rendering,
 - prompt-level viewer (prompt text, seed-specific videos, per-video metrics).
+
+The StoryEval dashboard page is available at:
+- `dashboard/pages/StoryEval.py`
+- launch via `./scripts/13_launch_dashboard.sh` and open the **StoryEval** page in Streamlit.
