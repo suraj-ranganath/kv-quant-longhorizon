@@ -454,6 +454,24 @@ def load_vram_trace_records(run: RunLayout, method: str) -> list[dict[str, Any]]
 
 
 @st.cache_data(show_spinner=False)
+def load_storyeval_vram_trace_records(run: RunLayout) -> list[dict[str, Any]]:
+    path = run.root / "logs" / "vram_trace_storyeval.jsonl"
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows
+
+
+@st.cache_data(show_spinner=False)
 def load_metric_payload(run: RunLayout, prefix: str, method: str) -> dict[str, Any] | None:
     path = _find_file(run.metric_dirs, f"{prefix}_{method}.json")
     if path is None:
@@ -781,6 +799,65 @@ def render_storyeval_prompt_analytics(run: RunLayout) -> None:
             )
             fig.update_layout(height=340)
             st.plotly_chart(fig, use_container_width=True)
+
+    trace_rows: list[dict[str, Any]] = []
+    for rec in load_storyeval_vram_trace_records(run):
+        prompt_id = rec.get("prompt_id")
+        seed = rec.get("seed")
+        for sample in rec.get("samples", []):
+            allocated_bytes = sample.get("allocated_bytes")
+            reserved_bytes = sample.get("reserved_bytes")
+            t_s = sample.get("t_s")
+            if allocated_bytes is None or reserved_bytes is None or t_s is None:
+                continue
+            trace_rows.append(
+                {
+                    "prompt_id": prompt_id,
+                    "seed": seed,
+                    "t_s": float(t_s),
+                    "allocated_gb": float(allocated_bytes) / (1024**3),
+                    "reserved_gb": float(reserved_bytes) / (1024**3),
+                    "bf16_kv_gb": float(sample.get("bf16_kv_bytes", 0)) / (1024**3),
+                    "compressed_kv_gb": float(sample.get("compressed_kv_bytes", 0)) / (1024**3),
+                }
+            )
+    if trace_rows:
+        trace_df = pd.DataFrame(trace_rows)
+        prompt_opts = sorted([str(x) for x in trace_df["prompt_id"].dropna().unique().tolist()])
+        if prompt_opts:
+            st.markdown("### VRAM and KV-cache traces")
+            tc1, tc2, tc3, tc4 = st.columns([1, 1, 1, 1])
+            with tc1:
+                selected_prompt = st.selectbox("Trace prompt", prompt_opts, index=0, key=f"storyeval_trace_prompt_{run.label}")
+            filtered_prompt = trace_df[trace_df["prompt_id"].astype(str) == selected_prompt]
+            seed_opts = sorted([int(x) for x in filtered_prompt["seed"].dropna().unique().tolist()])
+            with tc2:
+                selected_seed = st.selectbox("Trace seed", seed_opts, index=0, key=f"storyeval_trace_seed_{run.label}")
+            with tc3:
+                vram_metric = st.selectbox("Trace VRAM metric", ["allocated_gb", "reserved_gb"], index=0, key=f"storyeval_trace_vram_{run.label}")
+            with tc4:
+                kv_metric = st.selectbox("Trace KV metric", ["compressed_kv_gb", "bf16_kv_gb"], index=0, key=f"storyeval_trace_kv_{run.label}")
+            filtered = filtered_prompt[filtered_prompt["seed"] == selected_seed]
+            if not filtered.empty:
+                plot_cols = st.columns(2)
+                with plot_cols[0]:
+                    fig = px.line(
+                        filtered.sort_values("t_s"),
+                        x="t_s",
+                        y=vram_metric,
+                        title=f"VRAM over time ({selected_prompt}, seed {selected_seed})",
+                    )
+                    fig.update_layout(height=360, xaxis_title="time (s)", yaxis_title=vram_metric.replace("_", " "))
+                    st.plotly_chart(fig, use_container_width=True)
+                with plot_cols[1]:
+                    fig = px.line(
+                        filtered.sort_values("t_s"),
+                        x="t_s",
+                        y=kv_metric,
+                        title=f"KV-cache size over time ({selected_prompt}, seed {selected_seed})",
+                    )
+                    fig.update_layout(height=360, xaxis_title="time (s)", yaxis_title=kv_metric.replace("_", " "))
+                    st.plotly_chart(fig, use_container_width=True)
 
     drift = load_storyeval_drift(run)
     curve = drift.get("curve", []) if isinstance(drift.get("curve"), list) else []
@@ -1154,18 +1231,22 @@ def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
                         "t_s": float(t_s),
                         "allocated_gb": float(allocated_bytes) / (1024**3),
                         "reserved_gb": float(reserved_bytes) / (1024**3),
+                        "bf16_kv_gb": float(sample.get("bf16_kv_bytes", 0)) / (1024**3),
+                        "compressed_kv_gb": float(sample.get("compressed_kv_bytes", 0)) / (1024**3),
                     }
                 )
 
     if trace_rows:
         trace_df = pd.DataFrame(trace_rows)
         prompt_ids = sorted(trace_df["prompt_id"].unique().tolist())
-        c3, c4, c5 = st.columns([1, 1, 2])
+        c3, c4, c5, c6 = st.columns([1, 1, 1, 2])
         with c3:
             trace_prompt_id = st.selectbox("Trace prompt ID", prompt_ids, index=0)
         with c4:
             trace_metric = st.selectbox("Trace metric", ["allocated_gb", "reserved_gb"], index=0)
         with c5:
+            kv_trace_metric = st.selectbox("KV metric", ["compressed_kv_gb", "bf16_kv_gb"], index=0)
+        with c6:
             trace_methods = st.multiselect(
                 "Trace methods",
                 options=methods,
@@ -1173,27 +1254,46 @@ def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
             )
         filtered = trace_df[(trace_df["prompt_id"] == trace_prompt_id) & (trace_df["method"].isin(trace_methods))]
         if not filtered.empty:
-            fig = px.line(
-                filtered.sort_values(["method", "t_s"]),
-                x="t_s",
-                y=trace_metric,
-                color="method",
-                title=f"Per-process VRAM over time (prompt {trace_prompt_id})",
-                color_discrete_sequence=px.colors.qualitative.Bold,
-            )
-            fig.update_layout(height=380, xaxis_title="time (s)", yaxis_title=trace_metric.replace("_", " "))
-            st.plotly_chart(fig, use_container_width=True)
+            plot_cols = st.columns(2)
+            with plot_cols[0]:
+                fig = px.line(
+                    filtered.sort_values(["method", "t_s"]),
+                    x="t_s",
+                    y=trace_metric,
+                    color="method",
+                    title=f"VRAM over time (prompt {trace_prompt_id})",
+                    color_discrete_sequence=px.colors.qualitative.Bold,
+                )
+                fig.update_layout(height=380, xaxis_title="time (s)", yaxis_title=trace_metric.replace("_", " "))
+                st.plotly_chart(fig, use_container_width=True)
+            with plot_cols[1]:
+                fig = px.line(
+                    filtered.sort_values(["method", "t_s"]),
+                    x="t_s",
+                    y=kv_trace_metric,
+                    color="method",
+                    title=f"KV-cache size over time (prompt {trace_prompt_id})",
+                    color_discrete_sequence=px.colors.qualitative.Bold,
+                )
+                fig.update_layout(height=380, xaxis_title="time (s)", yaxis_title=kv_trace_metric.replace("_", " "))
+                st.plotly_chart(fig, use_container_width=True)
             peak_summary = (
-                filtered.groupby("method", as_index=False)[trace_metric]
+                filtered.groupby("method", as_index=False)[[trace_metric, kv_trace_metric]]
                 .max()
-                .rename(columns={trace_metric: f"peak_{trace_metric}"})
+                .rename(
+                    columns={
+                        trace_metric: f"peak_{trace_metric}",
+                        kv_trace_metric: f"peak_{kv_trace_metric}",
+                    }
+                )
                 .sort_values(f"peak_{trace_metric}", ascending=False)
             )
+            st.caption("KV-cache curve shows active cache bytes over time. Quantized methods can switch between compressed bytes and BF16-equivalent bytes.")
             st.dataframe(peak_summary, use_container_width=True, hide_index=True)
         else:
             st.info("No VRAM trace points found for selected prompt/method filters.")
     else:
-        st.info("No VRAM trace logs found in this run. New runs will include `logs/vram_trace_<method>.jsonl`.")
+        st.info("No VRAM/KV trace logs found in this run. New runs will include `logs/vram_trace_<method>.jsonl`.")
 
     st.markdown("### Prompt-level table")
     out_cols = [

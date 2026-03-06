@@ -77,3 +77,18 @@ class KIVIQuantizer(KVQuantizer):
             return packed_bytes(q.numel(), self.bits) + scale.numel() * 2 + zp.numel() * 2
 
         return _bytes_for_tensor(state["k"]) + _bytes_for_tensor(state["v"])
+
+    def estimate_active_kv_bytes(
+        self,
+        active_tokens: int,
+        batch_size: int,
+        num_heads: int,
+        head_dim: int,
+    ) -> int:
+        num_blocks = (max(active_tokens, 0) + self.block_size - 1) // self.block_size
+        q_values = batch_size * num_blocks * self.block_size * num_heads * head_dim
+        key_scale_values = batch_size * num_blocks * num_heads * head_dim
+        value_scale_values = batch_size * num_blocks * self.block_size
+        key_bytes = packed_bytes(q_values, self.bits) + key_scale_values * 2 + key_scale_values * 2
+        value_bytes = packed_bytes(q_values, self.bits) + value_scale_values * 2 + value_scale_values * 2
+        return key_bytes + value_bytes

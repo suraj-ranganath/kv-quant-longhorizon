@@ -41,3 +41,13 @@ class KVQuantizer(ABC):
     @abstractmethod
     def memory_bytes(self, state: Dict[str, Any]) -> int:
         raise NotImplementedError
+
+    @abstractmethod
+    def estimate_active_kv_bytes(
+        self,
+        active_tokens: int,
+        batch_size: int,
+        num_heads: int,
+        head_dim: int,
+    ) -> int:
+        raise NotImplementedError

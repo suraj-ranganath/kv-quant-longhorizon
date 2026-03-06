@@ -156,28 +156,65 @@ def ensure_kv_cache_capacity(pipeline, num_output_frames: int, dtype: torch.dtyp
         block["v"] = new_v
 
 
-def _sample_vram(device: torch.device, start_time: float, out_samples: List[Dict[str, float]]) -> None:
+def _current_active_kv_bytes(pipeline, quantizer) -> tuple[int, int]:
+    kv_cache = getattr(pipeline, "kv_cache1", None)
+    if kv_cache is None:
+        return 0, 0
+
+    bf16_bytes = 0
+    compressed_bytes = 0
+    for block in kv_cache:
+        active_tokens = int(block.get("local_end_index", torch.tensor([0])).item())
+        if isinstance(block.get("k"), torch.Tensor) and block["k"].ndim == 4 and block["k"].numel() > 0:
+            batch_size, _, num_heads, head_dim = block["k"].shape
+        else:
+            batch_size = int(block.get("batch_size", 0))
+            num_heads = int(block.get("num_heads", 0))
+            head_dim = int(block.get("head_dim", 0))
+        if active_tokens <= 0 or batch_size <= 0 or num_heads <= 0 or head_dim <= 0:
+            continue
+        bf16_bytes += batch_size * active_tokens * num_heads * head_dim * 2 * 2
+        if quantizer is None:
+            compressed_bytes += batch_size * active_tokens * num_heads * head_dim * 2 * 2
+        else:
+            compressed_bytes += int(
+                quantizer.estimate_active_kv_bytes(
+                    active_tokens=active_tokens,
+                    batch_size=batch_size,
+                    num_heads=num_heads,
+                    head_dim=head_dim,
+                )
+            )
+    return int(bf16_bytes), int(compressed_bytes)
+
+
+def _sample_trace(device: torch.device, pipeline, quantizer, start_time: float, out_samples: List[Dict[str, float]]) -> None:
+    bf16_kv_bytes, compressed_kv_bytes = _current_active_kv_bytes(pipeline, quantizer)
     out_samples.append(
         {
             "t_s": time.perf_counter() - start_time,
             "allocated_bytes": int(torch.cuda.memory_allocated(device)),
             "reserved_bytes": int(torch.cuda.memory_reserved(device)),
+            "bf16_kv_bytes": bf16_kv_bytes,
+            "compressed_kv_bytes": compressed_kv_bytes,
         }
     )
 
 
 def collect_vram_trace(
     device: torch.device,
+    pipeline,
+    quantizer,
     interval_s: float,
     stop_event: threading.Event,
     out_samples: List[Dict[str, float]],
 ) -> None:
     start_time = time.perf_counter()
-    _sample_vram(device, start_time, out_samples)
+    _sample_trace(device, pipeline, quantizer, start_time, out_samples)
     while not stop_event.is_set():
         time.sleep(interval_s)
-        _sample_vram(device, start_time, out_samples)
-    _sample_vram(device, start_time, out_samples)
+        _sample_trace(device, pipeline, quantizer, start_time, out_samples)
+    _sample_trace(device, pipeline, quantizer, start_time, out_samples)
 
 
 def downsample_trace(samples: List[Dict[str, float]], max_points: int) -> List[Dict[str, float]]:
@@ -292,7 +329,7 @@ def run(args: argparse.Namespace) -> None:
             if args.log_vram_trace and args.vram_sample_interval_s > 0:
                 trace_thread = threading.Thread(
                     target=collect_vram_trace,
-                    args=(device, args.vram_sample_interval_s, trace_stop_event, vram_samples),
+                    args=(device, pipeline, quantizer, args.vram_sample_interval_s, trace_stop_event, vram_samples),
                     daemon=True,
                 )
                 trace_thread.start()
@@ -315,6 +352,8 @@ def run(args: argparse.Namespace) -> None:
                         "t_s": 0.0,
                         "allocated_bytes": int(torch.cuda.memory_allocated(device)),
                         "reserved_bytes": int(torch.cuda.memory_reserved(device)),
+                        "bf16_kv_bytes": 0,
+                        "compressed_kv_bytes": 0,
                     }
                 ]
             vram_samples = downsample_trace(vram_samples, args.vram_max_points)

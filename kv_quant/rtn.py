@@ -58,3 +58,16 @@ class RTNQuantizer(KVQuantizer):
             return packed_bytes(q.numel(), self.bits) + scale.numel() * 2
 
         return _bytes_for_tensor(state["k"]) + _bytes_for_tensor(state["v"])
+
+    def estimate_active_kv_bytes(
+        self,
+        active_tokens: int,
+        batch_size: int,
+        num_heads: int,
+        head_dim: int,
+    ) -> int:
+        num_blocks = (max(active_tokens, 0) + self.block_size - 1) // self.block_size
+        q_values = batch_size * num_blocks * self.block_size * num_heads * head_dim
+        scale_values = batch_size * num_blocks * num_heads * head_dim
+        per_tensor = packed_bytes(q_values, self.bits) + scale_values * 2
+        return per_tensor * 2
