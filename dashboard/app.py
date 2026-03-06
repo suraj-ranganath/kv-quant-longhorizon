@@ -80,9 +80,6 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
     m_suffix = re.match(r"^runs/.+_(\d+)$", run.label)
     if m_suffix:
         return int(m_suffix.group(1))
-    m_any_suffix = re.match(r"^.+_(\d+)$", run.label)
-    if m_any_suffix:
-        return int(m_any_suffix.group(1))
     if run.label.startswith("archive/"):
         return _parse_archive_timestamp(run.label.split("/", 1)[1])
     try:
@@ -95,10 +92,6 @@ def _is_deletable_run(run: RunLayout) -> bool:
     if run.root.resolve() == RESULTS_ROOT.resolve():
         return False
     return run.label.startswith("runs/") or run.label.startswith("archive/")
-
-
-def _is_pbench_run(run: RunLayout) -> bool:
-    return (run.root / "summary.json").exists() and (run.root / "per_sample").exists()
 
 
 def _delete_run_directory(run: RunLayout) -> tuple[bool, str]:
@@ -246,26 +239,6 @@ def _metric_column_config() -> dict[str, Any]:
             help=f"Peak GPU memory in GB. {QUANT_VRAM_NOTE}",
             format="%.3f GB",
         ),
-        "pbench_accuracy": st.column_config.NumberColumn(
-            "pbench_accuracy",
-            help="PBench binary QA accuracy for this run/method.",
-            format="%.4f",
-        ),
-        "pbench_completed": st.column_config.NumberColumn(
-            "pbench_completed",
-            help="Completed PBench samples.",
-            format="%d",
-        ),
-        "pbench_failed": st.column_config.NumberColumn(
-            "pbench_failed",
-            help="Failed PBench samples.",
-            format="%d",
-        ),
-        "pbench_questions": st.column_config.NumberColumn(
-            "pbench_questions",
-            help="Total PBench yes/no questions evaluated.",
-            format="%d",
-        ),
     }
 
 
@@ -327,26 +300,6 @@ def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
                 }
             )
 
-    pbench_root = results_root / "pbench"
-    if pbench_root.exists():
-        for d in sorted([p for p in pbench_root.iterdir() if p.is_dir()], reverse=True):
-            summary_path = d / "summary.json"
-            per_sample_dir = d / "per_sample"
-            videos_dir = d / "videos"
-            if not summary_path.exists() or not per_sample_dir.exists():
-                continue
-            label_name = d.name if d.name.startswith("pbench_") else f"pbench_{d.name}"
-            runs.append(
-                {
-                    "label": f"runs/{label_name}",
-                    "root": str(d),
-                    "metric_dirs": [str(d)],
-                    "log_dirs": [str(d), str(per_sample_dir)],
-                    "video_dirs": [str(videos_dir), str(d)],
-                    "table_dirs": [str(d)],
-                }
-            )
-
     archive_root = results_root / "archive"
     if archive_root.exists():
         for d in sorted([p for p in archive_root.iterdir() if p.is_dir()], reverse=True):
@@ -396,15 +349,6 @@ def load_prompts(prompts_path: Path) -> dict[int, str]:
 @st.cache_data(show_spinner=False)
 def list_methods(run: RunLayout) -> list[str]:
     methods: set[str] = set()
-
-    if _is_pbench_run(run):
-        summary = _read_json(run.root / "summary.json") or {}
-        method = summary.get("method")
-        if isinstance(method, str) and method.strip():
-            methods.add(method.strip())
-        else:
-            methods.add("self_forcing_wan_1.3b")
-        return _order_methods(methods)
 
     for d in run.metric_dirs:
         for prefix in ["efficiency", "fidelity", "vbench"]:
@@ -469,58 +413,6 @@ def load_metric_payload(run: RunLayout, prefix: str, method: str) -> dict[str, A
 @st.cache_data(show_spinner=False)
 def build_metric_table(run: RunLayout, methods: list[str]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
-
-    if _is_pbench_run(run):
-        summary = _read_json(run.root / "summary.json") or {}
-        counts = summary.get("counts", {}) if isinstance(summary, dict) else {}
-        records = load_pbench_per_sample_records(str(run.root / "per_sample"))
-
-        num_videos = len(list((run.root / "videos").glob("*.mp4"))) if (run.root / "videos").exists() else 0
-        peak_vram_bytes = max(
-            [
-                int(r.get("peak_vram_bytes"))
-                for r in records
-                if isinstance(r.get("peak_vram_bytes"), (int, float))
-            ],
-            default=0,
-        )
-        method_names = methods or [summary.get("method", "self_forcing_wan_1.3b")]
-        for method in method_names:
-            rows.append(
-                {
-                    "method": method,
-                    "videos": num_videos,
-                    "logged_prompts": len(records),
-                    "psnr": None,
-                    "ssim": None,
-                    "lpips": None,
-                    "background_consistency": None,
-                    "imaging_quality": None,
-                    "subject_consistency": None,
-                    "aesthetic_quality": None,
-                    "bf16_kv_bytes": None,
-                    "compressed_kv_bytes": None,
-                    "bf16_kv_bytes_gb": None,
-                    "compressed_kv_bytes_gb": None,
-                    "compression_ratio": None,
-                    "total_runtime_s": summary.get("avg_runtime_s"),
-                    "avg_runtime_s_per_prompt": summary.get("avg_runtime_s"),
-                    "peak_vram_gb": (float(peak_vram_bytes) / (1024**3)) if peak_vram_bytes > 0 else None,
-                    "quantize_time_s": None,
-                    "dequantize_time_s": None,
-                    "runtime_overhead_pct_vs_bf16": None,
-                    "peak_vram_delta_gb_vs_bf16": None,
-                    "pbench_accuracy": summary.get("accuracy_overall"),
-                    "pbench_completed": counts.get("completed"),
-                    "pbench_failed": counts.get("failed"),
-                    "pbench_questions": counts.get("total_questions"),
-                }
-            )
-        df = pd.DataFrame(rows)
-        if df.empty:
-            return df
-        df["method"] = pd.Categorical(df["method"], categories=_order_methods(set(df["method"].tolist())), ordered=True)
-        return df.sort_values("method").reset_index(drop=True)
 
     for method in methods:
         efficiency = load_metric_payload(run, "efficiency", method) or {}
@@ -688,39 +580,6 @@ def render_overview(df: pd.DataFrame) -> None:
         st.warning("No metrics are available for the selected run yet.")
         return
 
-    if "pbench_accuracy" in df.columns and df["pbench_accuracy"].notna().any():
-        row = df.iloc[0]
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.metric("PBench Accuracy", f"{float(row.get('pbench_accuracy', 0.0)):.4f}")
-        with c2:
-            st.metric("Completed", int(row.get("pbench_completed") or 0))
-        with c3:
-            st.metric("Failed", int(row.get("pbench_failed") or 0))
-        with c4:
-            st.metric("Questions", int(row.get("pbench_questions") or 0))
-
-        st.markdown("### Unified method table")
-        display_cols = [
-            "method",
-            "videos",
-            "logged_prompts",
-            "pbench_accuracy",
-            "pbench_completed",
-            "pbench_failed",
-            "pbench_questions",
-            "avg_runtime_s_per_prompt",
-            "peak_vram_gb",
-        ]
-        table_df = df[[c for c in display_cols if c in df.columns]].copy()
-        st.dataframe(
-            table_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config=_metric_column_config(),
-        )
-        return
-
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         best_psnr = df["psnr"].max(skipna=True)
@@ -848,92 +707,6 @@ def render_video_comparison(
     prompts: dict[int, str],
     video_index: dict[str, dict[int, Path]],
 ) -> None:
-    if _is_pbench_run(run):
-        records = load_pbench_per_sample_records(str(run.root / "per_sample"))
-        if not records:
-            st.warning("No per-sample records found for this PBench run.")
-            return
-
-        filter_opts = ["all", "correct", "incorrect", "pending", "failed", "no_qa"]
-        selected_filter = st.selectbox("Sample filter", filter_opts, index=0, key=f"pbench_video_filter_{run.label}")
-        filtered_records = [r for r in records if selected_filter == "all" or _pbench_sample_status(r) == selected_filter]
-        if not filtered_records:
-            st.info("No samples match this filter.")
-            return
-
-        selector_labels = [
-            f"{r.get('sample_id')} | seed={r.get('seed')} | status={_pbench_sample_status(r)}" for r in filtered_records
-        ]
-        picked_label = st.selectbox("Sample", selector_labels, index=0, key=f"pbench_video_record_{run.label}")
-        rec = filtered_records[selector_labels.index(picked_label)]
-
-        st.markdown(f"**Prompt:** {rec.get('prompt', '')}")
-        cond_image_path = rec.get("cond_image_path")
-        if isinstance(cond_image_path, str) and Path(cond_image_path).exists():
-            st.image(cond_image_path, caption="Conditioning image", use_container_width=True)
-
-        method_name = methods[0] if methods else "self_forcing_wan_1.3b"
-        st.markdown(f"#### {method_name}")
-        video_path = rec.get("generated_video_path")
-        if isinstance(video_path, str) and Path(video_path).exists():
-            st.video(video_path)
-        elif isinstance(video_path, str):
-            alt = run.root / "videos" / Path(video_path).name
-            if alt.exists():
-                st.video(str(alt))
-            else:
-                st.caption("Video file not found.")
-        else:
-            st.caption("Video path missing.")
-
-        qa_rows = rec.get("qa_results", [])
-        if qa_rows:
-            st.dataframe(pd.DataFrame(qa_rows), use_container_width=True, hide_index=True)
-        else:
-            st.caption("No QA rows for this sample.")
-
-        run_config = _read_json(run.root / "config.json") or {}
-        if run_config.get("evaluator") == "manual" and qa_rows:
-            st.markdown("#### Manual QA Update")
-            with st.form(f"manual_update_{run.label}_{rec.get('sample_id')}_{rec.get('seed')}"):
-                updates: dict[int, str] = {}
-                for idx, qa in enumerate(qa_rows):
-                    q = str(qa.get("question", f"question_{idx}"))
-                    updates[idx] = st.selectbox(
-                        f"Q{idx + 1}: {q}",
-                        options=["Keep", "True", "False", "Unset (Pending)"],
-                        index=0,
-                        key=f"manual_choice_{run.label}_{rec.get('sample_id')}_{rec.get('seed')}_{idx}",
-                    )
-                submitted = st.form_submit_button("Save Manual Predictions")
-            if submitted:
-                changed = False
-                for idx, choice in updates.items():
-                    if choice == "Keep":
-                        continue
-                    qa = qa_rows[idx]
-                    if choice == "Unset (Pending)":
-                        qa["pred_answer"] = None
-                        qa["correct"] = None
-                        qa["pending"] = True
-                    else:
-                        pred = choice == "True"
-                        qa["pred_answer"] = pred
-                        qa["correct"] = pred == bool(qa.get("gt_answer", False))
-                        qa["pending"] = False
-                    changed = True
-                if changed:
-                    rec_path = Path(rec["__path"])
-                    rec_path.write_text(json.dumps(rec, indent=2, ensure_ascii=False), encoding="utf-8")
-                    updated_records = load_pbench_per_sample_records(str(run.root / "per_sample"))
-                    updated_summary = _summarize_pbench_records(updated_records, run.root.name, run_config)
-                    (run.root / "summary.json").write_text(
-                        json.dumps(updated_summary, indent=2, ensure_ascii=False), encoding="utf-8"
-                    )
-                    st.success("Manual predictions saved and summary updated.")
-                    st.rerun()
-        return
-
     if not video_index:
         st.warning("No videos found for this run yet.")
         return
@@ -986,86 +759,6 @@ def render_video_comparison(
 
 
 def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
-    if _is_pbench_run(run):
-        records = load_pbench_per_sample_records(str(run.root / "per_sample"))
-        if not records:
-            st.warning("No per-sample records available for prompt analytics.")
-            return
-
-        rows: list[dict[str, Any]] = []
-        method_name = methods[0] if methods else "self_forcing_wan_1.3b"
-        for idx, rec in enumerate(records):
-            runtime = rec.get("runtime_s")
-            if runtime is None:
-                runtime = rec.get("runtime")
-            peak_vram = rec.get("peak_vram_bytes")
-            if peak_vram is None:
-                peak_vram = rec.get("peak_vram")
-            qa = rec.get("qa_results", [])
-            answered = [q for q in qa if isinstance(q.get("pred_answer"), bool) and not bool(q.get("pending", False))]
-            correct = [q for q in answered if bool(q.get("correct", False))]
-            rows.append(
-                {
-                    "method": method_name,
-                    "prompt_id": idx,
-                    "sample_id": rec.get("sample_id"),
-                    "seed": rec.get("seed"),
-                    "wall_clock_runtime_s": runtime,
-                    "peak_vram_bytes": peak_vram,
-                    "peak_vram_gb": (float(peak_vram) / (1024**3)) if isinstance(peak_vram, (int, float)) else None,
-                    "questions": len(qa),
-                    "answered_questions": len(answered),
-                    "correct_answers": len(correct),
-                    "sample_accuracy": (len(correct) / len(answered)) if len(answered) > 0 else None,
-                    "status": _pbench_sample_status(rec),
-                    "output_video": rec.get("generated_video_path"),
-                    "prompt": rec.get("prompt"),
-                }
-            )
-
-        df = pd.DataFrame(rows)
-        c1, c2 = st.columns(2)
-        with c1:
-            fig = px.line(
-                df.sort_values("prompt_id"),
-                x="prompt_id",
-                y="wall_clock_runtime_s",
-                color="method",
-                markers=True,
-                title="Per-sample runtime",
-                color_discrete_sequence=px.colors.qualitative.Bold,
-            )
-            fig.update_layout(height=360)
-            st.plotly_chart(fig, use_container_width=True)
-        with c2:
-            fig = px.bar(
-                df.sort_values("prompt_id"),
-                x="prompt_id",
-                y="sample_accuracy",
-                color="status",
-                title="Per-sample QA accuracy",
-                color_discrete_sequence=px.colors.qualitative.Bold,
-            )
-            fig.update_layout(height=360)
-            st.plotly_chart(fig, use_container_width=True)
-
-        out_cols = [
-            "sample_id",
-            "seed",
-            "status",
-            "wall_clock_runtime_s",
-            "peak_vram_gb",
-            "questions",
-            "answered_questions",
-            "correct_answers",
-            "sample_accuracy",
-            "output_video",
-            "prompt",
-        ]
-        st.markdown("### Sample-level table")
-        st.dataframe(df[out_cols], use_container_width=True, hide_index=True)
-        return
-
     records: list[dict[str, Any]] = []
     for method in methods:
         for row in load_generation_records(run, method):
@@ -1212,42 +905,6 @@ def render_prompt_analytics(run: RunLayout, methods: list[str]) -> None:
 def render_artifacts(run: RunLayout) -> None:
     st.markdown("### Run artifacts")
     st.code(str(run.root), language="text")
-
-    if _is_pbench_run(run):
-        summary_path = run.root / "summary.json"
-        config_path = run.root / "config.json"
-        logs_path = run.root / "logs.txt"
-        per_sample_dir = run.root / "per_sample"
-        videos_dir = run.root / "videos"
-
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown("**Core files**")
-            files = [p for p in [summary_path, config_path, logs_path] if p.exists()]
-            if files:
-                st.write("\n".join([p.name for p in files]))
-            else:
-                st.write("No core files found")
-        with c2:
-            st.markdown("**Per-sample records**")
-            count = len(list(per_sample_dir.glob("*.json"))) if per_sample_dir.exists() else 0
-            st.write(f"{count} json files")
-        with c3:
-            st.markdown("**Videos**")
-            count = len(list(videos_dir.glob("*.mp4"))) if videos_dir.exists() else 0
-            st.write(f"{count} mp4 files")
-
-        if summary_path.exists():
-            payload = _read_json(summary_path) or {}
-            st.markdown("### summary.json")
-            st.json(payload)
-            st.download_button(
-                "Download summary.json",
-                data=summary_path.read_bytes(),
-                file_name=f"{run.label.replace('/', '_')}_summary.json",
-                mime="application/json",
-            )
-        return
 
     metrics_files: list[Path] = []
     logs_files: list[Path] = []
@@ -1665,7 +1322,7 @@ def main() -> None:
     if methods:
         selected_methods = st.sidebar.multiselect("Methods", methods, default=methods)
     else:
-        st.sidebar.caption("No methods discovered for the selected run.")
+        st.sidebar.caption("No baseline methods discovered for the selected run.")
 
     prompts_path = Path(
         st.sidebar.text_input("Prompt file", value=str(DEFAULT_PROMPTS_FILE), help="Used to show prompt text by prompt_id")
@@ -1690,7 +1347,9 @@ def main() -> None:
         int(metric_df["logged_prompts"].max()) if not metric_df.empty and "logged_prompts" in metric_df.columns else 0,
     )
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Video Explorer", "Prompt Analytics", "Artifacts"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        ["Overview", "Video Explorer", "Prompt Analytics", "Artifacts", "Embodied (PBench)"]
+    )
 
     with tab1:
         if selected_methods:
@@ -1709,6 +1368,8 @@ def main() -> None:
             st.info("No prompt-level baseline analytics available for this run.")
     with tab4:
         render_artifacts(selected_run)
+    with tab5:
+        render_pbench_tab()
 
 
 if __name__ == "__main__":

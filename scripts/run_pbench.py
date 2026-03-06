@@ -34,7 +34,7 @@ from benchmarks.embodied.types import RunRecord
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run PBench evaluation using Self-Forcing-Wan-1.3B.")
-    parser.add_argument("--run_id", type=str, default=f"pbench_{int(time.time())}")
+    parser.add_argument("--run_id", type=str, default=str(int(time.time())))
     parser.add_argument("--out_root", type=Path, default=REPO_ROOT / "results" / "pbench")
     parser.add_argument("--split", type=str, default=None)
     parser.add_argument("--max_samples", type=int, default=None)
