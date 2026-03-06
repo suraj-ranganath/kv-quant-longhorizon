@@ -426,7 +426,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--default-config-path", type=Path, default=SELF_FORCING_ROOT / "configs" / "default_config.yaml")
     parser.add_argument("--checkpoint-path", type=Path, default=REPO_ROOT / "checkpoints" / "self_forcing_dmd.pt")
     parser.add_argument("--prompt-path", type=Path, default=REPO_ROOT / "prompts" / "MovieGenVideoBench_extended.txt")
-    parser.add_argument("--num-output-frames", type=int, default=21)
+    parser.add_argument("--num-output-frames", type=int, default=42)
     parser.add_argument("--num-samples", type=int, default=1)
     parser.add_argument("--max-prompts", type=int, default=None)
     parser.add_argument("--seed", type=int, default=0)

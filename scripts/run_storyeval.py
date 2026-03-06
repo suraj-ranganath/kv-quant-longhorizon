@@ -188,11 +188,23 @@ def _select_prompts(loader: StoryEvalLoader, start_idx: int, end_idx: int | None
     return selected
 
 
-def _compute_frame_targets(duration_sec: float, fps: int, chunk_size: int) -> tuple[int, int, float]:
-    raw_frames = max(1, int(round(duration_sec * fps)))
-    target_frames = int(math.ceil(raw_frames / chunk_size) * chunk_size)
-    effective_duration_sec = target_frames / float(fps)
-    return raw_frames, target_frames, effective_duration_sec
+def _compute_frame_targets(
+    duration_sec: float, fps: int, chunk_size: int
+) -> tuple[int, int, int, int, float]:
+    # Self-Forcing/Wan latent-to-pixel mapping is approximately:
+    # output_frames = 4 * latent_frames - 3
+    raw_output_frames = max(1, int(round(duration_sec * fps)))
+    raw_latent_frames = max(1, int(math.ceil((raw_output_frames + 3) / 4.0)))
+    target_latent_frames = int(math.ceil(raw_latent_frames / chunk_size) * chunk_size)
+    target_output_frames = int(4 * target_latent_frames - 3)
+    effective_duration_sec = target_output_frames / float(fps)
+    return (
+        raw_output_frames,
+        raw_latent_frames,
+        target_latent_frames,
+        target_output_frames,
+        effective_duration_sec,
+    )
 
 
 def run(args: argparse.Namespace) -> None:
@@ -218,7 +230,13 @@ def run(args: argparse.Namespace) -> None:
     )
     fps = int(args.fps) if args.fps is not None else _resolve_default_fps(merged_cfg)
     chunk_size = int(args.chunk_size) if args.chunk_size is not None else _resolve_default_chunk_size(merged_cfg)
-    raw_frames, target_frames, effective_duration_sec = _compute_frame_targets(args.duration_sec, fps, chunk_size)
+    (
+        raw_output_frames,
+        raw_latent_frames,
+        target_latent_frames,
+        target_output_frames,
+        effective_duration_sec,
+    ) = _compute_frame_targets(args.duration_sec, fps, chunk_size)
 
     loader = StoryEvalLoader(args.prompt_file)
     prompts = _select_prompts(loader, args.start_idx, args.end_idx, args.max_prompts)
@@ -237,15 +255,18 @@ def run(args: argparse.Namespace) -> None:
     )
 
     num_frame_per_block = int(getattr(pipeline, "num_frame_per_block", 1))
-    if target_frames % num_frame_per_block != 0:
-        target_frames = int(math.ceil(target_frames / num_frame_per_block) * num_frame_per_block)
-        effective_duration_sec = target_frames / float(fps)
+    if target_latent_frames % num_frame_per_block != 0:
+        target_latent_frames = int(math.ceil(target_latent_frames / num_frame_per_block) * num_frame_per_block)
+        target_output_frames = int(4 * target_latent_frames - 3)
+        effective_duration_sec = target_output_frames / float(fps)
 
     latent_c, latent_h, latent_w = _resolve_latent_shape(merged_cfg)
 
     pipeline._initialize_kv_cache(batch_size=1, dtype=torch.bfloat16, device=device)
     pipeline._initialize_crossattn_cache(batch_size=1, dtype=torch.bfloat16, device=device)
-    ensure_kv_cache_capacity(pipeline, target_frames, dtype=torch.bfloat16, device=device)
+    # For >block-length generation, allocate enough KV to avoid cache-index rollover errors.
+    # At the current 10s default (~42 latent frames), this fits on A5000.
+    ensure_kv_cache_capacity(pipeline, target_latent_frames, dtype=torch.bfloat16, device=device)
 
     run_config = {
         "benchmark": "storyeval",
@@ -262,10 +283,12 @@ def run(args: argparse.Namespace) -> None:
         "chunk_size": chunk_size,
         "num_frame_per_block": num_frame_per_block,
         "duration_sec_requested": args.duration_sec,
-        "raw_frames": raw_frames,
-        "target_frames": target_frames,
+        "raw_output_frames": raw_output_frames,
+        "raw_latent_frames": raw_latent_frames,
+        "target_latent_frames": target_latent_frames,
+        "target_frames": target_output_frames,
         "effective_duration_sec": effective_duration_sec,
-        "latent_shape_cthw": [latent_c, target_frames, latent_h, latent_w],
+        "latent_shape_cthw": [latent_c, target_latent_frames, latent_h, latent_w],
         "sf_config_path": str(args.sf_config_path),
         "sf_default_config_path": str(args.sf_default_config_path),
         "sf_checkpoint_path": str(args.sf_checkpoint_path),
@@ -302,7 +325,7 @@ def run(args: argparse.Namespace) -> None:
                 reset_kv_state(pipeline)
                 set_seed(seed)
                 sampled_noise = torch.randn(
-                    [1, target_frames, latent_c, latent_h, latent_w],
+                    [1, target_latent_frames, latent_c, latent_h, latent_w],
                     device=device,
                     dtype=torch.bfloat16,
                 )
@@ -374,8 +397,10 @@ def run(args: argparse.Namespace) -> None:
                     "num_frame_per_block": num_frame_per_block,
                     "duration_sec_requested": args.duration_sec,
                     "effective_duration_sec": effective_duration_sec,
-                    "raw_frames": raw_frames,
-                    "target_frames": target_frames,
+                    "raw_output_frames": raw_output_frames,
+                    "raw_latent_frames": raw_latent_frames,
+                    "target_latent_frames": target_latent_frames,
+                    "target_frames": target_output_frames,
                     "total_frames": total_frames,
                     "resolution": resolution,
                     "wall_time_sec": runtime_s,
@@ -421,8 +446,10 @@ def run(args: argparse.Namespace) -> None:
         "max_peak_vram_mb": max(peaks_mb) if peaks_mb else None,
         "fps": fps,
         "duration_sec_requested": args.duration_sec,
-        "raw_frames": raw_frames,
-        "target_frames": target_frames,
+        "raw_output_frames": raw_output_frames,
+        "raw_latent_frames": raw_latent_frames,
+        "target_latent_frames": target_latent_frames,
+        "target_frames": target_output_frames,
         "effective_duration_sec": effective_duration_sec,
     }
     (summary_dir / "runner_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
@@ -438,7 +465,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--end_idx", type=int, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--seeds_per_prompt", type=int, default=1)
-    parser.add_argument("--duration_sec", type=float, default=15.0)
+    parser.add_argument("--duration_sec", type=float, default=10.0)
     parser.add_argument("--fps", type=int, default=None)
     parser.add_argument("--chunk_size", type=int, default=None)
     parser.add_argument("--sf_config_path", type=Path, default=SELF_FORCING_ROOT / "configs" / "self_forcing_dmd.yaml")
@@ -456,4 +483,3 @@ def build_parser() -> argparse.ArgumentParser:
 
 if __name__ == "__main__":
     run(build_parser().parse_args())
-

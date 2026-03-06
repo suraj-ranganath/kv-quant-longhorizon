@@ -111,7 +111,7 @@ def _build_per_video_metric_map(vbench: dict[str, Any]) -> dict[str, dict[str, A
 
 def render() -> None:
     st.set_page_config(page_title="StoryEval", layout="wide")
-    st.title("StoryEval Benchmark (T2V, 15s)")
+    st.title("StoryEval Benchmark (T2V, default 10s)")
     st.caption("Long-horizon benchmark runs under `results/benchmarks/storyeval/*`.")
 
     if not STORYEVAL_ROOT.exists():
@@ -240,4 +240,3 @@ def render() -> None:
 
 if __name__ == "__main__":
     render()
-

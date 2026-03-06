@@ -297,7 +297,7 @@ Each run directory contains:
 - `plots/`
 - `run_meta.json` (run name, timestamp, run ID)
 
-## 15) StoryEval Integration Plan (T2V Long-Horizon, 15s)
+## 15) StoryEval Integration Plan (T2V Long-Horizon, 10s Default)
 StoryEval is a long-horizon text-to-video benchmark focused on multi-event prompt completion and temporal coherence. We add it to complement MovieGen-style prompts with longer, compositional stories while keeping the model fixed to **Self-Forcing-Wan-1.3B (T2V only)**.
 
 Upstream:
@@ -307,7 +307,7 @@ Upstream:
 
 Replication policy for this repository:
 - T2V only (no image conditioning path).
-- Default StoryEval generation duration: **15 seconds**.
+- Default StoryEval generation duration: **10 seconds**.
 - Prompt IDs must follow StoryEval filename mapping logic (`sentence_to_filename`) ported into this repo for stable reproducibility.
 
 ### StoryEval Prompt Snapshot
@@ -323,7 +323,7 @@ CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scrip
   --max_prompts 5 \
   --seed 0 \
   --seeds_per_prompt 1 \
-  --duration_sec 15
+  --duration_sec 10
 ```
 
 Expected behavior:
