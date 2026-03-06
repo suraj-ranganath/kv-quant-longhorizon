@@ -20,6 +20,9 @@ Primary objective:
 - KIVI paper: https://proceedings.mlr.press/v235/liu24bz.html
 - QuaRot repo: https://github.com/spcl/QuaRot
 - QuaRot paper: https://arxiv.org/abs/2404.00456
+- PBench project page: https://research.nvidia.com/labs/dir/pbench/
+- PBench HF dataset: https://huggingface.co/datasets/nvidia/PBench
+- GR00T-Dreams (optional later): https://github.com/NVIDIA/GR00T-Dreams
 
 ## 3) Experimental Scope
 In-scope replication target:
@@ -255,7 +258,7 @@ Suggested initial commit message:
 The project includes a Streamlit dashboard at `dashboard/app.py` to present results and compare methods visually.
 
 Key capabilities:
-- Select between `live/current` and archived runs under `results/archive/*`.
+- Select and compare timestamped runs under `results/runs/*`.
 - Compare methods side-by-side with video playback for the same prompt ID.
 - Inspect unified metrics across fidelity, VBench, and efficiency.
 - View prompt-level runtime/VRAM analytics from generation logs.
@@ -281,7 +284,7 @@ Optional:
 ## 14) Run Naming and Isolation
 To keep experiments reproducible and prevent overwriting outputs, full pipeline runs are stored under:
 
-`results/runs/<unix_timestamp>_<run_name>/`
+`results/runs/<run_name>_<unix_timestamp>/`
 
 Example:
 
@@ -296,3 +299,67 @@ Each run directory contains:
 - `tables/`
 - `plots/`
 - `run_meta.json` (run name, timestamp, run ID)
+
+## 15) Embodied Benchmark (PBench) with Self-Forcing-Wan-1.3B
+This repo also supports a dataset-driven embodied benchmark workflow with **PBench**, while keeping generation fixed to **Self-Forcing-Wan-1.3B**.
+
+Scope:
+- No simulator or policy-learning integration in Phase 1.
+- For each sample: load prompt + optional conditioning image + yes/no QA pairs, generate video, score QA.
+- Evaluators in Phase 1: `heuristic` and `manual` (human-in-the-loop queue).
+
+Implementation layout:
+- `benchmarks/embodied/types.py`
+- `benchmarks/embodied/pbench.py`
+- `benchmarks/embodied/evaluator.py`
+- `benchmarks/embodied/io.py`
+- `scripts/run_pbench.py`
+
+Results layout:
+- `results/pbench/<run_id>/videos/*.mp4`
+- `results/pbench/<run_id>/per_sample/*.json`
+- `results/pbench/<run_id>/summary.json`
+- `results/pbench/<run_id>/config.json`
+- `results/pbench/<run_id>/logs.txt`
+
+### Setup for PBench
+Install `datasets` in the inference environment:
+
+```bash
+pip install -r requirements-inference.txt
+pip install datasets pillow
+```
+
+If your HF account has access to gated dataset `nvidia/PBench`, authenticate before running:
+
+```bash
+huggingface-cli login
+```
+
+### PBench smoke test
+```bash
+CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scripts/run_pbench.py \
+  --max_samples 5 \
+  --seeds_per_sample 1 \
+  --evaluator heuristic
+```
+
+### PBench full run
+```bash
+CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scripts/run_pbench.py \
+  --split train \
+  --seeds_per_sample 1 \
+  --evaluator manual
+```
+
+### Streamlit viewing
+The existing dashboard includes a dedicated PBench section for:
+- dataset sample browsing
+- run summary tables
+- per-sample QA inspection
+- manual evaluator updates
+
+### Conditioning-image handling note
+For PBench samples with conditioning images:
+- the pipeline attempts to route images through Self-Forcing's image-conditioned path by encoding to initial latent when possible.
+- if conditioning cannot be applied for a sample, it is explicitly logged and generation falls back to text-only T2V for that sample.
