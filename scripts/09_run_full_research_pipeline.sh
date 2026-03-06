@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 SAFE_RUN_NAME="$(echo "${RUN_NAME}" | tr ' ' '_' | tr -cd '[:alnum:]_.-')"
-RUN_ID="${RUN_TS}_${SAFE_RUN_NAME}"
+RUN_ID="${SAFE_RUN_NAME}_${RUN_TS}"
 RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results/runs/${RUN_ID}}"
 mkdir -p "${RUN_ROOT}/videos" "${RUN_ROOT}/metrics" "${RUN_ROOT}/logs" "${RUN_ROOT}/tables" "${RUN_ROOT}/plots"
 

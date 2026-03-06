@@ -131,6 +131,31 @@ def tensor_shape_to_resolution(video: torch.Tensor) -> Tuple[int, int]:
     return int(h), int(w)
 
 
+def ensure_kv_cache_capacity(pipeline, num_output_frames: int, dtype: torch.dtype, device: torch.device) -> None:
+    if not hasattr(pipeline, "kv_cache1") or pipeline.kv_cache1 is None:
+        return
+    frame_seq_length = int(getattr(pipeline, "frame_seq_length", 0))
+    if frame_seq_length <= 0:
+        return
+    required_tokens = int(num_output_frames) * frame_seq_length
+    for block in pipeline.kv_cache1:
+        k = block.get("k")
+        v = block.get("v")
+        if not isinstance(k, torch.Tensor) or not isinstance(v, torch.Tensor) or k.ndim != 4 or v.ndim != 4:
+            continue
+        current_tokens = int(k.shape[1])
+        if required_tokens <= current_tokens:
+            continue
+        batch_size, _, num_heads, head_dim = k.shape
+        new_k = torch.zeros([batch_size, required_tokens, num_heads, head_dim], dtype=dtype, device=device)
+        new_v = torch.zeros_like(new_k)
+        if current_tokens > 0:
+            new_k[:, :current_tokens] = k
+            new_v[:, :current_tokens] = v
+        block["k"] = new_k
+        block["v"] = new_v
+
+
 def _sample_vram(device: torch.device, start_time: float, out_samples: List[Dict[str, float]]) -> None:
     out_samples.append(
         {
@@ -222,6 +247,7 @@ def run(args: argparse.Namespace) -> None:
     # Pre-initialize cache once so we can attach quantizer handles.
     pipeline._initialize_kv_cache(batch_size=1, dtype=torch.bfloat16, device=device)
     pipeline._initialize_crossattn_cache(batch_size=1, dtype=torch.bfloat16, device=device)
+    ensure_kv_cache_capacity(pipeline, args.num_output_frames, dtype=torch.bfloat16, device=device)
     if quantizer is not None:
         quantizer.reset_stats()
         for block in pipeline.kv_cache1:

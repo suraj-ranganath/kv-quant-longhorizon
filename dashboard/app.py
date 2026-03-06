@@ -62,6 +62,9 @@ def _parse_archive_timestamp(name: str) -> int:
 
 
 def _extract_run_unix_ts(run: RunLayout) -> int:
+    if run.root.resolve() == RESULTS_ROOT.resolve():
+        # Root-level results/ is legacy workspace data, not a timestamped run.
+        return -1
     meta_path = run.root / "run_meta.json"
     if meta_path.exists():
         payload = _read_json(meta_path)
@@ -69,9 +72,12 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
             ts = payload.get("run_timestamp_unix")
             if isinstance(ts, (int, float)):
                 return int(ts)
-    m = re.match(r"^runs/(\d+)_", run.label)
-    if m:
-        return int(m.group(1))
+    m_prefix = re.match(r"^runs/(\d+)_", run.label)
+    if m_prefix:
+        return int(m_prefix.group(1))
+    m_suffix = re.match(r"^runs/.+_(\d+)$", run.label)
+    if m_suffix:
+        return int(m_suffix.group(1))
     if run.label.startswith("archive/"):
         return _parse_archive_timestamp(run.label.split("/", 1)[1])
     try:
@@ -81,6 +87,8 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
 
 
 def _is_deletable_run(run: RunLayout) -> bool:
+    if run.root.resolve() == RESULTS_ROOT.resolve():
+        return False
     return run.label.startswith("runs/") or run.label.startswith("archive/")
 
 
@@ -232,7 +240,6 @@ def _metric_column_config() -> dict[str, Any]:
     }
 
 
-@st.cache_data(show_spinner=False)
 def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
     results_root = Path(results_root_str)
     runs: list[dict[str, Any]] = []
@@ -251,9 +258,13 @@ def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
         current_has_data = any(current_metrics.glob("*.json"))
 
     if current_has_data:
+        try:
+            legacy_ts = int(results_root.stat().st_mtime)
+        except Exception:
+            legacy_ts = 0
         runs.append(
             {
-                "label": "workspace/current",
+                "label": f"runs/legacy_root_{legacy_ts}",
                 "root": str(results_root),
                 "metric_dirs": [str(current_metrics)],
                 "log_dirs": [str(current_logs)],
@@ -960,21 +971,13 @@ def main() -> None:
     selected_label = st.sidebar.selectbox("Choose run", labels, key="selected_run_label")
     selected_run = run_options[selected_label]
 
-    if st.sidebar.button("Refresh run index"):
-        st.cache_data.clear()
-        st.session_state["selected_run_label"] = latest_run.label
-        st.rerun()
-
-    deletable_runs = [r for r in runs if _is_deletable_run(r)]
     with st.sidebar.expander("Run management"):
-        if not deletable_runs:
-            st.caption("No deletable runs found.")
-        else:
-            delete_labels = [r.label for r in deletable_runs]
-            target_label = st.selectbox("Delete run", delete_labels, key="delete_target_label")
+        if _is_deletable_run(selected_run):
             if st.button("Delete selected run", type="secondary"):
-                st.session_state["delete_pending_label"] = target_label
+                st.session_state["delete_pending_label"] = selected_run.label
                 st.rerun()
+        else:
+            st.caption("Current run is protected and cannot be deleted from the dashboard.")
 
     pending_label = st.session_state.get("delete_pending_label")
     if pending_label:
