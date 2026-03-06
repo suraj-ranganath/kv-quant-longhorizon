@@ -116,8 +116,13 @@ else
   conda run -n "${INFER_ENV}" pip install -r "${ROOT_DIR}/requirements-inference.txt"
 fi
 
-log "Install Self-Forcing requirements (idempotent)"
-conda run -n "${INFER_ENV}" pip install -r "${ROOT_DIR}/third_party/Self-Forcing/requirements.txt"
+log "Install Self-Forcing requirements if file exists (non-blocking)"
+if [[ -f "${ROOT_DIR}/third_party/Self-Forcing/requirements.txt" ]]; then
+  conda run -n "${INFER_ENV}" pip install -r "${ROOT_DIR}/third_party/Self-Forcing/requirements.txt" || \
+    echo "[warn] Self-Forcing requirements install failed; continuing with explicit fallback deps"
+else
+  echo "[warn] ${ROOT_DIR}/third_party/Self-Forcing/requirements.txt not found; using explicit fallback deps"
+fi
 
 log "Install additional known deps discovered during dry-run"
 pip_install_if_missing_import "${INFER_ENV}" easydict "easydict"
