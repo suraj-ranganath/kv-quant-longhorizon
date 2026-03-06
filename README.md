@@ -296,3 +296,58 @@ Each run directory contains:
 - `tables/`
 - `plots/`
 - `run_meta.json` (run name, timestamp, run ID)
+
+## 15) StoryEval Integration Plan (T2V Long-Horizon, 15s)
+StoryEval is a long-horizon text-to-video benchmark focused on multi-event prompt completion and temporal coherence. We add it to complement MovieGen-style prompts with longer, compositional stories while keeping the model fixed to **Self-Forcing-Wan-1.3B (T2V only)**.
+
+Upstream:
+- StoryEval repo: https://github.com/ypwang61/StoryEval
+- StoryEval project page: https://ypwang61.github.io/project/StoryEval
+- StoryEval paper: https://arxiv.org/abs/2412.16211
+
+Replication policy for this repository:
+- T2V only (no image conditioning path).
+- Default StoryEval generation duration: **15 seconds**.
+- Prompt IDs must follow StoryEval filename mapping logic (`sentence_to_filename`) ported into this repo for stable reproducibility.
+
+### StoryEval Prompt Snapshot
+For reproducible runs we keep a local snapshot:
+- Source: `third_party/StoryEval/prompts/all_prompts.txt`
+- Local copy used by runners: `data/prompts/storyeval/all_prompts.txt`
+
+### StoryEval Runner (Planned CLI)
+```bash
+CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scripts/run_storyeval.py \
+  --run_id storyeval_$(date +%s) \
+  --out_root results/benchmarks/storyeval \
+  --max_prompts 5 \
+  --seed 0 \
+  --seeds_per_prompt 1 \
+  --duration_sec 15
+```
+
+Expected behavior:
+- Compute `raw_frames = round(duration_sec * fps)`.
+- Align to Self-Forcing chunking using `target_frames = ceil(raw_frames / chunk_size) * chunk_size`.
+- Log requested vs effective duration in per-prompt metadata.
+
+### StoryEval Results Layout
+`results/benchmarks/storyeval/<run_id>/`
+- `videos/` (`<prompt_id>_seed<seed>.mp4`)
+- `per_prompt/` (`<prompt_id>_seed<seed>.json`)
+- `metrics/` (`vbench.json`, `drift_imaging_quality.json`)
+- `plots/` (`drift_imaging_quality.png`)
+- `logs/`
+- `summary/` (`summary.json`, `summary.csv`)
+
+### StoryEval Evaluation Plan
+- VBench aggregates: `background_consistency`, `imaging_quality`, `subject_consistency`, `aesthetic_quality`.
+- Long-horizon drift:
+  - Imaging-quality over prefix clips every N frames (default 50).
+  - Save JSON + plot for reporting.
+
+### StoryEval in Dashboard
+The Streamlit dashboard will include StoryEval run browsing under `results/benchmarks/storyeval/*` with:
+- run table (run_id/date/count/runtime/aggregate metrics),
+- drift plot rendering,
+- prompt-level viewer (prompt text, seed-specific videos, per-video metrics).
