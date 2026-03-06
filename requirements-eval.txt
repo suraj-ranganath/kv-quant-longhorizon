@@ -2,3 +2,4 @@
 vbench
 scikit-image
 lpips
+matplotlib
