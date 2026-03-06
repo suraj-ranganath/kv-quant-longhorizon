@@ -322,6 +322,9 @@ Results layout:
 - `results/pbench/<run_id>/config.json`
 - `results/pbench/<run_id>/logs.txt`
 
+Default run ID naming:
+- `pbench_<unix_timestamp>` (includes benchmark name for unified dashboard run selection)
+
 ### Setup for PBench
 Install `datasets` in the inference environment:
 
