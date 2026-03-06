@@ -52,6 +52,27 @@ class RunLayout:
     table_dirs: list[Path]
 
 
+def _infer_run_benchmark(run: RunLayout) -> str:
+    meta = _read_json(run.root / "run_meta.json")
+    if isinstance(meta, dict):
+        benchmark = meta.get("benchmark")
+        if isinstance(benchmark, str) and benchmark.strip():
+            return benchmark.strip().lower()
+        run_name = meta.get("run_name")
+        if isinstance(run_name, str) and run_name.strip():
+            lower_name = run_name.lower()
+            if "storyeval" in lower_name:
+                return "storyeval"
+            if "moviegen" in lower_name:
+                return "moviegen"
+
+    label_lower = run.label.lower()
+    path_lower = str(run.root).lower()
+    if "storyeval" in label_lower or "storyeval" in path_lower:
+        return "storyeval"
+    return "moviegen"
+
+
 def _parse_archive_timestamp(name: str) -> int:
     # Expected: YYYYMMDDTHHMMSSZ
     try:
@@ -960,16 +981,29 @@ def main() -> None:
         st.error("No runs found under results/. Generate data first.")
         return
 
-    run_options = {run.label: run for run in runs}
     st.sidebar.markdown("## Run selection")
+    benchmark_by_label = {run.label: _infer_run_benchmark(run) for run in runs}
+    benchmark_options = ["all"] + sorted(set(benchmark_by_label.values()))
+    selected_benchmark = st.sidebar.selectbox("Benchmark", benchmark_options, index=0, key="selected_benchmark")
+
+    filtered_runs = runs
+    if selected_benchmark != "all":
+        filtered_runs = [r for r in runs if benchmark_by_label.get(r.label) == selected_benchmark]
+
+    if not filtered_runs:
+        st.warning("No runs match the selected benchmark filter.")
+        return
+
+    run_options = {run.label: run for run in filtered_runs}
     labels = list(run_options.keys())
-    latest_run = max(runs, key=_extract_run_unix_ts)
+    latest_run = max(filtered_runs, key=_extract_run_unix_ts)
 
     if "selected_run_label" not in st.session_state or st.session_state["selected_run_label"] not in run_options:
         st.session_state["selected_run_label"] = latest_run.label
 
     selected_label = st.sidebar.selectbox("Choose run", labels, key="selected_run_label")
     selected_run = run_options[selected_label]
+    st.sidebar.caption(f"{len(filtered_runs)} run(s) match filter.")
 
     with st.sidebar.expander("Run management"):
         if _is_deletable_run(selected_run):
