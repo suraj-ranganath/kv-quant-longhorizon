@@ -358,11 +358,16 @@ python scripts/summarize_storyeval.py --run_dir "${RUN_DIR}"
 ```
 
 ### StoryEval in Dashboard
-The Streamlit dashboard will include StoryEval run browsing under `results/benchmarks/storyeval/*` with:
+The Streamlit dashboard includes StoryEval run browsing under `results/benchmarks/storyeval/*` with:
 - run table (run_id/date/count/runtime/aggregate metrics),
 - drift plot rendering,
 - prompt-level viewer (prompt text, seed-specific videos, per-video metrics).
 
-The StoryEval dashboard page is available at:
-- `dashboard/pages/StoryEval.py`
-- launch via `./scripts/13_launch_dashboard.sh` and open the **StoryEval** page in Streamlit.
+StoryEval is integrated into the main run selector:
+- launch via `./scripts/13_launch_dashboard.sh`
+- use sidebar `Benchmark` filter (`storyeval` / `moviegen`)
+- select a run in `Choose run`, then use the same tabs:
+  - `Overview`
+  - `Video Explorer`
+  - `Prompt Analytics`
+  - `Artifacts`

@@ -15,6 +15,7 @@ import streamlit as st
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_ROOT = REPO_ROOT / "results"
+STORYEVAL_RESULTS_ROOT = RESULTS_ROOT / "benchmarks" / "storyeval"
 DEFAULT_PROMPTS_FILE = REPO_ROOT / "prompts" / "MovieGenVideoBench_extended.txt"
 
 METHOD_ORDER = [
@@ -45,6 +46,7 @@ KV_BYTES_NOTE = (
 @dataclass
 class RunLayout:
     label: str
+    benchmark: str
     root: Path
     metric_dirs: list[Path]
     log_dirs: list[Path]
@@ -53,6 +55,8 @@ class RunLayout:
 
 
 def _infer_run_benchmark(run: RunLayout) -> str:
+    if isinstance(getattr(run, "benchmark", None), str) and run.benchmark.strip():
+        return run.benchmark.strip().lower()
     meta = _read_json(run.root / "run_meta.json")
     if isinstance(meta, dict):
         benchmark = meta.get("benchmark")
@@ -99,6 +103,9 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
     m_suffix = re.match(r"^runs/.+_(\d+)$", run.label)
     if m_suffix:
         return int(m_suffix.group(1))
+    m_storyeval = re.match(r"^storyeval/.+_(\d+)$", run.label)
+    if m_storyeval:
+        return int(m_storyeval.group(1))
     if run.label.startswith("archive/"):
         return _parse_archive_timestamp(run.label.split("/", 1)[1])
     try:
@@ -110,7 +117,7 @@ def _extract_run_unix_ts(run: RunLayout) -> int:
 def _is_deletable_run(run: RunLayout) -> bool:
     if run.root.resolve() == RESULTS_ROOT.resolve():
         return False
-    return run.label.startswith("runs/") or run.label.startswith("archive/")
+    return run.label.startswith("runs/") or run.label.startswith("archive/") or run.label.startswith("storyeval/")
 
 
 def _delete_run_directory(run: RunLayout) -> tuple[bool, str]:
@@ -286,6 +293,7 @@ def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
         runs.append(
             {
                 "label": f"runs/legacy_root_{legacy_ts}",
+                "benchmark": "moviegen",
                 "root": str(results_root),
                 "metric_dirs": [str(current_metrics)],
                 "log_dirs": [str(current_logs)],
@@ -311,6 +319,7 @@ def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
             runs.append(
                 {
                     "label": f"runs/{d.name}",
+                    "benchmark": "moviegen",
                     "root": str(d),
                     "metric_dirs": [str(p) for p in [metric_dir, d] if p.exists()],
                     "log_dirs": [str(p) for p in [log_dir, d] if p.exists()],
@@ -329,11 +338,33 @@ def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
             runs.append(
                 {
                     "label": f"archive/{d.name}",
+                    "benchmark": "moviegen",
                     "root": str(d),
                     "metric_dirs": [str(p) for p in metric_dirs if p.exists()],
                     "log_dirs": [str(p) for p in log_dirs if p.exists()],
                     "video_dirs": [str(p) for p in video_dirs if p.exists()],
                     "table_dirs": [str(p) for p in table_dirs if p.exists()],
+                }
+            )
+
+    storyeval_root = results_root / "benchmarks" / "storyeval"
+    if storyeval_root.exists():
+        for d in sorted([p for p in storyeval_root.iterdir() if p.is_dir()], reverse=True):
+            has_data = (
+                (d / "per_prompt").exists()
+                and any((d / "per_prompt").glob("*.json"))
+            ) or ((d / "videos").exists() and any((d / "videos").glob("*.mp4")))
+            if not has_data:
+                continue
+            runs.append(
+                {
+                    "label": f"storyeval/{d.name}",
+                    "benchmark": "storyeval",
+                    "root": str(d),
+                    "metric_dirs": [str(p) for p in [d / "metrics", d] if p.exists()],
+                    "log_dirs": [str(p) for p in [d / "logs", d] if p.exists()],
+                    "video_dirs": [str(p) for p in [d / "videos", d] if p.exists()],
+                    "table_dirs": [str(p) for p in [d / "summary", d / "tables", d] if p.exists()],
                 }
             )
 
@@ -347,6 +378,7 @@ def discover_runs(results_root: Path) -> list[RunLayout]:
         runs.append(
             RunLayout(
                 label=p["label"],
+                benchmark=p.get("benchmark", "moviegen"),
                 root=Path(p["root"]),
                 metric_dirs=[Path(x) for x in p["metric_dirs"]],
                 log_dirs=[Path(x) for x in p["log_dirs"]],
@@ -533,12 +565,289 @@ def load_fidelity_per_video(run: RunLayout, method: str) -> dict[str, dict[str, 
 
 @st.cache_data(show_spinner=False)
 def load_run_meta(run: RunLayout) -> dict[str, Any]:
+    if run.benchmark == "storyeval":
+        summary_cfg = run.root / "summary" / "config.json"
+        if summary_cfg.exists():
+            payload = _read_json(summary_cfg)
+            if isinstance(payload, dict):
+                return payload
     meta_path = run.root / "run_meta.json"
     if meta_path.exists():
         payload = _read_json(meta_path)
         if isinstance(payload, dict):
             return payload
     return {}
+
+
+@st.cache_data(show_spinner=False)
+def load_storyeval_records(run: RunLayout) -> list[dict[str, Any]]:
+    per_prompt_dir = run.root / "per_prompt"
+    rows: list[dict[str, Any]] = []
+    if not per_prompt_dir.exists():
+        return rows
+    for p in sorted(per_prompt_dir.glob("*.json")):
+        rec = _read_json(p)
+        if isinstance(rec, dict):
+            rows.append(rec)
+    return rows
+
+
+@st.cache_data(show_spinner=False)
+def load_storyeval_summary(run: RunLayout) -> dict[str, Any]:
+    for p in [run.root / "summary" / "summary.json", run.root / "summary" / "runner_summary.json"]:
+        payload = _read_json(p)
+        if isinstance(payload, dict):
+            return payload
+    return {}
+
+
+@st.cache_data(show_spinner=False)
+def load_storyeval_vbench(run: RunLayout) -> dict[str, Any]:
+    payload = _read_json(run.root / "metrics" / "vbench.json")
+    return payload if isinstance(payload, dict) else {}
+
+
+@st.cache_data(show_spinner=False)
+def load_storyeval_drift(run: RunLayout) -> dict[str, Any]:
+    payload = _read_json(run.root / "metrics" / "drift_imaging_quality.json")
+    return payload if isinstance(payload, dict) else {}
+
+
+def _storyeval_per_video_metrics(vbench: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    per_video = vbench.get("per_video", {})
+    if isinstance(per_video, dict):
+        return {k: v for k, v in per_video.items() if isinstance(v, dict)}
+    return {}
+
+
+def render_storyeval_overview(run: RunLayout) -> None:
+    summary = load_storyeval_summary(run)
+    vbench = load_storyeval_vbench(run)
+    drift = load_storyeval_drift(run)
+    records = load_storyeval_records(run)
+    agg = vbench.get("aggregate", {}) if isinstance(vbench.get("aggregate"), dict) else {}
+    curve = drift.get("curve", []) if isinstance(drift.get("curve"), list) else []
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Prompts", int(summary.get("num_prompts", summary.get("counts", {}).get("total_jobs", 0) or len(records))))
+    c2.metric("Success", int(summary.get("num_success", summary.get("counts", {}).get("completed", 0))))
+    c3.metric("Failed", int(summary.get("num_failed", summary.get("counts", {}).get("failed", 0))))
+    avg_runtime = summary.get("avg_runtime_sec", summary.get("avg_runtime_s"))
+    c4.metric("Avg Runtime / Prompt", f"{float(avg_runtime):.2f}s" if isinstance(avg_runtime, (int, float)) else "-")
+
+    c5, c6, c7, c8 = st.columns(4)
+    c5.metric("Background Consistency", f"{float(agg.get('background_consistency')):.4f}" if agg.get("background_consistency") is not None else "-")
+    c6.metric("Imaging Quality", f"{float(agg.get('imaging_quality')):.4f}" if agg.get("imaging_quality") is not None else "-")
+    c7.metric("Subject Consistency", f"{float(agg.get('subject_consistency')):.4f}" if agg.get("subject_consistency") is not None else "-")
+    c8.metric("Aesthetic Quality", f"{float(agg.get('aesthetic_quality')):.4f}" if agg.get("aesthetic_quality") is not None else "-")
+
+    if curve:
+        st.markdown("### Long-Horizon Drift (Imaging Quality)")
+        drift_df = pd.DataFrame(curve)
+        x_col = "seconds" if "seconds" in drift_df.columns else "frame_cap"
+        fig = px.line(drift_df, x=x_col, y="imaging_quality", markers=True, title="StoryEval drift curve")
+        fig.update_layout(height=360)
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("### StoryEval run summary")
+    row = {
+        "benchmark": "storyeval",
+        "run_id": run.root.name,
+        "num_records": int(summary.get("num_records", len(records))),
+        "num_prompts": int(summary.get("num_prompts", 0)),
+        "num_success": int(summary.get("num_success", summary.get("counts", {}).get("completed", 0))),
+        "num_failed": int(summary.get("num_failed", summary.get("counts", {}).get("failed", 0))),
+        "avg_runtime_sec": avg_runtime,
+        "avg_peak_vram_mb": summary.get("avg_peak_vram_mb"),
+        "vbench_background_consistency": agg.get("background_consistency"),
+        "vbench_imaging_quality": agg.get("imaging_quality"),
+        "vbench_subject_consistency": agg.get("subject_consistency"),
+        "vbench_aesthetic_quality": agg.get("aesthetic_quality"),
+        "drift_points": len(curve),
+        "drift_last_imaging_quality": (curve[-1].get("imaging_quality") if curve else None),
+    }
+    st.dataframe(pd.DataFrame([row]), use_container_width=True, hide_index=True)
+
+
+def render_storyeval_video_explorer(run: RunLayout) -> None:
+    records = load_storyeval_records(run)
+    if not records:
+        st.warning("No StoryEval per_prompt records found for this run.")
+        return
+
+    valid_records = [r for r in records if not r.get("error")]
+    if not valid_records:
+        st.warning("All StoryEval records in this run are marked as failed.")
+        return
+
+    by_prompt: dict[str, list[dict[str, Any]]] = {}
+    for rec in valid_records:
+        pid = rec.get("prompt_id")
+        if isinstance(pid, str):
+            by_prompt.setdefault(pid, []).append(rec)
+    prompt_ids = sorted(by_prompt.keys())
+    selected_prompt_id = st.selectbox("Prompt ID", prompt_ids, index=0)
+    prompt_records = sorted(by_prompt[selected_prompt_id], key=lambda r: int(r.get("seed", 0)))
+    st.markdown(f"**Prompt:** {prompt_records[0].get('prompt', '-')}")
+
+    seeds = [int(r.get("seed", 0)) for r in prompt_records]
+    selected_seed = st.selectbox("Seed", seeds, index=0)
+    selected_rec = next(r for r in prompt_records if int(r.get("seed", 0)) == int(selected_seed))
+
+    video_rel = selected_rec.get("generated_video_path")
+    video_path = (REPO_ROOT / video_rel) if isinstance(video_rel, str) else None
+    if video_path and video_path.exists():
+        st.video(str(video_path))
+    else:
+        st.warning("Video file missing for selected prompt/seed.")
+
+    per_video = _storyeval_per_video_metrics(load_storyeval_vbench(run))
+    video_name = Path(video_rel).name if isinstance(video_rel, str) else ""
+    video_metrics = per_video.get(video_name, {})
+    if video_metrics:
+        st.markdown("### Per-video VBench metrics")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "background_consistency": video_metrics.get("background_consistency"),
+                        "imaging_quality": video_metrics.get("imaging_quality"),
+                        "subject_consistency": video_metrics.get("subject_consistency"),
+                        "aesthetic_quality": video_metrics.get("aesthetic_quality"),
+                    }
+                ]
+            ),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    st.markdown("### Prompt/seed records")
+    rows = []
+    for rec in prompt_records:
+        rows.append(
+            {
+                "prompt_id": rec.get("prompt_id"),
+                "seed": rec.get("seed"),
+                "wall_time_sec": rec.get("wall_time_sec"),
+                "peak_vram_mb": rec.get("peak_vram_mb"),
+                "target_frames": rec.get("target_frames"),
+                "effective_duration_sec": rec.get("effective_duration_sec"),
+                "error": rec.get("error"),
+            }
+        )
+    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+
+def render_storyeval_prompt_analytics(run: RunLayout) -> None:
+    records = load_storyeval_records(run)
+    if not records:
+        st.warning("No StoryEval prompt-level records available.")
+        return
+
+    df = pd.DataFrame(records)
+    if df.empty:
+        st.warning("No StoryEval prompt-level records available.")
+        return
+    if "wall_time_sec" in df.columns:
+        df["wall_time_sec"] = pd.to_numeric(df["wall_time_sec"], errors="coerce")
+    if "peak_vram_mb" in df.columns:
+        df["peak_vram_mb"] = pd.to_numeric(df["peak_vram_mb"], errors="coerce")
+    if "line_index" in df.columns:
+        df["line_index"] = pd.to_numeric(df["line_index"], errors="coerce")
+
+    st.markdown("### Runtime and VRAM trends")
+    c1, c2 = st.columns(2)
+    if {"line_index", "wall_time_sec"}.issubset(set(df.columns)):
+        with c1:
+            fig = px.line(
+                df.sort_values("line_index"),
+                x="line_index",
+                y="wall_time_sec",
+                color="seed" if "seed" in df.columns else None,
+                markers=True,
+                title="Per-prompt runtime",
+            )
+            fig.update_layout(height=340)
+            st.plotly_chart(fig, use_container_width=True)
+    if {"line_index", "peak_vram_mb"}.issubset(set(df.columns)):
+        with c2:
+            fig = px.line(
+                df.sort_values("line_index"),
+                x="line_index",
+                y="peak_vram_mb",
+                color="seed" if "seed" in df.columns else None,
+                markers=True,
+                title="Per-prompt peak VRAM (MB)",
+            )
+            fig.update_layout(height=340)
+            st.plotly_chart(fig, use_container_width=True)
+
+    drift = load_storyeval_drift(run)
+    curve = drift.get("curve", []) if isinstance(drift.get("curve"), list) else []
+    if curve:
+        st.markdown("### Drift checkpoints")
+        st.dataframe(pd.DataFrame(curve), use_container_width=True, hide_index=True)
+
+    per_video = _storyeval_per_video_metrics(load_storyeval_vbench(run))
+    metric_rows = []
+    for _video_name, rec in per_video.items():
+        metric_rows.append(
+            {
+                "prompt_id": rec.get("prompt_id"),
+                "seed": rec.get("seed"),
+                "background_consistency": rec.get("background_consistency"),
+                "imaging_quality": rec.get("imaging_quality"),
+                "subject_consistency": rec.get("subject_consistency"),
+                "aesthetic_quality": rec.get("aesthetic_quality"),
+            }
+        )
+    if metric_rows:
+        st.markdown("### Per-video metric table")
+        st.dataframe(pd.DataFrame(metric_rows), use_container_width=True, hide_index=True)
+
+    st.markdown("### Prompt-level table")
+    keep_cols = [
+        "prompt_id",
+        "seed",
+        "line_index",
+        "wall_time_sec",
+        "peak_vram_mb",
+        "raw_output_frames",
+        "target_frames",
+        "effective_duration_sec",
+        "generated_video_path",
+        "error",
+    ]
+    cols = [c for c in keep_cols if c in df.columns]
+    st.dataframe(df[cols].sort_values([c for c in ["line_index", "seed"] if c in cols]), use_container_width=True, hide_index=True)
+
+
+def render_storyeval_artifacts(run: RunLayout) -> None:
+    st.markdown("### Run artifacts")
+    st.code(str(run.root), language="text")
+
+    metrics_files = sorted((run.root / "metrics").glob("*.json")) if (run.root / "metrics").exists() else []
+    logs_files = sorted((run.root / "logs").glob("*")) if (run.root / "logs").exists() else []
+    summary_files = sorted((run.root / "summary").glob("*")) if (run.root / "summary").exists() else []
+    per_prompt_files = sorted((run.root / "per_prompt").glob("*.json")) if (run.root / "per_prompt").exists() else []
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Metric JSON files", len(metrics_files))
+    c2.metric("Log files", len(logs_files))
+    c3.metric("Summary files", len(summary_files))
+    c4.metric("Per-prompt records", len(per_prompt_files))
+
+    with st.expander("Metrics files", expanded=False):
+        st.write("\n".join(p.name for p in metrics_files) if metrics_files else "None")
+    with st.expander("Summary files", expanded=False):
+        st.write("\n".join(p.name for p in summary_files) if summary_files else "None")
+    with st.expander("Log files", expanded=False):
+        st.write("\n".join(p.name for p in logs_files) if logs_files else "None")
+
+    summary = load_storyeval_summary(run)
+    if summary:
+        st.markdown("### summary.json")
+        st.json(summary)
 
 
 def render_header() -> None:
@@ -1048,6 +1357,36 @@ def main() -> None:
 
         confirm_delete_dialog()
 
+    st.sidebar.markdown("## Run snapshot")
+    st.sidebar.markdown(f"`{selected_run.label}`")
+    run_meta = load_run_meta(selected_run)
+    if run_meta:
+        if selected_run.benchmark == "storyeval":
+            st.sidebar.caption(
+                f"run_id={run_meta.get('run_id', selected_run.root.name)}, created={run_meta.get('created_utc', '-')}"
+            )
+        else:
+            st.sidebar.caption(
+                f"run_name={run_meta.get('run_name', '-')}, ts={run_meta.get('run_timestamp_unix', '-')}"
+            )
+    st.sidebar.metric("Benchmark", selected_run.benchmark)
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Video Explorer", "Prompt Analytics", "Artifacts"])
+
+    if selected_run.benchmark == "storyeval":
+        records = load_storyeval_records(selected_run)
+        st.sidebar.metric("Videos found", len([r for r in records if not r.get("error")]))
+        st.sidebar.metric("Prompt records", len(records))
+        with tab1:
+            render_storyeval_overview(selected_run)
+        with tab2:
+            render_storyeval_video_explorer(selected_run)
+        with tab3:
+            render_storyeval_prompt_analytics(selected_run)
+        with tab4:
+            render_storyeval_artifacts(selected_run)
+        return
+
     methods = list_methods(selected_run)
     if not methods:
         st.warning("Run found, but no methods discovered yet.")
@@ -1066,19 +1405,10 @@ def main() -> None:
     metric_df = build_metric_table(selected_run, selected_methods)
     video_index = build_video_index(selected_run, selected_methods)
 
-    st.sidebar.markdown("## Run snapshot")
-    st.sidebar.markdown(f"`{selected_run.label}`")
-    run_meta = load_run_meta(selected_run)
-    if run_meta:
-        st.sidebar.caption(
-            f"run_name={run_meta.get('run_name', '-')}, ts={run_meta.get('run_timestamp_unix', '-')}"
-        )
     st.sidebar.metric("Methods", len(selected_methods))
     total_videos = int(metric_df["videos"].sum()) if not metric_df.empty else 0
     st.sidebar.metric("Videos found", total_videos)
     st.sidebar.metric("Logged prompts", int(metric_df["logged_prompts"].max()) if not metric_df.empty else 0)
-
-    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Video Explorer", "Prompt Analytics", "Artifacts"])
 
     with tab1:
         render_overview(metric_df)
