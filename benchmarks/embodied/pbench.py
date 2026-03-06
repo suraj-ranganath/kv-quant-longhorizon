@@ -44,6 +44,15 @@ def _to_bool(value: Any) -> bool | None:
 
 
 def _iter_question_answer_pairs(obj: Any) -> Iterable[tuple[str, bool]]:
+    if isinstance(obj, str):
+        text = obj.strip()
+        if text and text[0] in "[{":
+            try:
+                parsed = json.loads(text)
+                yield from _iter_question_answer_pairs(parsed)
+            except Exception:
+                pass
+        return
     if isinstance(obj, dict):
         keys = {k.lower(): k for k in obj.keys()}
         if "question" in keys and ("answer" in keys or "label" in keys or "target" in keys):
@@ -91,6 +100,20 @@ def _extract_qa_pairs(row: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         seen.add(key)
         out.append({"question": q, "answer": a})
+
+    # Common PBench packaging: `qa_pairs` as serialized JSON string.
+    qa_pairs_raw = row.get("qa_pairs")
+    if isinstance(qa_pairs_raw, str):
+        try:
+            parsed = json.loads(qa_pairs_raw)
+            for q, a in _iter_question_answer_pairs(parsed):
+                key = (q, a)
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append({"question": q, "answer": a})
+        except Exception:
+            pass
 
     return out
 

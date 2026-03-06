@@ -179,6 +179,34 @@ class SelfForcingGenerator:
         except Exception as exc:
             return None, f"conditioning_image_ignored_error:{exc}"
 
+    @staticmethod
+    def _align_noise_frames(
+        noise_frames: int,
+        num_frame_per_block: int,
+        independent_first_frame: bool,
+        has_initial_latent: bool,
+    ) -> tuple[int, str | None]:
+        if num_frame_per_block <= 1:
+            return max(1, int(noise_frames)), None
+
+        noise_frames = max(1, int(noise_frames))
+        if has_initial_latent or not independent_first_frame:
+            remainder = noise_frames % num_frame_per_block
+            if remainder == 0:
+                return noise_frames, None
+            lower = noise_frames - remainder
+            upper = lower + num_frame_per_block
+            candidate = lower if lower > 0 else upper
+            return int(candidate), f"noise_frames_aligned:{noise_frames}->{candidate}"
+
+        remainder = (noise_frames - 1) % num_frame_per_block
+        if remainder == 0:
+            return noise_frames, None
+        lower = noise_frames - remainder
+        upper = lower + num_frame_per_block
+        candidate = lower if lower > 0 else upper
+        return int(candidate), f"noise_frames_aligned:{noise_frames}->{candidate}"
+
     def generate_video(
         self,
         prompt: str,
@@ -203,13 +231,26 @@ class SelfForcingGenerator:
             noise_frames = max(1, num_output_frames - int(initial_latent.shape[1]))
 
         num_frame_per_block = int(getattr(pipeline, "num_frame_per_block", 1))
-        if initial_latent is None and (noise_frames % num_frame_per_block != 0):
-            lower = noise_frames - (noise_frames % num_frame_per_block)
-            upper = lower + num_frame_per_block
-            raise ValueError(
-                f"noise_frames={noise_frames} must be divisible by num_frame_per_block={num_frame_per_block}. "
-                f"Try num_output_frames such that noise_frames is {lower} or {upper}."
-            )
+        independent_first_frame = bool(getattr(pipeline, "independent_first_frame", False))
+
+        # Some Self-Forcing configs cannot accept single-frame i2v conditioning unless
+        # `independent_first_frame` is enabled. Fall back to text-only and log it.
+        if initial_latent is not None and (not independent_first_frame):
+            num_input_frames = int(initial_latent.shape[1])
+            if num_input_frames % num_frame_per_block != 0:
+                initial_latent = None
+                noise_frames = num_output_frames
+                cond_note = (
+                    f"{cond_note};conditioning_image_ignored_incompatible_num_input_frames:"
+                    f"{num_input_frames}_mod_{num_frame_per_block}"
+                )
+
+        noise_frames, align_note = self._align_noise_frames(
+            noise_frames=noise_frames,
+            num_frame_per_block=num_frame_per_block,
+            independent_first_frame=independent_first_frame,
+            has_initial_latent=initial_latent is not None,
+        )
 
         sampled_noise = torch.randn([1, noise_frames, 16, 60, 104], device=self.device, dtype=torch.bfloat16)
 
@@ -245,6 +286,10 @@ class SelfForcingGenerator:
             "latents_shape": list(latents.shape),
             "conditioning_status": cond_note,
             "conditioning_applied": initial_latent is not None,
+            "noise_frames_used": int(noise_frames),
+            "num_frame_per_block": int(num_frame_per_block),
+            "independent_first_frame": independent_first_frame,
+            "frame_alignment_note": align_note,
         }
 
 
