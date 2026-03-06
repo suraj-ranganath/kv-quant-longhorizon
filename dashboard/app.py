@@ -953,6 +953,7 @@ def render_artifacts(run: RunLayout) -> None:
         )
 
 
+@st.cache_data(show_spinner=False)
 def load_pbench_cached_samples(cache_file: str) -> list[dict[str, Any]]:
     path = Path(cache_file)
     if not path.exists():
@@ -970,6 +971,7 @@ def load_pbench_cached_samples(cache_file: str) -> list[dict[str, Any]]:
     return rows
 
 
+@st.cache_data(show_spinner=False)
 def discover_pbench_runs_payload(pbench_root_str: str) -> list[dict[str, Any]]:
     pbench_root = Path(pbench_root_str)
     runs: list[dict[str, Any]] = []
@@ -999,6 +1001,7 @@ def discover_pbench_runs_payload(pbench_root_str: str) -> list[dict[str, Any]]:
     return runs
 
 
+@st.cache_data(show_spinner=False)
 def load_pbench_per_sample_records(per_sample_dir_str: str) -> list[dict[str, Any]]:
     per_sample_dir = Path(per_sample_dir_str)
     rows: list[dict[str, Any]] = []
