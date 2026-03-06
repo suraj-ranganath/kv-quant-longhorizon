@@ -16,6 +16,8 @@ import streamlit as st
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTS_ROOT = REPO_ROOT / "results"
 DEFAULT_PROMPTS_FILE = REPO_ROOT / "prompts" / "MovieGenVideoBench_extended.txt"
+PBENCH_RESULTS_ROOT = RESULTS_ROOT / "pbench"
+PBENCH_CACHE_ROOT = REPO_ROOT / "data_cache" / "pbench"
 
 METHOD_ORDER = [
     "BF16",
@@ -951,6 +953,310 @@ def render_artifacts(run: RunLayout) -> None:
         )
 
 
+@st.cache_data(show_spinner=False)
+def load_pbench_cached_samples(cache_file: str) -> list[dict[str, Any]]:
+    path = Path(cache_file)
+    if not path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except Exception:
+                continue
+    return rows
+
+
+@st.cache_data(show_spinner=False)
+def discover_pbench_runs_payload(pbench_root_str: str) -> list[dict[str, Any]]:
+    pbench_root = Path(pbench_root_str)
+    runs: list[dict[str, Any]] = []
+    if not pbench_root.exists():
+        return runs
+    for d in sorted([p for p in pbench_root.iterdir() if p.is_dir()], reverse=True):
+        summary_path = d / "summary.json"
+        config_path = d / "config.json"
+        per_sample_dir = d / "per_sample"
+        videos_dir = d / "videos"
+        if not summary_path.exists():
+            continue
+        summary = _read_json(summary_path) or {}
+        config = _read_json(config_path) or {}
+        runs.append(
+            {
+                "run_id": d.name,
+                "root": str(d),
+                "summary": summary,
+                "config": config,
+                "summary_path": str(summary_path),
+                "config_path": str(config_path),
+                "per_sample_dir": str(per_sample_dir),
+                "videos_dir": str(videos_dir),
+            }
+        )
+    return runs
+
+
+@st.cache_data(show_spinner=False)
+def load_pbench_per_sample_records(per_sample_dir_str: str) -> list[dict[str, Any]]:
+    per_sample_dir = Path(per_sample_dir_str)
+    rows: list[dict[str, Any]] = []
+    if not per_sample_dir.exists():
+        return rows
+    for path in sorted(per_sample_dir.glob("*.json")):
+        payload = _read_json(path)
+        if not isinstance(payload, dict):
+            continue
+        payload["__path"] = str(path)
+        rows.append(payload)
+    return rows
+
+
+def _pbench_sample_status(rec: dict[str, Any]) -> str:
+    if rec.get("errors"):
+        return "failed"
+    qa = rec.get("qa_results", [])
+    if not qa:
+        return "no_qa"
+    if any(bool(q.get("pending", False)) for q in qa):
+        return "pending"
+    answered = [q for q in qa if isinstance(q.get("pred_answer"), bool)]
+    if not answered:
+        return "pending"
+    if all(bool(q.get("correct", False)) for q in answered) and len(answered) == len(qa):
+        return "correct"
+    if any(q.get("correct") is False for q in answered):
+        return "incorrect"
+    return "mixed"
+
+
+def _summarize_pbench_records(records: list[dict[str, Any]], run_id: str, config: dict[str, Any]) -> dict[str, Any]:
+    completed = 0
+    failed = 0
+    total_runtime = 0.0
+    total_questions = 0
+    answered_questions = 0
+    correct_answers = 0
+    pending_answers = 0
+    by_domain: dict[str, dict[str, int]] = {}
+
+    for rec in records:
+        errors = rec.get("errors", [])
+        if errors:
+            failed += 1
+        else:
+            completed += 1
+            runtime = rec.get("runtime_s")
+            if runtime is None:
+                runtime = rec.get("runtime")
+            if isinstance(runtime, (int, float)):
+                total_runtime += float(runtime)
+
+        meta = rec.get("meta", {}) if isinstance(rec.get("meta"), dict) else {}
+        domain = meta.get("domain") or meta.get("task") or meta.get("type") or "unknown"
+        dom = by_domain.setdefault(str(domain), {"total": 0, "answered": 0, "correct": 0, "pending": 0})
+
+        for qa in rec.get("qa_results", []):
+            total_questions += 1
+            dom["total"] += 1
+            if bool(qa.get("pending", False)):
+                pending_answers += 1
+                dom["pending"] += 1
+                continue
+            pred = qa.get("pred_answer")
+            if isinstance(pred, bool):
+                answered_questions += 1
+                dom["answered"] += 1
+                if bool(qa.get("correct", False)):
+                    correct_answers += 1
+                    dom["correct"] += 1
+
+    accuracy_overall = (correct_answers / answered_questions) if answered_questions > 0 else 0.0
+    accuracy_by_domain = {
+        k: ((v["correct"] / v["answered"]) if v["answered"] > 0 else 0.0) for k, v in by_domain.items()
+    }
+    avg_runtime_s = total_runtime / completed if completed > 0 else None
+
+    return {
+        "run_id": run_id,
+        "method": "self_forcing_wan_1.3b",
+        "config": config,
+        "counts": {
+            "records": len(records),
+            "completed": completed,
+            "failed": failed,
+            "total_questions": total_questions,
+            "answered_questions": answered_questions,
+            "pending_answers": pending_answers,
+            "correct_answers": correct_answers,
+        },
+        "accuracy_overall": accuracy_overall,
+        "accuracy_by_domain": accuracy_by_domain,
+        "avg_runtime_s": avg_runtime_s,
+    }
+
+
+def render_pbench_tab() -> None:
+    st.markdown("### PBench Dataset Browser")
+    cache_files = sorted(PBENCH_CACHE_ROOT.glob("normalized_*.jsonl"), reverse=True)
+    if not cache_files:
+        st.info("No normalized PBench cache found. Run `scripts/run_pbench.py` to populate `data_cache/pbench`.")
+    else:
+        cache_map = {p.name: p for p in cache_files}
+        selected_cache = st.selectbox("Cached split", list(cache_map.keys()), index=0, key="pbench_cache_file")
+        samples = load_pbench_cached_samples(str(cache_map[selected_cache]))
+        if samples:
+            sample_ids = [str(s.get("sample_id", f"sample_{i}")) for i, s in enumerate(samples)]
+            selected_id = st.selectbox("Sample ID", sample_ids, index=0, key="pbench_sample_id")
+            selected = next((s for s in samples if str(s.get("sample_id")) == selected_id), samples[0])
+
+            st.markdown(f"**Prompt**: {selected.get('prompt', '')}")
+            cond_image_path = selected.get("cond_image_path")
+            if isinstance(cond_image_path, str) and Path(cond_image_path).exists():
+                st.image(cond_image_path, caption="Conditioning image", use_container_width=True)
+            qa_pairs = selected.get("qa_pairs", [])
+            if qa_pairs:
+                st.dataframe(pd.DataFrame(qa_pairs), use_container_width=True, hide_index=True)
+            else:
+                st.caption("No QA pairs found for this sample.")
+        else:
+            st.caption("Selected cache is empty.")
+
+    st.markdown("### PBench Runs")
+    runs = discover_pbench_runs_payload(str(PBENCH_RESULTS_ROOT))
+    if not runs:
+        st.info("No PBench run summaries found under `results/pbench/*/summary.json`.")
+        return
+
+    run_rows: list[dict[str, Any]] = []
+    for r in runs:
+        summary = r.get("summary", {})
+        config = r.get("config", {})
+        counts = summary.get("counts", {}) if isinstance(summary, dict) else {}
+        run_rows.append(
+            {
+                "run_id": r["run_id"],
+                "evaluator": config.get("evaluator"),
+                "split": config.get("split"),
+                "max_samples": config.get("max_samples"),
+                "completed": counts.get("completed"),
+                "failed": counts.get("failed"),
+                "accuracy_overall": summary.get("accuracy_overall"),
+                "avg_runtime_s": summary.get("avg_runtime_s"),
+            }
+        )
+    run_df = pd.DataFrame(run_rows)
+    st.dataframe(run_df, use_container_width=True, hide_index=True)
+
+    run_map = {r["run_id"]: r for r in runs}
+    selected_run_id = st.selectbox("Run ID", list(run_map.keys()), index=0, key="pbench_run_id")
+    selected_run = run_map[selected_run_id]
+    summary = selected_run.get("summary", {})
+    config = selected_run.get("config", {})
+    counts = summary.get("counts", {}) if isinstance(summary, dict) else {}
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("Accuracy", f"{float(summary.get('accuracy_overall', 0.0)):.3f}")
+    with c2:
+        st.metric("Completed", int(counts.get("completed", 0)))
+    with c3:
+        st.metric("Failed", int(counts.get("failed", 0)))
+    with c4:
+        pending = int(counts.get("pending_answers", 0))
+        st.metric("Pending Answers", pending)
+
+    st.caption(f"evaluator={config.get('evaluator')} split={config.get('split')} max_samples={config.get('max_samples')}")
+
+    records = load_pbench_per_sample_records(str(selected_run["per_sample_dir"]))
+    if not records:
+        st.info("No per-sample records found for this run.")
+        return
+
+    filter_opts = ["all", "correct", "incorrect", "pending", "failed"]
+    selected_filter = st.selectbox("Sample filter", filter_opts, index=0, key="pbench_filter")
+    filtered_records = [r for r in records if selected_filter == "all" or _pbench_sample_status(r) == selected_filter]
+    if not filtered_records:
+        st.info("No samples match this filter.")
+        return
+
+    selector_labels = [
+        f"{r.get('sample_id')} | seed={r.get('seed')} | status={_pbench_sample_status(r)}" for r in filtered_records
+    ]
+    picked_label = st.selectbox("Per-sample record", selector_labels, index=0, key="pbench_record_label")
+    picked_idx = selector_labels.index(picked_label)
+    rec = filtered_records[picked_idx]
+
+    st.markdown(f"**Sample**: `{rec.get('sample_id')}` | **Seed**: `{rec.get('seed')}`")
+    st.markdown(f"**Prompt**: {rec.get('prompt', '')}")
+    cond_image_path = rec.get("cond_image_path")
+    if isinstance(cond_image_path, str) and Path(cond_image_path).exists():
+        st.image(cond_image_path, caption="Conditioning image", use_container_width=True)
+
+    video_path = rec.get("generated_video_path")
+    if isinstance(video_path, str) and Path(video_path).exists():
+        st.video(video_path)
+    elif isinstance(video_path, str):
+        alt = Path(selected_run["root"]) / "videos" / Path(video_path).name
+        if alt.exists():
+            st.video(str(alt))
+        else:
+            st.caption("Video file not found.")
+
+    qa_rows = rec.get("qa_results", [])
+    if qa_rows:
+        st.dataframe(pd.DataFrame(qa_rows), use_container_width=True, hide_index=True)
+    else:
+        st.caption("No QA rows in this sample record.")
+
+    if config.get("evaluator") == "manual" and qa_rows:
+        st.markdown("#### Manual QA Update")
+        with st.form(f"manual_update_{selected_run_id}_{rec.get('sample_id')}_{rec.get('seed')}"):
+            updates: dict[int, str] = {}
+            for idx, qa in enumerate(qa_rows):
+                q = str(qa.get("question", f"question_{idx}"))
+                updates[idx] = st.selectbox(
+                    f"Q{idx + 1}: {q}",
+                    options=["Keep", "True", "False", "Unset (Pending)"],
+                    index=0,
+                    key=f"manual_choice_{selected_run_id}_{rec.get('sample_id')}_{rec.get('seed')}_{idx}",
+                )
+            submitted = st.form_submit_button("Save Manual Predictions")
+
+        if submitted:
+            changed = False
+            for idx, choice in updates.items():
+                if choice == "Keep":
+                    continue
+                qa = qa_rows[idx]
+                if choice == "Unset (Pending)":
+                    qa["pred_answer"] = None
+                    qa["correct"] = None
+                    qa["pending"] = True
+                else:
+                    pred = choice == "True"
+                    qa["pred_answer"] = pred
+                    qa["correct"] = pred == bool(qa.get("gt_answer", False))
+                    qa["pending"] = False
+                changed = True
+
+            if changed:
+                rec_path = Path(rec["__path"])
+                rec_path.write_text(json.dumps(rec, indent=2, ensure_ascii=False), encoding="utf-8")
+                updated_records = load_pbench_per_sample_records(str(selected_run["per_sample_dir"]))
+                updated_summary = _summarize_pbench_records(updated_records, selected_run_id, config)
+                Path(selected_run["summary_path"]).write_text(
+                    json.dumps(updated_summary, indent=2, ensure_ascii=False), encoding="utf-8"
+                )
+                st.cache_data.clear()
+                st.success("Manual predictions saved and summary updated.")
+                st.rerun()
+
+
 def main() -> None:
     st.set_page_config(page_title="QVG Baseline Dashboard", layout="wide")
     render_header()
@@ -1015,22 +1321,19 @@ def main() -> None:
         confirm_delete_dialog()
 
     methods = list_methods(selected_run)
-    if not methods:
-        st.warning("Run found, but no methods discovered yet.")
-        return
-
-    selected_methods = st.sidebar.multiselect("Methods", methods, default=methods)
-    if not selected_methods:
-        st.warning("Select at least one method.")
-        return
+    selected_methods: list[str] = []
+    if methods:
+        selected_methods = st.sidebar.multiselect("Methods", methods, default=methods)
+    else:
+        st.sidebar.caption("No baseline methods discovered for the selected run.")
 
     prompts_path = Path(
         st.sidebar.text_input("Prompt file", value=str(DEFAULT_PROMPTS_FILE), help="Used to show prompt text by prompt_id")
     )
     prompts = load_prompts(prompts_path)
 
-    metric_df = build_metric_table(selected_run, selected_methods)
-    video_index = build_video_index(selected_run, selected_methods)
+    metric_df = build_metric_table(selected_run, selected_methods) if selected_methods else pd.DataFrame()
+    video_index = build_video_index(selected_run, selected_methods) if selected_methods else {}
 
     st.sidebar.markdown("## Run snapshot")
     st.sidebar.markdown(f"`{selected_run.label}`")
@@ -1040,20 +1343,36 @@ def main() -> None:
             f"run_name={run_meta.get('run_name', '-')}, ts={run_meta.get('run_timestamp_unix', '-')}"
         )
     st.sidebar.metric("Methods", len(selected_methods))
-    total_videos = int(metric_df["videos"].sum()) if not metric_df.empty else 0
+    total_videos = int(metric_df["videos"].sum()) if not metric_df.empty and "videos" in metric_df.columns else 0
     st.sidebar.metric("Videos found", total_videos)
-    st.sidebar.metric("Logged prompts", int(metric_df["logged_prompts"].max()) if not metric_df.empty else 0)
+    st.sidebar.metric(
+        "Logged prompts",
+        int(metric_df["logged_prompts"].max()) if not metric_df.empty and "logged_prompts" in metric_df.columns else 0,
+    )
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Video Explorer", "Prompt Analytics", "Artifacts"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        ["Overview", "Video Explorer", "Prompt Analytics", "Artifacts", "Embodied (PBench)"]
+    )
 
     with tab1:
-        render_overview(metric_df)
+        if selected_methods:
+            render_overview(metric_df)
+        else:
+            st.info("No baseline methods selected for this run.")
     with tab2:
-        render_video_comparison(selected_run, selected_methods, prompts, video_index)
+        if selected_methods:
+            render_video_comparison(selected_run, selected_methods, prompts, video_index)
+        else:
+            st.info("No videos available for baseline comparison in this run.")
     with tab3:
-        render_prompt_analytics(selected_run, selected_methods)
+        if selected_methods:
+            render_prompt_analytics(selected_run, selected_methods)
+        else:
+            st.info("No prompt-level baseline analytics available for this run.")
     with tab4:
         render_artifacts(selected_run)
+    with tab5:
+        render_pbench_tab()
 
 
 if __name__ == "__main__":
