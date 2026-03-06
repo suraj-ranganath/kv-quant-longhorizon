@@ -7,3 +7,5 @@ lpips
 scikit-image
 imageio
 ffmpeg-python
+datasets
+pillow
