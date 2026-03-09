@@ -7,7 +7,7 @@ EVAL_PYTHON="${EVAL_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_eval/bin/python}"
 RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 GPU_ID="${GPU_ID:-2}"
 MAX_PROMPTS="${MAX_PROMPTS:-}"
-NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-}"
+NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-42}"
 SEED="${SEED:-0}"
 
 METHODS=(

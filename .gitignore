@@ -10,6 +10,7 @@ results/plots/*
 results/tables/*
 results/archive/*
 results/runs/*
+results/benchmarks/*
 !results/videos/.gitkeep
 !results/metrics/.gitkeep
 !results/logs/.gitkeep
@@ -17,6 +18,7 @@ results/runs/*
 !results/tables/.gitkeep
 !results/archive/.gitkeep
 !results/runs/.gitkeep
+!results/benchmarks/.gitkeep
 
 # Models / checkpoints
 checkpoints/*

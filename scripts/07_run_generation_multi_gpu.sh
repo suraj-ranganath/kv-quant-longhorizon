@@ -6,7 +6,7 @@ INFER_PYTHON="${INFER_PYTHON:-/home/suraj/miniforge3/envs/qvg_sf_infer/bin/pytho
 RUN_ROOT="${RUN_ROOT:-${ROOT_DIR}/results}"
 SEED="${SEED:-0}"
 MAX_PROMPTS="${MAX_PROMPTS:-}"
-NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-}"
+NUM_OUTPUT_FRAMES="${NUM_OUTPUT_FRAMES:-42}"
 PYTORCH_ALLOC="${PYTORCH_ALLOC:-expandable_segments:True}"
 
 # Comma-separated, e.g. "0,1,2,3,4,5"
