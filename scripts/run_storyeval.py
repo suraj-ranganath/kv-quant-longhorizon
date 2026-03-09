@@ -26,8 +26,58 @@ if str(SELF_FORCING_ROOT) not in sys.path:
 
 from benchmarks.t2v.storyeval import StoryEvalLoader, storyeval_video_name
 from demo_utils.memory import DynamicSwapInstaller, get_cuda_free_memory_gb
+from kv_quant.factory import create_quantizer
 from pipeline import CausalDiffusionInferencePipeline, CausalInferencePipeline
 from utils.misc import set_seed
+
+
+def parse_method(method: str, bits: int | None, block_size: int):
+    method = method.upper()
+    cache_policy = {"cadence": "per_step", "recent_blocks": 0}
+    if method == "BF16":
+        return "BF16", None, cache_policy
+
+    if bits is not None:
+        if method in ("RTN", "KIVI", "QUAROT_KV"):
+            method_name = f"{method}_INT{bits}"
+            return method_name, create_quantizer(method, bits=bits, block_size=block_size, name=method_name), cache_policy
+        raise ValueError(f"Unsupported method={method} with explicit bits")
+
+    m = __import__("re").fullmatch(r"(RTN|KIVI|QUAROT_KV)_INT(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
+    if m:
+        base = m.group(1)
+        parsed_bits = int(m.group(2))
+        if m.group(3):
+            cache_policy["cadence"] = "refresh_only"
+        if m.group(4):
+            cache_policy["recent_blocks"] = int(m.group(4))
+        return method, create_quantizer(base, bits=parsed_bits, block_size=block_size, name=method), cache_policy
+
+    m = __import__("re").fullmatch(r"(RTN|KIVI)_K(2|4)_V(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
+    if m:
+        base = m.group(1)
+        key_bits = int(m.group(2))
+        value_bits = int(m.group(3))
+        if m.group(4):
+            cache_policy["cadence"] = "refresh_only"
+        if m.group(5):
+            cache_policy["recent_blocks"] = int(m.group(5))
+        return (
+            method,
+            create_quantizer(
+                base,
+                bits=max(key_bits, value_bits),
+                block_size=block_size,
+                key_bits=key_bits,
+                value_bits=value_bits,
+                name=method,
+            ),
+            cache_policy,
+        )
+
+    raise ValueError(
+        "Method must be BF16, *_INT{2|4}[ _REFRESH ][ _RECENTW ], or RTN/KIVI asymmetric forms like RTN_K2_V4"
+    )
 
 
 def git_commit_hash() -> str:
@@ -41,7 +91,7 @@ def git_commit_hash() -> str:
         return "unknown"
 
 
-def reset_kv_state(pipeline) -> None:
+def reset_kv_state(pipeline, quantizer=None) -> None:
     if pipeline.kv_cache1 is None:
         return
     for block in pipeline.kv_cache1:
@@ -51,6 +101,18 @@ def reset_kv_state(pipeline) -> None:
             block["k"].zero_()
         if isinstance(block.get("v"), torch.Tensor) and block["v"].numel() > 0:
             block["v"].zero_()
+        if quantizer is not None:
+            block["quantizer"] = quantizer
+            block["quant_state"] = None
+            recent_k = block.get("recent_k")
+            recent_v = block.get("recent_v")
+            if isinstance(recent_k, torch.Tensor):
+                block["recent_k"] = recent_k.new_empty((recent_k.shape[0], 0, recent_k.shape[2], recent_k.shape[3]))
+            if isinstance(recent_v, torch.Tensor):
+                block["recent_v"] = recent_v.new_empty((recent_v.shape[0], 0, recent_v.shape[2], recent_v.shape[3]))
+            block["recent_start_index"] = 0
+            block["recent_end_index"] = 0
+            block["quantize_on_write"] = block.get("quantize_cadence", "per_step") == "per_step"
 
 
 def initialize_pipeline(
@@ -113,30 +175,55 @@ def ensure_kv_cache_capacity(pipeline, num_output_frames: int, dtype: torch.dtyp
         block["v"] = new_v
 
 
-def _current_active_kv_bytes(pipeline) -> int:
+def _current_active_kv_bytes(pipeline, quantizer=None) -> tuple[int, int]:
     kv_cache = getattr(pipeline, "kv_cache1", None)
     if kv_cache is None:
-        return 0
+        return 0, 0
     total_bytes = 0
+    compressed_bytes = 0
     for block in kv_cache:
         active_tokens = int(block.get("local_end_index", torch.tensor([0])).item())
         k = block.get("k")
-        if not isinstance(k, torch.Tensor) or k.ndim != 4 or active_tokens <= 0:
+        if isinstance(k, torch.Tensor) and k.ndim == 4 and k.numel() > 0:
+            batch_size, _, num_heads, head_dim = k.shape
+        else:
+            batch_size = int(block.get("batch_size", 0))
+            num_heads = int(block.get("num_heads", 0))
+            head_dim = int(block.get("head_dim", 0))
+        if active_tokens <= 0 or batch_size <= 0 or num_heads <= 0 or head_dim <= 0:
             continue
-        batch_size, _, num_heads, head_dim = k.shape
         total_bytes += batch_size * active_tokens * num_heads * head_dim * 2 * 2
-    return int(total_bytes)
+        if quantizer is None:
+            compressed_bytes += batch_size * active_tokens * num_heads * head_dim * 2 * 2
+        else:
+            frame_seq_length = int(block.get("frame_seq_length", 0))
+            num_frame_per_block = int(block.get("num_frame_per_block", 1))
+            recent_blocks = int(block.get("recent_blocks", 0))
+            recent_tokens = 0
+            if frame_seq_length > 0 and recent_blocks > 0:
+                recent_tokens = min(active_tokens, recent_blocks * num_frame_per_block * frame_seq_length)
+            old_tokens = max(active_tokens - recent_tokens, 0)
+            compressed_bytes += int(
+                quantizer.estimate_active_kv_bytes(
+                    active_tokens=old_tokens,
+                    batch_size=batch_size,
+                    num_heads=num_heads,
+                    head_dim=head_dim,
+                )
+            )
+            compressed_bytes += batch_size * recent_tokens * num_heads * head_dim * 2 * 2
+    return int(total_bytes), int(compressed_bytes)
 
 
-def _sample_trace(device: torch.device, pipeline, start_time: float, out_samples: list[dict[str, float]]) -> None:
-    bf16_kv_bytes = _current_active_kv_bytes(pipeline)
+def _sample_trace(device: torch.device, pipeline, quantizer, start_time: float, out_samples: list[dict[str, float]]) -> None:
+    bf16_kv_bytes, compressed_kv_bytes = _current_active_kv_bytes(pipeline, quantizer)
     out_samples.append(
         {
             "t_s": time.perf_counter() - start_time,
             "allocated_bytes": int(torch.cuda.memory_allocated(device)),
             "reserved_bytes": int(torch.cuda.memory_reserved(device)),
             "bf16_kv_bytes": bf16_kv_bytes,
-            "compressed_kv_bytes": bf16_kv_bytes,
+            "compressed_kv_bytes": compressed_kv_bytes,
         }
     )
 
@@ -144,16 +231,17 @@ def _sample_trace(device: torch.device, pipeline, start_time: float, out_samples
 def collect_vram_trace(
     device: torch.device,
     pipeline,
+    quantizer,
     interval_s: float,
     stop_event: threading.Event,
     out_samples: list[dict[str, float]],
 ) -> None:
     start_time = time.perf_counter()
-    _sample_trace(device, pipeline, start_time, out_samples)
+    _sample_trace(device, pipeline, quantizer, start_time, out_samples)
     while not stop_event.is_set():
         time.sleep(interval_s)
-        _sample_trace(device, pipeline, start_time, out_samples)
-    _sample_trace(device, pipeline, start_time, out_samples)
+        _sample_trace(device, pipeline, quantizer, start_time, out_samples)
+    _sample_trace(device, pipeline, quantizer, start_time, out_samples)
 
 
 def downsample_trace(samples: list[dict[str, float]], max_points: int) -> list[dict[str, float]]:
@@ -230,6 +318,7 @@ def run(args: argparse.Namespace) -> None:
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for StoryEval generation.")
 
+    method_name, quantizer, cache_policy = parse_method(args.method, args.bits, args.block_size)
     out_root = args.out_root if args.out_root.is_absolute() else (REPO_ROOT / args.out_root)
     run_id = args.run_id or f"storyeval_{int(time.time())}"
     run_dir = out_root / run_id
@@ -286,9 +375,30 @@ def run(args: argparse.Namespace) -> None:
     # For >block-length generation, allocate enough KV to avoid cache-index rollover errors.
     # At the current 10s default (~42 latent frames), this fits on A5000.
     ensure_kv_cache_capacity(pipeline, target_latent_frames, dtype=torch.bfloat16, device=device)
+    if quantizer is not None:
+        quantizer.reset_stats()
+        for block in pipeline.kv_cache1:
+            block["kv_cache_size"] = int(block["k"].shape[1])
+            block["batch_size"] = int(block["k"].shape[0])
+            block["num_heads"] = int(block["k"].shape[2])
+            block["head_dim"] = int(block["k"].shape[3])
+            block["quantizer"] = quantizer
+            block["quant_state"] = None
+            block["quantize_cadence"] = cache_policy["cadence"]
+            block["recent_blocks"] = int(cache_policy["recent_blocks"])
+            block["frame_seq_length"] = int(getattr(pipeline, "frame_seq_length", 0))
+            block["num_frame_per_block"] = int(num_frame_per_block)
+            block["quantize_on_write"] = cache_policy["cadence"] == "per_step"
+            block["recent_k"] = block["k"][:, :0].clone()
+            block["recent_v"] = block["v"][:, :0].clone()
+            block["recent_start_index"] = 0
+            block["recent_end_index"] = 0
+            block["k"] = torch.empty(0, dtype=torch.bfloat16, device=device)
+            block["v"] = torch.empty(0, dtype=torch.bfloat16, device=device)
 
     run_config = {
         "benchmark": "storyeval",
+        "method": method_name,
         "run_id": run_id,
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "prompt_file": str(args.prompt_file),
@@ -316,6 +426,7 @@ def run(args: argparse.Namespace) -> None:
         "device": str(args.device),
         "git_commit_hash": git_commit_hash(),
         "resume": bool(args.resume),
+        "cache_policy": cache_policy,
     }
     (summary_dir / "config.json").write_text(json.dumps(run_config, indent=2), encoding="utf-8")
 
@@ -341,7 +452,7 @@ def run(args: argparse.Namespace) -> None:
                     skipped += 1
                     continue
 
-                reset_kv_state(pipeline)
+                reset_kv_state(pipeline, quantizer)
                 set_seed(seed)
                 sampled_noise = torch.randn(
                     [1, target_latent_frames, latent_c, latent_h, latent_w],
@@ -362,7 +473,7 @@ def run(args: argparse.Namespace) -> None:
                     if args.vram_sample_interval_s > 0:
                         trace_thread = threading.Thread(
                             target=collect_vram_trace,
-                            args=(device, pipeline, args.vram_sample_interval_s, trace_stop_event, vram_samples),
+                            args=(device, pipeline, quantizer, args.vram_sample_interval_s, trace_stop_event, vram_samples),
                             daemon=True,
                         )
                         trace_thread.start()
@@ -409,6 +520,7 @@ def run(args: argparse.Namespace) -> None:
 
                 record = {
                     "benchmark": "storyeval",
+                    "method": method_name,
                     "run_id": run_id,
                     "prompt_id": prompt_obj.prompt_id,
                     "prompt": prompt_obj.prompt,
@@ -440,6 +552,7 @@ def run(args: argparse.Namespace) -> None:
                     json.dumps(
                         {
                             "prompt_id": prompt_obj.prompt_id,
+                            "method": method_name,
                             "seed": seed,
                             "runtime_s": runtime_s,
                             "peak_vram_bytes": peak_bytes,
@@ -454,6 +567,7 @@ def run(args: argparse.Namespace) -> None:
 
     summary = {
         "benchmark": "storyeval",
+        "method": method_name,
         "run_id": run_id,
         "created_utc": run_config["created_utc"],
         "counts": {
@@ -479,6 +593,9 @@ def run(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run StoryEval (T2V only) on Self-Forcing-Wan-1.3B.")
+    parser.add_argument("--method", type=str, default="BF16", help="BF16, RTN_INT4, RTN_INT2, KIVI_INT4, KIVI_INT2, QUAROT_KV_INT4")
+    parser.add_argument("--bits", type=int, default=None, help="Optional bit-width when using method names RTN/KIVI/QUAROT_KV")
+    parser.add_argument("--block_size", type=int, default=16)
     parser.add_argument("--out_root", type=Path, default=Path("results/benchmarks/storyeval"))
     parser.add_argument("--run_id", type=str, default=f"storyeval_{int(time.time())}")
     parser.add_argument("--max_prompts", type=int, default=None)

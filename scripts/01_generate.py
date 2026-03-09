@@ -33,22 +33,51 @@ from demo_utils.memory import DynamicSwapInstaller, get_cuda_free_memory_gb
 
 def parse_method(method: str, bits: Optional[int], block_size: int):
     method = method.upper()
+    cache_policy = {"cadence": "per_step", "recent_blocks": 0}
     if method == "BF16":
-        return "BF16", None
+        return "BF16", None, cache_policy
 
     if bits is not None:
         if method in ("RTN", "KIVI", "QUAROT_KV"):
-            return f"{method}_INT{bits}", create_quantizer(method, bits=bits, block_size=block_size)
+            method_name = f"{method}_INT{bits}"
+            return method_name, create_quantizer(method, bits=bits, block_size=block_size, name=method_name), cache_policy
         raise ValueError(f"Unsupported method={method} with explicit bits")
 
-    m = re.fullmatch(r"(RTN|KIVI|QUAROT_KV)_INT(2|4)", method)
-    if not m:
-        raise ValueError(
-            "Method must be one of BF16, RTN, KIVI, QUAROT_KV, or explicit names like RTN_INT4/KIVI_INT2/QUAROT_KV_INT4"
+    m = re.fullmatch(r"(RTN|KIVI|QUAROT_KV)_INT(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
+    if m:
+        base = m.group(1)
+        parsed_bits = int(m.group(2))
+        if m.group(3):
+            cache_policy["cadence"] = "refresh_only"
+        if m.group(4):
+            cache_policy["recent_blocks"] = int(m.group(4))
+        return method, create_quantizer(base, bits=parsed_bits, block_size=block_size, name=method), cache_policy
+
+    m = re.fullmatch(r"(RTN|KIVI)_K(2|4)_V(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
+    if m:
+        base = m.group(1)
+        key_bits = int(m.group(2))
+        value_bits = int(m.group(3))
+        if m.group(4):
+            cache_policy["cadence"] = "refresh_only"
+        if m.group(5):
+            cache_policy["recent_blocks"] = int(m.group(5))
+        return (
+            method,
+            create_quantizer(
+                base,
+                bits=max(key_bits, value_bits),
+                block_size=block_size,
+                key_bits=key_bits,
+                value_bits=value_bits,
+                name=method,
+            ),
+            cache_policy,
         )
-    base = m.group(1)
-    parsed_bits = int(m.group(2))
-    return method, create_quantizer(base, bits=parsed_bits, block_size=block_size)
+
+    raise ValueError(
+        "Method must be BF16, *_INT{2|4}[ _REFRESH ][ _RECENTW ], or RTN/KIVI asymmetric forms like RTN_K2_V4"
+    )
 
 
 def load_prompts(prompt_path: Path, max_prompts: Optional[int]) -> List[Tuple[int, str]]:
@@ -88,6 +117,15 @@ def reset_kv_state(pipeline, quantizer):
         if quantizer is not None:
             block["quantizer"] = quantizer
             block["quant_state"] = None
+            recent_k = block.get("recent_k")
+            recent_v = block.get("recent_v")
+            if isinstance(recent_k, torch.Tensor):
+                block["recent_k"] = recent_k.new_empty((recent_k.shape[0], 0, recent_k.shape[2], recent_k.shape[3]))
+            if isinstance(recent_v, torch.Tensor):
+                block["recent_v"] = recent_v.new_empty((recent_v.shape[0], 0, recent_v.shape[2], recent_v.shape[3]))
+            block["recent_start_index"] = 0
+            block["recent_end_index"] = 0
+            block["quantize_on_write"] = block.get("quantize_cadence", "per_step") == "per_step"
 
 
 def initialize_pipeline(
@@ -177,14 +215,22 @@ def _current_active_kv_bytes(pipeline, quantizer) -> tuple[int, int]:
         if quantizer is None:
             compressed_bytes += batch_size * active_tokens * num_heads * head_dim * 2 * 2
         else:
+            frame_seq_length = int(block.get("frame_seq_length", 0))
+            num_frame_per_block = int(block.get("num_frame_per_block", 1))
+            recent_blocks = int(block.get("recent_blocks", 0))
+            recent_tokens = 0
+            if frame_seq_length > 0 and recent_blocks > 0:
+                recent_tokens = min(active_tokens, recent_blocks * num_frame_per_block * frame_seq_length)
+            old_tokens = max(active_tokens - recent_tokens, 0)
             compressed_bytes += int(
                 quantizer.estimate_active_kv_bytes(
-                    active_tokens=active_tokens,
+                    active_tokens=old_tokens,
                     batch_size=batch_size,
                     num_heads=num_heads,
                     head_dim=head_dim,
                 )
             )
+            compressed_bytes += batch_size * recent_tokens * num_heads * head_dim * 2 * 2
     return int(bf16_bytes), int(compressed_bytes)
 
 
@@ -232,7 +278,7 @@ def run(args: argparse.Namespace) -> None:
         raise RuntimeError("CUDA is required for Self-Forcing generation.")
 
     device = torch.device(args.device)
-    method_name, quantizer = parse_method(args.method, args.bits, args.block_size)
+    method_name, quantizer, cache_policy = parse_method(args.method, args.bits, args.block_size)
 
     results_root = args.results_root if args.results_root.is_absolute() else (REPO_ROOT / args.results_root)
     output_dir = results_root / "videos" / method_name
@@ -294,6 +340,15 @@ def run(args: argparse.Namespace) -> None:
             block["head_dim"] = int(block["k"].shape[3])
             block["quantizer"] = quantizer
             block["quant_state"] = None
+            block["quantize_cadence"] = cache_policy["cadence"]
+            block["recent_blocks"] = int(cache_policy["recent_blocks"])
+            block["frame_seq_length"] = int(getattr(pipeline, "frame_seq_length", 0))
+            block["num_frame_per_block"] = int(num_frame_per_block)
+            block["quantize_on_write"] = cache_policy["cadence"] == "per_step"
+            block["recent_k"] = block["k"][:, :0].clone()
+            block["recent_v"] = block["v"][:, :0].clone()
+            block["recent_start_index"] = 0
+            block["recent_end_index"] = 0
             # Keep quantized state as the primary cache representation.
             # This avoids persistent BF16 KV residency for quantized methods.
             block["k"] = torch.empty(0, dtype=torch.bfloat16, device=device)
@@ -308,6 +363,7 @@ def run(args: argparse.Namespace) -> None:
 
     total_runtime_s = 0.0
     peak_vram_bytes = 0
+    peak_compressed_kv_bytes_seen = 0
     first_video_shape = None
 
     try:
@@ -357,6 +413,10 @@ def run(args: argparse.Namespace) -> None:
                     }
                 ]
             vram_samples = downsample_trace(vram_samples, args.vram_max_points)
+            peak_compressed_kv_bytes_seen = max(
+                peak_compressed_kv_bytes_seen,
+                max((int(sample.get("compressed_kv_bytes", 0)) for sample in vram_samples), default=0),
+            )
 
             total_runtime_s += runtime_s
             peak_vram_bytes = max(peak_vram_bytes, peak)
@@ -431,8 +491,13 @@ def run(args: argparse.Namespace) -> None:
         for b in pipeline.kv_cache1:
             if b.get("quant_state") is not None:
                 compressed_kv_bytes += int(quantizer.memory_bytes(b["quant_state"]))
+            recent_k = b.get("recent_k")
+            recent_v = b.get("recent_v")
+            if isinstance(recent_k, torch.Tensor) and isinstance(recent_v, torch.Tensor):
+                compressed_kv_bytes += int((recent_k.numel() + recent_v.numel()) * 2)
             elif isinstance(b.get("k"), torch.Tensor) and isinstance(b.get("v"), torch.Tensor):
                 compressed_kv_bytes += int((b["k"].numel() + b["v"].numel()) * 2)
+        compressed_kv_bytes = max(compressed_kv_bytes, peak_compressed_kv_bytes_seen)
 
     efficiency = {
         "method": method_name,
@@ -443,10 +508,13 @@ def run(args: argparse.Namespace) -> None:
         "peak_vram_bytes": peak_vram_bytes,
         "quantize_time_s": quant_time,
         "dequantize_time_s": dequant_time,
+        "quantize_calls": 0.0 if quantizer is None else int(quantizer.stats.quantize_calls),
+        "dequantize_calls": 0.0 if quantizer is None else int(quantizer.stats.dequantize_calls),
         "bf16_kv_bytes": bf16_kv_bytes,
         "compressed_kv_bytes": compressed_kv_bytes,
         "compression_ratio": (bf16_kv_bytes / compressed_kv_bytes) if compressed_kv_bytes > 0 else 0.0,
         "first_video_shape": list(first_video_shape) if first_video_shape is not None else None,
+        "cache_policy": cache_policy,
     }
 
     metrics_path = metrics_dir / f"efficiency_{method_name}.json"
