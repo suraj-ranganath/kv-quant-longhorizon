@@ -1,16 +1,14 @@
-# QVG Baseline Replication on Self-Forcing-Wan-1.3B
+# KV-Cache Quantization on Self-Forcing-Wan-1.3B
 
 ## 1) Project Summary
-This repository is a replication-first project for the **Self-Forcing-Wan-1.3B** slice of the QVG paper.
+This repository is a replication-first project for **KV-cache quantization on Self-Forcing-Wan-1.3B**.
 
 Primary objective:
 - Faithfully reproduce baseline KV-cache quantization comparisons on **Self-Forcing-Wan-1.3B**.
-- Baseline-first order: **BF16 -> RTN -> KIVI -> QuaRot-KV-only**.
-- Only after baseline pipeline and benchmarking are complete, start **QVG/QVG-Pro** design and implementation.
+- Build a reproducible research pipeline for **BF16, RTN, KIVI, QuaRot-KV-only**, and new cache-policy variants.
+- Evaluate methods consistently on **MovieGen** and **StoryEval** with unified metrics and dashboard support.
 
 ## 2) Reference Links
-- QVG paper (arXiv): https://arxiv.org/abs/2602.02958
-- QVG HTML: https://arxiv.org/html/2602.02958v2
 - Self-Forcing repo: https://github.com/guandeh17/Self-Forcing
 - Self-Forcing project page: https://self-forcing.github.io/
 - VBench repo: https://github.com/Vchitect/VBench
@@ -38,7 +36,7 @@ Methods to reproduce in order:
 - RTN (INT4/INT2, block size 16).
 - KIVI (INT4/INT2 if feasible, block size 16, asymmetric key/value treatment).
 - QuaRot-KV-only (INT4 priority; INT2 optional if principled).
-- Then QVG / QVG-Pro planning and implementation.
+- Then cache-policy and systems variants built on the same KV boundary.
 
 ## 4) Hardware Assumptions
 Target hardware:
@@ -64,7 +62,7 @@ Expected packages:
 - flash-attn (if supported in the local stack).
 - Self-Forcing dependencies.
 - LPIPS/SSIM/PSNR utility dependencies needed during generation-side checks.
-- Optional flash-kmeans (primarily for later QVG acceleration experiments).
+- Standard research utilities for logging, plotting, and run management.
 
 ### Evaluation environment
 Purpose:
@@ -104,13 +102,12 @@ All baselines are evaluated against BF16 reference.
 3. **Step 3: KIVI**
 4. **Step 4: QuaRot-KV-only**
 5. **Step 5: Benchmark baseline suite end-to-end**
-6. **Step 6: QVG design / implementation**
-
-QVG implementation is blocked until baseline suite is green and benchmarked.
+6. **Step 6: Cache-policy variants and long-horizon analysis**
 
 ## 8) Deliverables
 - Runnable generation scripts for BF16 and baseline quantization methods.
 - Baseline KV quantizer implementations: RTN, KIVI, QuaRot-KV-only.
+- Extended variants such as refresh-only cadence, asymmetric K/V bitwidth, and recency-aware cache windows.
 - Evaluation scripts for fidelity, VBench, efficiency, and drift curve.
 - Streamlit dashboard for presentation-grade result exploration across multiple runs.
 - Saved result artifacts:
@@ -121,11 +118,10 @@ QVG implementation is blocked until baseline suite is green and benchmarked.
 - Replication notes documenting deviations, assumptions, and A5000 constraints.
 
 ## 9) Known Risks / Deviations
-- No public QVG reference implementation; design must be inferred from paper text.
 - A5000 is slower and smaller-memory than H100; long runs can be expensive.
-- flash-kmeans compatibility may require fallback path.
 - VBench dependency stack likely needs a separate environment.
 - 700-frame long-horizon experiments may need staged execution or reduced batch parallelism.
+- Some quantized variants can reduce KV bytes without reducing peak VRAM if temporary BF16 reconstruction and scratch buffers dominate memory.
 
 ## 10) Planned Repository Layout
 ```text
@@ -143,7 +139,6 @@ QVG implementation is blocked until baseline suite is green and benchmarked.
 │   ├── rtn.py
 │   ├── kivi.py
 │   ├── quarot_kv.py
-│   ├── qvg.py
 │   ├── packing.py
 │   ├── utils.py
 │   └── metrics.py
@@ -224,16 +219,12 @@ Workflow:
   - `results/tables/baseline_summary.csv`
   - `results/tables/baseline_summary.md`
 
-### Phase 7: QVG gate
-Do not start QVG implementation until all baseline criteria are complete:
-- BF16/RTN/KIVI/QuaRot-KV-only are functioning.
-- Fidelity and VBench metrics are produced for all baseline methods.
-- Efficiency metrics and summary tables exist.
-
-Only then:
-- Add `kv_quant/qvg.py` implementation plan/stub.
-- Lock hook points and design choices.
-- Implement QVG correctness-first.
+### Phase 7: Extended method studies
+After the baseline suite is stable:
+- Add refresh-only quantization cadence variants.
+- Add asymmetric K/V bitwidth variants.
+- Add recency-aware hybrid-cache variants.
+- Compare them against the baseline suite on both benchmarks.
 
 ## 12) Git Workflow
 Minimum checkpoint commits:
@@ -244,18 +235,19 @@ Minimum checkpoint commits:
 5. QuaRot-KV-only.
 6. Evaluation harness.
 7. Baseline summary and replication notes.
-8. QVG planning stub.
+8. Extended method studies and benchmark notes.
 
 Push after each meaningful checkpoint.
 
 Suggested initial commit message:
-- `docs: add full replication plan for QVG on Self-Forcing-Wan-1.3B`
+- `docs: add replication plan for Self-Forcing-Wan-1.3B quantization benchmarks`
 
 ## 13) Dashboard (Presentation + Comparison)
 The project includes a Streamlit dashboard at `dashboard/app.py` to present results and compare methods visually.
 
 Key capabilities:
-- Select between `live/current` and archived runs under `results/archive/*`.
+- Filter runs by benchmark (`moviegen`, `storyeval`, or all).
+- Select current and historical runs directly from the results tree.
 - Compare methods side-by-side with video playback for the same prompt ID.
 - Inspect unified metrics across fidelity, VBench, and efficiency.
 - View prompt-level runtime/VRAM analytics from generation logs.
@@ -317,7 +309,7 @@ For reproducible runs we keep a local snapshot:
 
 ### StoryEval Runner (Implemented)
 ```bash
-CUDA_VISIBLE_DEVICES=0 /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python scripts/run_storyeval.py \
+CUDA_VISIBLE_DEVICES=0 /path/to/infer-env/bin/python scripts/run_storyeval.py \
   --run_id storyeval_$(date +%s) \
   --out_root results/benchmarks/storyeval \
   --max_prompts 5 \
