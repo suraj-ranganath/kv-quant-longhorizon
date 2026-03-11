@@ -1,0 +1,139 @@
+{
+  "bf16_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/BF16",
+  "candidate_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/BF16",
+  "match_policy": "strict_bf16_reference",
+  "num_bf16_videos": 10,
+  "num_candidate_videos": 10,
+  "matched_videos": [
+    "prompt_0000_seed_0.mp4",
+    "prompt_0001_seed_1.mp4",
+    "prompt_0002_seed_2.mp4",
+    "prompt_0003_seed_3.mp4",
+    "prompt_0004_seed_4.mp4",
+    "prompt_0005_seed_5.mp4",
+    "prompt_0006_seed_6.mp4",
+    "prompt_0007_seed_7.mp4",
+    "prompt_0008_seed_8.mp4",
+    "prompt_0009_seed_9.mp4"
+  ],
+  "missing_in_candidate": [],
+  "missing_in_bf16": [],
+  "aggregate": {
+    "num_videos": 10,
+    "psnr": Infinity,
+    "ssim": 1.0,
+    "lpips": 0.0
+  },
+  "per_video": [
+    {
+      "video": "prompt_0000_seed_0.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0001_seed_1.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0002_seed_2.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0003_seed_3.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0004_seed_4.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0005_seed_5.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0006_seed_6.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0007_seed_7.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0008_seed_8.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    },
+    {
+      "video": "prompt_0009_seed_9.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": Infinity,
+      "ssim": 1.0,
+      "lpips": 0.0
+    }
+  ]
+}

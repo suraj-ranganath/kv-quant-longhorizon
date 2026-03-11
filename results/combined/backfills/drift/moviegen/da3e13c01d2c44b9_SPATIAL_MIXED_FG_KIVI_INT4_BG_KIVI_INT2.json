@@ -1,0 +1,55 @@
+{
+  "method": "SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2",
+  "frame_step": 165,
+  "max_frames": 165,
+  "curve": [
+    {
+      "frame_cap": 165,
+      "imaging_quality": [
+        0.5209601209351511,
+        [
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0007_seed_7.mp4",
+            "video_results": 59.78306155349269
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0006_seed_6.mp4",
+            "video_results": 68.14768711436878
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0004_seed_4.mp4",
+            "video_results": 38.4356491320061
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0003_seed_3.mp4",
+            "video_results": 37.18645781314734
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0005_seed_5.mp4",
+            "video_results": 59.4225849498402
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0002_seed_2.mp4",
+            "video_results": 62.608310456709425
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0001_seed_1.mp4",
+            "video_results": 58.276455041134
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0009_seed_9.mp4",
+            "video_results": 52.84148136485707
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0008_seed_8.mp4",
+            "video_results": 44.675069427490236
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2/SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2_frames_165/prompt_0000_seed_0.mp4",
+            "video_results": 39.583364082105234
+          }
+        ]
+      ]
+    }
+  ]
+}

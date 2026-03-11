@@ -1,0 +1,70 @@
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 850, in <module>
+    run(build_parser().parse_args())
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 506, in run
+    method_name, quantizer = parse_method(
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 227, in parse_method
+    raise ValueError(
+ValueError: Method must be one of BF16, FLOWCACHE_PROFILE, SPATIAL_MIXED, RTN, KIVI, QUAROT_KV, PRQ, QAQ, AGE_TIER, TPTQ, FLOWCACHE_HYBRID, FLOWCACHE_ADAPTIVE, FLOWCACHE_PRUNE, FLOWCACHE_SOFT_PRUNE, or explicit names like RTN_INT4/KIVI_INT2/TPTQ_INT2/FLOWCACHE_SOFT_PRUNE_INT2
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 2 --spatial-mask-policy topk --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.6 --spatial-max-foreground-ratio 0.9 --spatial-target-foreground-ratio 0.8
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 388, in <module>
+    main()
+    ~~~~^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 306, in main
+    run_cmd(cmd)
+    ~~~~~~~^^^^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 24, in run_cmd
+    subprocess.check_call(cmd, cwd=str(REPO_ROOT), env=env)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vaishak/miniforge3/lib/python3.13/subprocess.py", line 419, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python', '/data/vaishak/combined-kv-quant/scripts/01_generate.py', '--results-root', '/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s', '--method', 'SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2', '--max-prompts', '10', '--num-output-frames', '42', '--seed', '0', '--device', 'cuda:0', '--use-ema', '--spatial-fg-method', 'RTN', '--spatial-fg-bits', '4', '--spatial-bg-method', 'RTN', '--spatial-bg-bits', '2', '--spatial-mask-policy', 'topk', '--spatial-variance-threshold', '0.02', '--spatial-min-foreground-ratio', '0.6', '--spatial-max-foreground-ratio', '0.9', '--spatial-target-foreground-ratio', '0.8']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 850, in <module>
+    run(build_parser().parse_args())
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 506, in run
+    method_name, quantizer = parse_method(
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 227, in parse_method
+    raise ValueError(
+ValueError: Method must be one of BF16, FLOWCACHE_PROFILE, SPATIAL_MIXED, RTN, KIVI, QUAROT_KV, PRQ, QAQ, AGE_TIER, TPTQ, FLOWCACHE_HYBRID, FLOWCACHE_ADAPTIVE, FLOWCACHE_PRUNE, FLOWCACHE_SOFT_PRUNE, or explicit names like RTN_INT4/KIVI_INT2/TPTQ_INT2/FLOWCACHE_SOFT_PRUNE_INT2
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy hybrid --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.45 --spatial-max-foreground-ratio 0.85 --spatial-target-foreground-ratio 0.65
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 388, in <module>
+    main()
+    ~~~~^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 306, in main
+    run_cmd(cmd)
+    ~~~~~~~^^^^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 24, in run_cmd
+    subprocess.check_call(cmd, cwd=str(REPO_ROOT), env=env)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vaishak/miniforge3/lib/python3.13/subprocess.py", line 419, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python', '/data/vaishak/combined-kv-quant/scripts/01_generate.py', '--results-root', '/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s', '--method', 'SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', '--max-prompts', '10', '--num-output-frames', '42', '--seed', '0', '--device', 'cuda:0', '--use-ema', '--spatial-fg-method', 'RTN', '--spatial-fg-bits', '4', '--spatial-bg-method', 'RTN', '--spatial-bg-bits', '4', '--spatial-mask-policy', 'hybrid', '--spatial-variance-threshold', '0.02', '--spatial-min-foreground-ratio', '0.45', '--spatial-max-foreground-ratio', '0.85', '--spatial-target-foreground-ratio', '0.65']' returned non-zero exit status 1.
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 850, in <module>
+    run(build_parser().parse_args())
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 506, in run
+    method_name, quantizer = parse_method(
+  File "/data/vaishak/combined-kv-quant/scripts/01_generate.py", line 227, in parse_method
+    raise ValueError(
+ValueError: Method must be one of BF16, FLOWCACHE_PROFILE, SPATIAL_MIXED, RTN, KIVI, QUAROT_KV, PRQ, QAQ, AGE_TIER, TPTQ, FLOWCACHE_HYBRID, FLOWCACHE_ADAPTIVE, FLOWCACHE_PRUNE, FLOWCACHE_SOFT_PRUNE, or explicit names like RTN_INT4/KIVI_INT2/TPTQ_INT2/FLOWCACHE_SOFT_PRUNE_INT2
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy topk --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.6 --spatial-max-foreground-ratio 0.9 --spatial-target-foreground-ratio 0.8
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 388, in <module>
+    main()
+    ~~~~^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 306, in main
+    run_cmd(cmd)
+    ~~~~~~~^^^^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 24, in run_cmd
+    subprocess.check_call(cmd, cwd=str(REPO_ROOT), env=env)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vaishak/miniforge3/lib/python3.13/subprocess.py", line 419, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python', '/data/vaishak/combined-kv-quant/scripts/01_generate.py', '--results-root', '/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s', '--method', 'SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', '--max-prompts', '10', '--num-output-frames', '42', '--seed', '0', '--device', 'cuda:0', '--use-ema', '--spatial-fg-method', 'RTN', '--spatial-fg-bits', '4', '--spatial-bg-method', 'RTN', '--spatial-bg-bits', '4', '--spatial-mask-policy', 'topk', '--spatial-variance-threshold', '0.02', '--spatial-min-foreground-ratio', '0.6', '--spatial-max-foreground-ratio', '0.9', '--spatial-target-foreground-ratio', '0.8']' returned non-zero exit status 1.
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:403: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")

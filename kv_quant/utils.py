@@ -36,7 +36,7 @@ def quantize_asym(x: torch.Tensor, bits: int, reduce_dims: Tuple[int, ...]):
     x_max = x.amax(dim=reduce_dims, keepdim=True)
     scale = ((x_max - x_min) / max(qmax - qmin, 1)).clamp_min(EPS)
     zp = torch.round(qmin - x_min / scale).clamp(qmin, qmax)
-    q = torch.round(x / scale + zp).clamp(qmin, qmax).to(torch.int16)
+    q = torch.round(x / scale + zp).clamp(qmin, qmax).to(torch.int8)
     return q, scale.to(torch.float16), zp.to(torch.float16)
 
 
@@ -48,7 +48,7 @@ def quantize_sym(x: torch.Tensor, bits: int, reduce_dims: Tuple[int, ...]):
     qmax = (1 << (bits - 1)) - 1
     x_abs = x.abs().amax(dim=reduce_dims, keepdim=True)
     scale = (x_abs / max(qmax, 1)).clamp_min(EPS)
-    q = torch.round(x / scale).clamp(-qmax - 1, qmax).to(torch.int16)
+    q = torch.round(x / scale).clamp(-qmax - 1, qmax).to(torch.int8)
     return q, scale.to(torch.float16)
 
 

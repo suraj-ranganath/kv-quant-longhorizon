@@ -1,0 +1,124 @@
+{
+  "generated_at_utc": "2026-03-10T22:11:10.604808+00:00",
+  "source_user": "suraj",
+  "benchmark": "storyeval",
+  "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT2_presentation_fullmatrix_1773110004",
+  "method": "RTN_INT2",
+  "source_trace_path": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT2_presentation_fullmatrix_1773110004/logs/vram_trace_storyeval.jsonl",
+  "source_efficiency_path": null,
+  "aggregate": {
+    "bf16_kv_bytes": 12076646400,
+    "compressed_kv_bytes": 2264371200,
+    "compression_ratio": 5.333333333333333,
+    "quantize_time_s": null,
+    "dequantize_time_s": null,
+    "total_runtime_s": 861.275063067209,
+    "avg_runtime_s_per_prompt": 86.1275063067209,
+    "avg_peak_vram_mb": 20386.4853515625,
+    "max_peak_vram_mb": 20462.6953125,
+    "num_videos": 10,
+    "num_trace_rows": 10
+  },
+  "per_video": {
+    "A_CD_is_inserted_into_a_player_and_then_spins_up_seed0.mp4": {
+      "prompt_id": "A_CD_is_inserted_into_a_player_and_then_spins_up",
+      "seed": 0,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 20657571840,
+      "peak_vram_mb": 19700.595703125,
+      "wall_time_sec": 83.53352837311104
+    },
+    "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes_seed1.mp4": {
+      "prompt_id": "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes",
+      "seed": 1,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 88.87240022607148
+    },
+    "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom_seed2.mp4": {
+      "prompt_id": "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom",
+      "seed": 2,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.458289810922
+    },
+    "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display_seed3.mp4": {
+      "prompt_id": "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display",
+      "seed": 3,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.36736513767391
+    },
+    "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly_seed4.mp4": {
+      "prompt_id": "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly",
+      "seed": 4,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.23520739376545
+    },
+    "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape_seed5.mp4": {
+      "prompt_id": "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape",
+      "seed": 5,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.36970267817378
+    },
+    "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending_seed6.mp4": {
+      "prompt_id": "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending",
+      "seed": 6,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.07992524607107
+    },
+    "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge_seed7.mp4": {
+      "prompt_id": "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge",
+      "seed": 7,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 86.88149123406038
+    },
+    "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently_seed8.mp4": {
+      "prompt_id": "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently",
+      "seed": 8,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 85.6093646013178
+    },
+    "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass_seed9.mp4": {
+      "prompt_id": "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass",
+      "seed": 9,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2264371200,
+      "compression_ratio": 5.333333333333333,
+      "peak_vram_bytes": 21456691200,
+      "peak_vram_mb": 20462.6953125,
+      "wall_time_sec": 84.86778836604208
+    }
+  }
+}

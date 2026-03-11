@@ -1,0 +1,27 @@
+{
+  "method": "KIVI_K2_V4",
+  "frame_step": 165,
+  "max_frames": 165,
+  "curve": [
+    {
+      "frame_cap": 165,
+      "imaging_quality": [
+        0.618648708613232,
+        [
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/a863dfd141d557e1_KIVI_K2_V4/KIVI_K2_V4_frames_165/prompt_0002_seed_2.mp4",
+            "video_results": 70.90281249537612
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/a863dfd141d557e1_KIVI_K2_V4/KIVI_K2_V4_frames_165/prompt_0001_seed_1.mp4",
+            "video_results": 66.7827376163367
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/a863dfd141d557e1_KIVI_K2_V4/KIVI_K2_V4_frames_165/prompt_0000_seed_0.mp4",
+            "video_results": 47.90906247225675
+          }
+        ]
+      ]
+    }
+  ]
+}

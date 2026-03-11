@@ -1,0 +1,47 @@
+{
+  "selection_rules": [
+    "benchmark == moviegen",
+    "is_ten_second == True",
+    "long10_dashboard_ready == True",
+    "exclude combined_backfill helper BF16/RTN_INT4 rows",
+    "collapse duplicate source runs by canonical config payload",
+    "collapse BF16 to a single reference row"
+  ],
+  "num_representative_rows": 41,
+  "methods": [
+    "AGE_TIER_INT2",
+    "AGE_TIER_INT4",
+    "BF16",
+    "FLOWCACHE_ADAPTIVE_INT2",
+    "FLOWCACHE_HYBRID_INT2",
+    "FLOWCACHE_NATIVE",
+    "FLOWCACHE_NATIVE_SOFT_PRUNE_INT4",
+    "FLOWCACHE_PRUNE_INT2",
+    "FLOWCACHE_PRUNE_INT4",
+    "FLOWCACHE_SOFT_PRUNE_INT2",
+    "FLOWCACHE_SOFT_PRUNE_INT4",
+    "KIVI_INT2",
+    "KIVI_INT4",
+    "KIVI_INT4_REFRESH",
+    "PRQ_INT2",
+    "PRQ_INT4",
+    "QAQ_INT2",
+    "QAQ_INT4",
+    "QUAROT_KV_INT2",
+    "QUAROT_KV_INT4",
+    "QUAROT_KV_INT4_RECENT2",
+    "RTN_INT2",
+    "RTN_INT4",
+    "RTN_INT4_RECENT2",
+    "RTN_INT4_REFRESH",
+    "SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2",
+    "SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2",
+    "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2",
+    "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+    "TPTQ_INT2"
+  ],
+  "sources": [
+    "combined",
+    "suraj"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "generated_at_utc": "2026-03-10T22:39:05.008646+00:00",
+  "task_counts": {
+    "storyeval_fidelity": 6
+  },
+  "tasks": [
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_KIVI_INT4_REFRESH_presentation_fullmatrix_1773110004",
+      "method": "KIVI_INT4_REFRESH",
+      "bf16_dir": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_BF16_presentation_fullmatrix_1773110004/videos",
+      "candidate_dir": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_KIVI_INT4_REFRESH_presentation_fullmatrix_1773110004/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/950cd0e306a23806_KIVI_INT4_REFRESH.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int2_990b60e0bbd4_10prompts_10s",
+      "method": "FLOWCACHE_PRUNE_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int2_990b60e0bbd4_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/87e8799b5336296e_FLOWCACHE_PRUNE_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int4_27bbc04277fe_10prompts_10s",
+      "method": "FLOWCACHE_PRUNE_INT4",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int4_27bbc04277fe_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/574d6dbc0deae0f5_FLOWCACHE_PRUNE_INT4.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int2_24b7f6c1cfbb_10prompts_10s",
+      "method": "FLOWCACHE_SOFT_PRUNE_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int2_24b7f6c1cfbb_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/4f705297470edb36_FLOWCACHE_SOFT_PRUNE_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int4_5f5a998802bd_10prompts_10s",
+      "method": "FLOWCACHE_SOFT_PRUNE_INT4",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int4_5f5a998802bd_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/b65ed28a4e3a589a_FLOWCACHE_SOFT_PRUNE_INT4.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_prq_int2_c800cfa2a981_10prompts_10s",
+      "method": "PRQ_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_prq_int2_c800cfa2a981_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/c9b844cc1d9f30cb_PRQ_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    }
+  ]
+}

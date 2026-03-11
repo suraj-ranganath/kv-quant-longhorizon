@@ -1,0 +1,85 @@
+{
+  "bf16_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/BF16",
+  "candidate_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4",
+  "match_policy": "intersection",
+  "num_bf16_videos": 10,
+  "num_candidate_videos": 5,
+  "matched_videos": [
+    "prompt_0000_seed_0.mp4",
+    "prompt_0001_seed_1.mp4",
+    "prompt_0002_seed_2.mp4",
+    "prompt_0003_seed_3.mp4",
+    "prompt_0004_seed_4.mp4"
+  ],
+  "missing_in_candidate": [
+    "prompt_0005_seed_5.mp4",
+    "prompt_0006_seed_6.mp4",
+    "prompt_0007_seed_7.mp4",
+    "prompt_0008_seed_8.mp4",
+    "prompt_0009_seed_9.mp4"
+  ],
+  "missing_in_bf16": [],
+  "aggregate": {
+    "num_videos": 5,
+    "psnr": 14.742968761764345,
+    "ssim": 0.43402164314705544,
+    "lpips": 0.49525832292595606
+  },
+  "per_video": [
+    {
+      "video": "prompt_0000_seed_0.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 11.893340191221016,
+      "ssim": 0.2574336276075252,
+      "lpips": 0.622279405266498
+    },
+    {
+      "video": "prompt_0001_seed_1.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 15.937007624122325,
+      "ssim": 0.43541575627167556,
+      "lpips": 0.5301938319719877
+    },
+    {
+      "video": "prompt_0002_seed_2.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 14.198770651896897,
+      "ssim": 0.5220440647985592,
+      "lpips": 0.42562162146875354
+    },
+    {
+      "video": "prompt_0003_seed_3.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 13.642768439788536,
+      "ssim": 0.3740931761861405,
+      "lpips": 0.5105087096097343
+    },
+    {
+      "video": "prompt_0004_seed_4.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 18.042956901792945,
+      "ssim": 0.5811215908713768,
+      "lpips": 0.3876880463128063
+    }
+  ]
+}

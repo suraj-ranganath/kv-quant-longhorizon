@@ -1,0 +1,47 @@
+{
+    "imaging_quality": [
+        0.7260502348003967,
+        [
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0007_seed_7.mp4",
+                "video_results": 77.60134379069011
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0006_seed_6.mp4",
+                "video_results": 68.33206172133937
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0004_seed_4.mp4",
+                "video_results": 71.05121732769591
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0003_seed_3.mp4",
+                "video_results": 74.71394449869791
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0005_seed_5.mp4",
+                "video_results": 78.10996042887369
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0002_seed_2.mp4",
+                "video_results": 72.33768592603279
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0001_seed_1.mp4",
+                "video_results": 73.50069427490234
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0009_seed_9.mp4",
+                "video_results": 73.812222960501
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0008_seed_8.mp4",
+                "video_results": 78.8886777935606
+            },
+            {
+                "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e48121ee371df766_FLOWCACHE_PRUNE_INT4/FLOWCACHE_PRUNE_INT4_frames_165/prompt_0000_seed_0.mp4",
+                "video_results": 57.7024260781028
+            }
+        ]
+    ]
+}

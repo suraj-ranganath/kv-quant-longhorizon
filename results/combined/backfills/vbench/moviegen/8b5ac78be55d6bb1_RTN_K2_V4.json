@@ -1,0 +1,112 @@
+{
+    "background_consistency": [
+        0.8442525724085366,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0004_seed_4.mp4",
+                "video_results": 0.8820637028391768,
+                "video_sim": 144.658447265625,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0003_seed_3.mp4",
+                "video_results": 0.8410897603849086,
+                "video_sim": 137.938720703125,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.834971358136433,
+                "video_sim": 136.935302734375,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.8238316977896342,
+                "video_sim": 135.1083984375,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.8393063428925305,
+                "video_sim": 137.646240234375,
+                "cnt_per_video": 164
+            }
+        ]
+    ],
+    "imaging_quality": [
+        0.5305047216704397,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0004_seed_4.mp4",
+                "video_results": 47.4393675255053
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0003_seed_3.mp4",
+                "video_results": 56.31441009983872
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 59.11710600419478
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 57.69265490445224
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 44.68882230122884
+            }
+        ]
+    ],
+    "subject_consistency": [
+        0.775490990771753,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0004_seed_4.mp4",
+                "video_results": 0.8086364077540432
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0003_seed_3.mp4",
+                "video_results": 0.8075457937652017
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.7264291093025993
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.7272434961050749
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.807600146931846
+            }
+        ]
+    ],
+    "aesthetic_quality": [
+        0.5174991667270661,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0004_seed_4.mp4",
+                "video_results": 0.5649521946907043
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0003_seed_3.mp4",
+                "video_results": 0.45528507232666016
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.545951783657074
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.43360039591789246
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/RTN_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.5877063870429993
+            }
+        ]
+    ]
+}

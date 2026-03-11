@@ -1,0 +1,52 @@
+{
+  "bf16_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/BF16",
+  "candidate_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH",
+  "match_policy": "intersection",
+  "num_bf16_videos": 10,
+  "num_candidate_videos": 2,
+  "matched_videos": [
+    "prompt_0000_seed_0.mp4",
+    "prompt_0001_seed_1.mp4"
+  ],
+  "missing_in_candidate": [
+    "prompt_0002_seed_2.mp4",
+    "prompt_0003_seed_3.mp4",
+    "prompt_0004_seed_4.mp4",
+    "prompt_0005_seed_5.mp4",
+    "prompt_0006_seed_6.mp4",
+    "prompt_0007_seed_7.mp4",
+    "prompt_0008_seed_8.mp4",
+    "prompt_0009_seed_9.mp4"
+  ],
+  "missing_in_bf16": [],
+  "aggregate": {
+    "num_videos": 2,
+    "psnr": 19.635373528669703,
+    "ssim": 0.6129161106496811,
+    "lpips": 0.214390861993712
+  },
+  "per_video": [
+    {
+      "video": "prompt_0000_seed_0.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 16.502642264506246,
+      "ssim": 0.5189834168938298,
+      "lpips": 0.30339854320680554
+    },
+    {
+      "video": "prompt_0001_seed_1.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 22.768104792833164,
+      "ssim": 0.7068488044055324,
+      "lpips": 0.12538318078061847
+    }
+  ]
+}

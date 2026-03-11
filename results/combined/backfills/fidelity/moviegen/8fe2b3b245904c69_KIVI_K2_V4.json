@@ -1,0 +1,63 @@
+{
+  "bf16_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/BF16",
+  "candidate_dir": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4",
+  "match_policy": "intersection",
+  "num_bf16_videos": 10,
+  "num_candidate_videos": 3,
+  "matched_videos": [
+    "prompt_0000_seed_0.mp4",
+    "prompt_0001_seed_1.mp4",
+    "prompt_0002_seed_2.mp4"
+  ],
+  "missing_in_candidate": [
+    "prompt_0003_seed_3.mp4",
+    "prompt_0004_seed_4.mp4",
+    "prompt_0005_seed_5.mp4",
+    "prompt_0006_seed_6.mp4",
+    "prompt_0007_seed_7.mp4",
+    "prompt_0008_seed_8.mp4",
+    "prompt_0009_seed_9.mp4"
+  ],
+  "missing_in_bf16": [],
+  "aggregate": {
+    "num_videos": 3,
+    "psnr": 13.030122871171955,
+    "ssim": 0.3741852230160569,
+    "lpips": 0.5783199654581647
+  },
+  "per_video": [
+    {
+      "video": "prompt_0000_seed_0.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 11.658599727568923,
+      "ssim": 0.26678747344064513,
+      "lpips": 0.6294490368811019
+    },
+    {
+      "video": "prompt_0001_seed_1.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 13.44479325569476,
+      "ssim": 0.36555774548934933,
+      "lpips": 0.6427189730897997
+    },
+    {
+      "video": "prompt_0002_seed_2.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 13.986975630252186,
+      "ssim": 0.4902104501181761,
+      "lpips": 0.46279188640359226
+    }
+  ]
+}

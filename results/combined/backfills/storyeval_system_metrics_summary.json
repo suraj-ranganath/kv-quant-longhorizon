@@ -1,0 +1,246 @@
+{
+  "generated_at_utc": "2026-03-10T22:11:10.762271+00:00",
+  "num_targets": 30,
+  "targets": [
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_BF16_presentation_fullmatrix_1773110004",
+      "method": "BF16",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/b95b9ff7c2ade63e_BF16.json",
+      "num_videos": 10,
+      "compression_ratio": 1.0
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_KIVI_INT2_presentation_fullmatrix_1773110004",
+      "method": "KIVI_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/6fb49d1594149fc4_KIVI_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 5.314878892733564
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_KIVI_INT4_presentation_fullmatrix_1773110004",
+      "method": "KIVI_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/e81be0b18f1d0d98_KIVI_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.1933471933471935
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_KIVI_INT4_REFRESH_presentation_fullmatrix_1773110004",
+      "method": "KIVI_INT4_REFRESH",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/455de8d68709ba43_KIVI_INT4_REFRESH.json",
+      "num_videos": 10,
+      "compression_ratio": 3.1933471933471935
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_QUAROT_KV_INT2_presentation_fullmatrix_1773110004",
+      "method": "QUAROT_KV_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/80f4f0cb74a77c61_QUAROT_KV_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 5.333333333333333
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_QUAROT_KV_INT4_presentation_fullmatrix_1773110004",
+      "method": "QUAROT_KV_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/2079f1b18e7ea255_QUAROT_KV_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.2
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_QUAROT_KV_INT4_RECENT2_presentation_fullmatrix_1773110004",
+      "method": "QUAROT_KV_INT4_RECENT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/762551c801df35d7_QUAROT_KV_INT4_RECENT2.json",
+      "num_videos": 10,
+      "compression_ratio": 2.4347826086956523
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT2_presentation_fullmatrix_1773110004",
+      "method": "RTN_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/8b807b54cd44323a_RTN_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 5.333333333333333
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT4_presentation_fullmatrix_1773110004",
+      "method": "RTN_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/ea49142811146b8e_RTN_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.2
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT4_RECENT2_presentation_fullmatrix_1773110004",
+      "method": "RTN_INT4_RECENT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/8dddd8ed0fbe94d3_RTN_INT4_RECENT2.json",
+      "num_videos": 10,
+      "compression_ratio": 2.4347826086956523
+    },
+    {
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT4_REFRESH_presentation_fullmatrix_1773110004",
+      "method": "RTN_INT4_REFRESH",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/b85bc09b776893b8_RTN_INT4_REFRESH.json",
+      "num_videos": 10,
+      "compression_ratio": 3.2
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_age_tier_int2_9bbee19b8cfd_10prompts_10s",
+      "method": "AGE_TIER_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/361a8cf515b9f8ac_AGE_TIER_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 4.414506364707783
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_age_tier_int4_74dcf380574b_10prompts_10s",
+      "method": "AGE_TIER_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/fce37482ff531da1_AGE_TIER_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.1842960066066124
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_adaptive_int2_1a41612d204d_10prompts_10s",
+      "method": "FLOWCACHE_ADAPTIVE_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/c2741542c5f8f455_FLOWCACHE_ADAPTIVE_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 4.257537019382938
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_hybrid_int2_973ebc836fd7_10prompts_10s",
+      "method": "FLOWCACHE_HYBRID_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/db68bd60b3b5386c_FLOWCACHE_HYBRID_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 4.592230482379793
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_native_7743d4e12ea8_10prompts_10s",
+      "method": "FLOWCACHE_NATIVE",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/a989f501487e8b09_FLOWCACHE_NATIVE.json",
+      "num_videos": 10,
+      "compression_ratio": 1.0
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_native_soft_prune_int4_56d7f051182b_10prompts_10s",
+      "method": "FLOWCACHE_NATIVE_SOFT_PRUNE_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/b50fd02d5aa873b2_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 5.423639760541966
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int2_990b60e0bbd4_10prompts_10s",
+      "method": "FLOWCACHE_PRUNE_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/ce121e9ba711c9f2_FLOWCACHE_PRUNE_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 7.679736507208971
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_prune_int4_27bbc04277fe_10prompts_10s",
+      "method": "FLOWCACHE_PRUNE_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/aa5025a6cf82e034_FLOWCACHE_PRUNE_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 5.431468289622698
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int2_24b7f6c1cfbb_10prompts_10s",
+      "method": "FLOWCACHE_SOFT_PRUNE_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/7df3df1ebbba7fa0_FLOWCACHE_SOFT_PRUNE_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 6.722402816113413
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_flowcache_soft_prune_int4_5f5a998802bd_10prompts_10s",
+      "method": "FLOWCACHE_SOFT_PRUNE_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/3b7b934200ef7c82_FLOWCACHE_SOFT_PRUNE_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 5.423639760541966
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_prq_int2_c800cfa2a981_10prompts_10s",
+      "method": "PRQ_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/5589e2ddffc8dee0_PRQ_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 2.0
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_prq_int4_23a612bd2862_10prompts_10s",
+      "method": "PRQ_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/145d70e22f201055_PRQ_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 1.6
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_qaq_int2_dcc080e7d18f_10prompts_10s",
+      "method": "QAQ_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/39b608e8ce270e2e_QAQ_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 5.185465673119014
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_qaq_int4_aa6e42af3d16_10prompts_10s",
+      "method": "QAQ_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/c20e04e759ee8a70_QAQ_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.145812333275042
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_kivi_int4_bg_kivi_int2_3d327a450ca5_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/c8d4b4b7860dfeec_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 3.452849275036529
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_quarot_kv_int4_bg_rtn_int2_af0e1883d58d_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/782c93a6dcd7ab1e_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 3.460628590740115
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int2_1f080d8dcc0e_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/e628b8223dfc9c23_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 3.693165879891962
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/bc87b9cb2f89b13e_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json",
+      "num_videos": 10,
+      "compression_ratio": 3.1842960066066124
+    },
+    {
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_tptq_int2_089f989f38f6_10prompts_10s",
+      "method": "TPTQ_INT2",
+      "output_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/storyeval_system_metrics/77652f9f6553b71f_TPTQ_INT2.json",
+      "num_videos": 10,
+      "compression_ratio": 2.7166457817366974
+    }
+  ]
+}

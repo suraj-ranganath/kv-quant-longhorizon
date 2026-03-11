@@ -1,0 +1,23 @@
+{
+  "method": "QUAROT_KV_INT4_REFRESH",
+  "frame_step": 165,
+  "max_frames": 165,
+  "curve": [
+    {
+      "frame_cap": 165,
+      "imaging_quality": [
+        0.7191578630389589,
+        [
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/1004b806a2a39d46_QUAROT_KV_INT4_REFRESH/QUAROT_KV_INT4_REFRESH_frames_165/prompt_0001_seed_1.mp4",
+            "video_results": 76.2199589584813
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/1004b806a2a39d46_QUAROT_KV_INT4_REFRESH/QUAROT_KV_INT4_REFRESH_frames_165/prompt_0000_seed_0.mp4",
+            "video_results": 67.61161364931048
+          }
+        ]
+      ]
+    }
+  ]
+}
