@@ -28,9 +28,17 @@ That is why this repo is organized around a multi-axis empirical study rather th
 
 The posters below link to short six-method comparison videos for the prompts we used most in presentation:
 
-| MovieGen: candle / flame | MovieGen: coral reef / fish | StoryEval: bear in water |
-| --- | --- | --- |
-| [![MovieGen flame comparison](docs/assets/media/moviegen_flame_selected_methods.png)](docs/assets/media/moviegen_flame_selected_methods.mp4) | [![MovieGen fish comparison](docs/assets/media/moviegen_fish_selected_methods.png)](docs/assets/media/moviegen_fish_selected_methods.mp4) | [![StoryEval bear comparison](docs/assets/media/storyeval_bear_selected_methods.png)](docs/assets/media/storyeval_bear_selected_methods.mp4) |
+### MovieGen: candle / flame
+
+[![MovieGen flame comparison](docs/assets/media/moviegen_flame_selected_methods.png)](docs/assets/media/moviegen_flame_selected_methods.mp4)
+
+### MovieGen: coral reef / fish
+
+[![MovieGen fish comparison](docs/assets/media/moviegen_fish_selected_methods.png)](docs/assets/media/moviegen_fish_selected_methods.mp4)
+
+### StoryEval: bear in water
+
+[![StoryEval bear comparison](docs/assets/media/storyeval_bear_selected_methods.png)](docs/assets/media/storyeval_bear_selected_methods.mp4)
 
 Each comparison uses the same six presentation methods:
 
