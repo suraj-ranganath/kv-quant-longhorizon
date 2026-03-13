@@ -5,25 +5,32 @@ import json
 import re
 import shutil
 from dataclasses import dataclass
+from html import escape
 from pathlib import Path
 from typing import Any
 from datetime import datetime, timezone
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 from dashboard.data_sources import load_dashboard_workspace
 from dashboard.decision_analysis import (
     DEFAULT_THRESHOLDS,
     FRONTIER_DEFINITIONS,
-    SCORE_PRESETS,
     DecisionAnalysis,
+    RECOMMENDATION_FOCUS_PRESETS,
     build_dashboard_analysis,
+    get_recommendation_sort,
+    infer_method_family,
 )
 from dashboard.decision_plots import (
     plot_compression_vs_drift,
     plot_compression_vs_peak_vram,
+    plot_frontier_position,
     plot_compression_vs_quality,
     plot_family_summary,
     plot_peak_vram_vs_quality,
@@ -75,6 +82,15 @@ METHOD_ORDER = [
     "QUAROT_KV_INT4_RECENT2",
 ]
 
+PRESENTATION_METHOD_PREFERENCES = [
+    ["BF16"],
+    ["FLOWCACHE_SOFT_PRUNE_INT4"],
+    ["FLOWCACHE_PRUNE_INT4"],
+    ["RTN_INT4_RECENT2", "RTN_INT4"],
+    ["RTN_INT4_REFRESH", "RTN_INT4"],
+    ["QUAROT_KV_INT4", "QUAROT_KV_INT4_REFRESH", "QUAROT_KV_INT4_RECENT2"],
+]
+
 VIDEO_RE = re.compile(r"prompt_(\d+)_seed_(\d+)\.mp4$")
 
 QUANT_VRAM_NOTE = (
@@ -88,6 +104,59 @@ KV_BYTES_NOTE = (
     "`bf16_kv_bytes` is the BF16 cache-size baseline for the same cache shape, and "
     "`compressed_kv_bytes` is the quantized cache footprint reported by the quantizer state."
 )
+
+PRESENTATION_TOOLTIP_TEXT: dict[str, str] = {
+    "presentation_page": "Single-page presentation view that keeps the selected methods, prompt video, metrics, systems traces, and summary plots together in one place.",
+    "presentation_methods": "Methods pinned to the presentation page. These are the rows, videos, and plot highlights shown throughout the page.",
+    "presentation_input": "Prompt or input clip currently being shown in the presentation video comparison.",
+    "presentation_videos": "Side-by-side video comparison for the selected prompt and the chosen presentation methods.",
+    "presentation_cards": "Compact per-method summary cards for the presentation methods, showing the main systems and quality numbers together.",
+    "presentation_graphs": "Core trade-off plots from the rest of the dashboard, with the presentation methods highlighted directly on the charts.",
+    "presentation_focus_table": "Method-level comparison table restricted to the current presentation methods.",
+    "presentation_prompt_records": "Prompt-level rows backing the currently displayed videos.",
+    "presentation_traces": "VRAM and KV-cache traces for the selected prompt, restricted to the chosen presentation methods.",
+    "presentation_provenance": "Run-level provenance rows behind the methods shown on the presentation page.",
+    "research_decision_layer": "Presentation-focused layer that turns raw benchmark outputs into method recommendations, multi-objective frontiers, and deployment-style rankings.",
+    "recommendation_focus": "Ranking preset that changes which trade-offs the dashboard prioritizes first when selecting the main recommended method.",
+    "benchmark": "Evaluation surface currently in view. MovieGen is the single-shot 10-second benchmark, while StoryEval stresses longer narrative consistency.",
+    "source_users": "Users whose runs contribute rows to the current comparison dataset after filtering.",
+    "runs": "Named experiment groups contributing rows to the current benchmark slice.",
+    "methods": "Quantization methods currently included in the visible comparison set.",
+    "quality_goal": "The study treats perceptual quality and rollout stability as the first-order objective, then asks whether memory relief and runtime are good enough to be practical.",
+    "methods_in_scope": "Number of distinct quantization methods still visible after the current benchmark, run, and method filters.",
+    "balanced_frontier": "Methods that are not jointly beaten once quality, drift, runtime, VRAM, and compression are considered together.",
+    "best_vram_reduction": "Largest percentage drop in peak VRAM relative to the BF16 baseline for the current benchmark.",
+    "primary_benchmark": "Benchmark for which the current recommendation tables and plots are being computed.",
+    "compression_ratio": "BF16 KV bytes divided by compressed KV bytes. Higher means the quantized cache is smaller relative to the BF16 baseline.",
+    "runtime": "Average end-to-end generation wall-clock time per prompt. Lower is faster.",
+    "peak_vram": "Highest GPU memory observed during generation. Lower is better for fitting longer runs on a given device.",
+    "imaging_delta_vs_bf16": "Difference in VBench imaging quality relative to BF16. Values near zero preserve BF16-level visual quality; negative values lose quality.",
+    "drift_delta_vs_bf16": "Difference in the last available drift imaging-quality point relative to BF16. Values near zero preserve temporal stability better.",
+    "candidate_comparison": "Normalized comparison of the headline candidates. Every bar is scaled so higher is better, including runtime and VRAM after inversion into efficiency scores.",
+    "family_summary": "Aggregates methods by family to show structural patterns rather than only individual winners.",
+    "pareto_frontier": "A Pareto frontier contains methods that are not strictly outperformed on every objective in that frontier.",
+    "frontier_membership_table": "Table showing which methods lie on each frontier and why they do or do not survive the balanced practical frontier.",
+    "constraint_rankings": "Deployment-style ranking tables filtered by the active runtime, VRAM, and acceptable quality-loss caps from the sidebar.",
+    "method_family": "High-level algorithm family the method belongs to, such as RTN, KIVI, PRQ, or FlowCache variants.",
+    "bit_width_mode": "Bit-width or policy label summarizing how aggressively the cache is quantized or managed.",
+    "quantization_details": "Short textual summary of the method's actual operating policy, not just its family name.",
+    "recommended_for": "Use case or operating regime where the method is most defensible in the current dataset.",
+    "caution_label": "Main caveat that should be kept in mind before recommending the method.",
+    "pareto_status": "Whether the selected method survives each frontier's objective set and the explanation for that status.",
+    "run_provenance": "Run-level rows backing the selected method summary, included so you can trace every recommendation back to its original experiments.",
+    "explainability_table": "Derived feature table used to justify why the selected method scores well or poorly under the active recommendation focus.",
+    "systems_tradeoffs": "Plots that compare nominal KV compression against realized VRAM and runtime behavior in the current integration.",
+    "trace_preview": "Short systems sanity-check view showing how allocated VRAM and compressed KV size evolve during a sample prompt.",
+    "quality_stability_table": "Method-level quality and temporal-stability summary, including BF16-relative deltas.",
+    "storyeval_drift_curves": "StoryEval drift curves show how imaging quality changes over the longer narrative rollout checkpoints.",
+    "raw_method_table": "Full derived benchmark-level method table used underneath the recommendation views.",
+    "source_catalog": "Discovered CSV inputs and their role in the dashboard's merged analysis pipeline.",
+    "metric_glossary": "Reference table defining the metrics and method families used throughout the dashboard.",
+}
+
+
+def _tooltip_text(key: str, fallback: str = "") -> str:
+    return PRESENTATION_TOOLTIP_TEXT.get(key, fallback)
 
 
 @dataclass
@@ -258,6 +327,17 @@ def _format_metric_value(value: Any, precision: int = 3, suffix: str = "") -> st
     return f"{value_f:.{precision}f}{suffix}"
 
 
+def _format_psnr_value(value: Any, is_bf16_reference: bool = False, precision: int = 3) -> str:
+    if value is None or pd.isna(value):
+        return "-"
+    value_f = float(value)
+    if np.isposinf(value_f):
+        return "Reference (self-comparison)" if is_bf16_reference else "Exact match to BF16"
+    if np.isneginf(value_f) or not pd.notna(value_f):
+        return "-"
+    return f"{value_f:.{precision}f}"
+
+
 def _format_signed_metric(value: Any, precision: int = 3, suffix: str = "") -> str:
     if value is None or pd.isna(value):
         return "-"
@@ -267,10 +347,459 @@ def _format_signed_metric(value: Any, precision: int = 3, suffix: str = "") -> s
     return f"{value_f:+.{precision}f}{suffix}"
 
 
+def _tooltip_inline_html(label: str, tooltip: str) -> str:
+    tooltip_attr = escape(tooltip, quote=True)
+    return (
+        f"<span class='tooltip-inline'>{escape(label)}"
+        f"<span class='info-dot' tabindex='0' data-tooltip='{tooltip_attr}' aria-label='{tooltip_attr}'>i</span>"
+        "</span>"
+    )
+
+
+def _render_heading(level: int, label: str, tooltip: str | None = None) -> None:
+    heading_body = _tooltip_inline_html(label, tooltip) if tooltip else escape(label)
+    st.markdown(
+        f"<h{level} class='section-heading'>{heading_body}</h{level}>",
+        unsafe_allow_html=True,
+    )
+
+
+def _metric_help(label_key: str, fallback: str) -> str:
+    return _tooltip_text(label_key, fallback)
+
+
+def _card_metric_line(label: str, value: str, tooltip_key: str, fallback: str) -> str:
+    return f"<p><strong>{_tooltip_inline_html(label, _tooltip_text(tooltip_key, fallback))}:</strong> {value}</p>"
+
+
+def _format_metric_for_tooltip(value: Any, precision: int = 3) -> str:
+    if value is None or pd.isna(value):
+        return "-"
+    value_f = float(value)
+    if not pd.notna(value_f):
+        return "-"
+    return f"{value_f:+.{precision}f}"
+
+
+def _psnr_delta_tooltip_text(row: Any) -> str | None:
+    note = row.get("psnr_delta_note") if hasattr(row, "get") else None
+    if isinstance(note, str) and note.strip():
+        return None
+    return _format_metric_for_tooltip(row.get("psnr_delta_vs_bf16") if hasattr(row, "get") else None)
+
+
+def _psnr_display_series(df: pd.DataFrame, value_column: str, method_column: str = "method") -> pd.Series:
+    if value_column not in df.columns:
+        return pd.Series(dtype="object")
+
+    def _render(row: pd.Series) -> str:
+        method_value = str(row.get(method_column, "")) if method_column in row else ""
+        return _format_psnr_value(row.get(value_column), is_bf16_reference=(method_value == "BF16"))
+
+    return df.apply(_render, axis=1)
+
+
+def _prepare_psnr_display_df(df: pd.DataFrame, method_column: str = "method") -> pd.DataFrame:
+    if df.empty:
+        return df
+    display_df = df.copy()
+    for column in [
+        "psnr",
+        "moviegen_fidelity_psnr",
+        "moviegen_fidelity_psnr_agg",
+        "storyeval_fidelity_psnr",
+        "storyeval_fidelity_psnr_agg",
+    ]:
+        if column in display_df.columns:
+            display_df[column] = _psnr_display_series(display_df, column, method_column=method_column)
+    return display_df
+
 def _order_methods(methods: set[str]) -> list[str]:
     ordered = [m for m in METHOD_ORDER if m in methods]
     extras = sorted(m for m in methods if m not in METHOD_ORDER)
     return ordered + extras
+
+
+def _resolve_presentation_methods(method_options: list[str]) -> list[str]:
+    available = set(method_options)
+    selected: list[str] = []
+    for aliases in PRESENTATION_METHOD_PREFERENCES:
+        match = next((alias for alias in aliases if alias in available and alias not in selected), None)
+        if match:
+            selected.append(match)
+    if selected:
+        return selected
+    return method_options[: min(len(method_options), 6)]
+
+
+def _ordered_focus_rows(df: pd.DataFrame, methods: list[str], method_column: str = "method") -> pd.DataFrame:
+    if df.empty or method_column not in df.columns:
+        return df
+    order_map = {method: idx for idx, method in enumerate(methods)}
+    ordered = df[df[method_column].astype(str).isin(methods)].copy()
+    if ordered.empty:
+        return ordered
+    ordered["_presentation_order"] = ordered[method_column].astype(str).map(order_map).fillna(len(order_map))
+    ordered = ordered.sort_values(["_presentation_order", method_column], na_position="last").drop(columns="_presentation_order")
+    return ordered
+
+
+def _highlight_focus_methods(
+    fig: go.Figure,
+    method_df: pd.DataFrame,
+    focus_methods: list[str],
+    x_col: str,
+    y_col: str,
+    label_col: str = "method",
+) -> go.Figure:
+    if fig is None or method_df.empty or x_col not in method_df.columns or y_col not in method_df.columns:
+        return fig
+    plot_df = method_df[method_df[label_col].astype(str).isin(focus_methods)].dropna(subset=[x_col, y_col]).copy()
+    if plot_df.empty:
+        return fig
+    fig.add_trace(
+        go.Scatter(
+            x=plot_df[x_col],
+            y=plot_df[y_col],
+            mode="markers+text",
+            text=plot_df[label_col].astype(str),
+            textposition="top center",
+            name="Presentation methods",
+            marker={
+                "size": 18,
+                "color": "#ea580c",
+                "line": {"width": 2, "color": "#7c2d12"},
+                "symbol": "diamond",
+            },
+            hovertemplate=(
+                "<b>%{text}</b><br>"
+                + f"{x_col}: %{{x}}<br>"
+                + f"{y_col}: %{{y}}<extra>Presentation focus</extra>"
+            ),
+        )
+    )
+    return fig
+
+
+def _render_video_sync_controls(key: str) -> None:
+    components.html(
+        f"""
+        <style>
+        .sync-controls {{
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0.15rem 0 0.35rem 0;
+            flex-wrap: wrap;
+            font-family: 'Manrope', sans-serif;
+        }}
+
+        .sync-button {{
+            border: 1px solid rgba(114, 128, 146, 0.34);
+            background: rgba(114, 128, 146, 0.1);
+            color: #475569;
+            border-radius: 999px;
+            padding: 0.38rem 0.78rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+        }}
+
+        .sync-note {{
+            color: #64748b;
+            font-size: 0.82rem;
+        }}
+        </style>
+        <div class="sync-controls">
+            <button class="sync-button" id="play-all-{key}">Play all videos</button>
+            <button class="sync-button" id="pause-all-{key}">Pause all videos</button>
+            <button class="sync-button" id="restart-all-{key}">Restart all videos</button>
+            <span class="sync-note">Loop stays enabled for every video on the page.</span>
+        </div>
+        <script>
+        const parentDoc = window.parent.document;
+        const getVideos = () => Array.from(parentDoc.querySelectorAll("video"));
+
+        const applyLooping = () => {{
+            getVideos().forEach((video) => {{
+                video.loop = true;
+            }});
+        }};
+
+        const syncPlay = (reset) => {{
+            const videos = getVideos();
+            if (!videos.length) return;
+            let anchorTime = 0;
+            if (!reset) {{
+                const currentTimes = videos
+                    .map((video) => Number.isFinite(video.currentTime) ? video.currentTime : 0)
+                    .filter((value) => value >= 0);
+                anchorTime = currentTimes.length ? Math.min(...currentTimes) : 0;
+            }}
+            videos.forEach((video) => {{
+                video.loop = true;
+                if (reset) {{
+                    video.currentTime = 0;
+                }} else {{
+                    video.currentTime = anchorTime;
+                }}
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === "function") {{
+                    playPromise.catch(() => {{}});
+                }}
+            }});
+        }};
+
+        const pauseAll = () => {{
+            getVideos().forEach((video) => video.pause());
+        }};
+
+        document.getElementById("play-all-{key}").addEventListener("click", () => syncPlay(false));
+        document.getElementById("pause-all-{key}").addEventListener("click", pauseAll);
+        document.getElementById("restart-all-{key}").addEventListener("click", () => syncPlay(true));
+
+        applyLooping();
+        window.setInterval(applyLooping, 1500);
+        </script>
+        """,
+        height=64,
+    )
+
+
+def _presentation_prompt_column_config(columns: list[str]) -> dict[str, Any]:
+    configs: dict[str, Any] = {
+        "source_user": st.column_config.TextColumn("Source user", help=_tooltip_text("source_users")),
+        "run_name": st.column_config.TextColumn("Run", help=_tooltip_text("runs")),
+        "method_display": st.column_config.TextColumn("Method", help="Presentation method name for this prompt-level record."),
+        "prompt_id": st.column_config.TextColumn("Prompt ID", help=_tooltip_text("presentation_input")),
+        "seed": st.column_config.NumberColumn("Seed", help="Random seed for this generated sample.", format="%d"),
+        "wall_time_sec": st.column_config.NumberColumn("Runtime", help=_tooltip_text("runtime"), format="%.2f s"),
+        "peak_vram_mb": st.column_config.NumberColumn("Peak VRAM", help="Maximum GPU memory observed for this prompt-level sample.", format="%.0f MB"),
+        "moviegen_fidelity_psnr": st.column_config.TextColumn("PSNR", help="Prompt-level MovieGen PSNR relative to BF16. BF16 self-comparison is shown as a reference label instead of a raw infinite value."),
+        "moviegen_fidelity_ssim": st.column_config.NumberColumn("SSIM", help="Prompt-level MovieGen SSIM relative to BF16. Higher is better.", format="%.4f"),
+        "moviegen_fidelity_lpips": st.column_config.NumberColumn("LPIPS", help="Prompt-level MovieGen LPIPS relative to BF16. Lower is better.", format="%.4f"),
+        "moviegen_imaging_quality": st.column_config.NumberColumn("Imaging quality", help="Prompt-level VBench imaging-quality score. Higher is better.", format="%.4f"),
+        "storyeval_imaging_quality": st.column_config.NumberColumn("Imaging quality", help="Prompt-level StoryEval imaging-quality score. Higher is better.", format="%.4f"),
+        "storyeval_subject_consistency": st.column_config.NumberColumn("Subject consistency", help="Prompt-level StoryEval subject-consistency score. Higher is better.", format="%.4f"),
+    }
+    return {column: config for column, config in configs.items() if column in columns}
+
+
+def _presentation_tree_method_row(method_df: pd.DataFrame, method: str) -> pd.Series | None:
+    matches = method_df[method_df["method"].astype(str) == method]
+    if matches.empty:
+        return None
+    return matches.iloc[0]
+
+
+def _tree_metric(row: pd.Series | None, column: str, precision: int = 2, suffix: str = "") -> str:
+    if row is None:
+        return "-"
+    value = row.get(column)
+    if value is None or pd.isna(value):
+        return "-"
+    return f"{float(value):.{precision}f}{suffix}"
+
+
+def _graphviz_escape(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+def render_presentation_decision_tree(analysis: DecisionAnalysis) -> None:
+    branch_options = {
+        "All branches": set(),
+        "Deployment path": {"start", "memory", "low_vram_quality", "memory_reduction", "flowcache_soft", "flowcache_prune"},
+        "Quantized fidelity path": {"start", "memory", "quality", "highest_fidelity", "quality_runtime", "quarot", "rtn_recent2"},
+        "Policy insight path": {"start", "memory", "quality", "policy_insight", "reference_result", "rtn_refresh"},
+        "BF16 reference path": {"start", "memory", "quality", "policy_insight", "reference_result", "bf16"},
+    }
+    selected_branch = st.selectbox(
+        "Tree focus",
+        options=list(branch_options.keys()),
+        index=0,
+        key=f"presentation_tree_focus_{analysis.benchmark}",
+        help="Highlight one decision path at a time while keeping the full tree visible.",
+    )
+    highlight_nodes = branch_options[selected_branch]
+
+    node_specs = [
+        {
+            "id": "start",
+            "label": "How to choose a KV-cache method\n\nStart: What do you need most?",
+            "fill": "#e2e8f0",
+            "line": "#94a3b8",
+        },
+        {
+            "id": "memory",
+            "label": "1. Do you need REAL memory relief\nor lower peak VRAM right now?",
+            "fill": "#e2e8f0",
+            "line": "#94a3b8",
+        },
+        {
+            "id": "low_vram_quality",
+            "label": "Want the best quality\namong the low-VRAM methods?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "quality",
+            "label": "Do you care most about preserving\nquality under quantization?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "memory_reduction",
+            "label": "Want the strongest raw memory reduction,\nand can accept more quality loss?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "highest_fidelity",
+            "label": "Want the highest-fidelity quantized method,\nruntime less important?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "policy_insight",
+            "label": "Do you want the simplest policy insight\nwith good speed?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "quality_runtime",
+            "label": "Want the best quality / runtime tradeoff?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "reference_result",
+            "label": "Need an upper-bound\nor reference result?",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+        {
+            "id": "flowcache_soft",
+            "label": "FLOWCACHE_SOFT_PRUNE_INT4\n\nWhy: ~5.49x compression, 11.71 GB peak VRAM,\nimaging quality 0.739\n\nUse when: deployment or single-GPU runs are\nmemory-limited",
+            "fill": "#ecfdf5",
+            "line": "#86efac",
+        },
+        {
+            "id": "flowcache_prune",
+            "label": "FLOWCACHE_PRUNE_INT4\n\nWhy: ~5.50x compression, 11.71 GB peak VRAM,\nfaster than soft-prune\n\nTradeoff: worse PSNR / SSIM / LPIPS than\nsoft-prune",
+            "fill": "#f0fdf4",
+            "line": "#86efac",
+        },
+        {
+            "id": "quarot",
+            "label": "QUAROT_KV_INT4\n\nWhy: strongest quality preservation among\nquantized baselines\n\nNumbers: 3.20x compression, LPIPS 0.1483,\nimaging quality 0.738\n\nTradeoff: very slow, ~236.6s/prompt",
+            "fill": "#fff7ed",
+            "line": "#fdba74",
+        },
+        {
+            "id": "rtn_recent2",
+            "label": "RTN_INT4_RECENT2\n\nWhy: best practical RTN policy variant\n\nNumbers: 2.43x compression, PSNR 23.692,\nSSIM 0.7320, LPIPS 0.1482, drift-last 0.735,\nruntime ~68.9s\n\nUse when: research says recent context matters and you want\na strong quality result without QuaRot's runtime cost",
+            "fill": "#eff6ff",
+            "line": "#93c5fd",
+        },
+        {
+            "id": "rtn_refresh",
+            "label": "RTN_INT4_REFRESH\n\nWhy: shows refresh-only cadence helps over\nplain RTN\n\nNumbers: 3.20x compression, runtime ~65.0s,\nimaging quality 0.736\n\nUse when: you want a cheap, interpretable\npolicy win",
+            "fill": "#eff6ff",
+            "line": "#93c5fd",
+        },
+        {
+            "id": "bf16",
+            "label": "BF16\n\nWhy: best reference quality, no compression\n\nUse when: you want the oracle baseline,\nnot a deployable method",
+            "fill": "#f8fafc",
+            "line": "#cbd5e1",
+        },
+    ]
+
+    edges = [
+        ("start", "memory", ""),
+        ("memory", "low_vram_quality", "Yes"),
+        ("memory", "quality", "No"),
+        ("low_vram_quality", "flowcache_soft", "Yes"),
+        ("low_vram_quality", "memory_reduction", "No"),
+        ("memory_reduction", "flowcache_prune", "Yes"),
+        ("quality", "highest_fidelity", "Yes"),
+        ("quality", "policy_insight", "No"),
+        ("highest_fidelity", "quarot", "Yes"),
+        ("highest_fidelity", "quality_runtime", "No"),
+        ("quality_runtime", "rtn_recent2", "Yes"),
+        ("policy_insight", "rtn_refresh", "Yes"),
+        ("policy_insight", "reference_result", "No"),
+        ("reference_result", "bf16", "Yes"),
+    ]
+
+    node_styles: list[str] = []
+    for node in node_specs:
+        active = not highlight_nodes or node["id"] in highlight_nodes
+        fontcolor = "#0f172a" if active else "#94a3b8"
+        edgecolor = ("#0f766e" if active else "#cbd5e1") if node["id"] in {"flowcache_soft", "flowcache_prune", "quarot", "rtn_recent2", "rtn_refresh", "bf16"} else ("#475569" if active else "#cbd5e1")
+        fillcolor = node["fill"] if active else "#f8fafc"
+        penwidth = "2.2" if active else "1.2"
+        node_styles.append(
+            f'{node["id"]} [label="{_graphviz_escape(node["label"])}", fillcolor="{fillcolor}", color="{edgecolor}", fontcolor="{fontcolor}", penwidth={penwidth}];'
+        )
+
+    edge_styles: list[str] = []
+    for source, target, label in edges:
+        active = not highlight_nodes or (source in highlight_nodes and target in highlight_nodes)
+        color = "#0f766e" if active else "#cbd5e1"
+        fontcolor = "#475569" if active else "#94a3b8"
+        penwidth = "2.0" if active else "1.0"
+        edge_label = f', label="{label}", decorate=true, labelfloat=false, fontcolor="{fontcolor}", fontsize=11' if label else ""
+        edge_styles.append(
+            f'{source} -> {target} [color="{color}", penwidth={penwidth}{edge_label}];'
+        )
+
+    dot = f"""
+digraph KVMethodTree {{
+    graph [
+        rankdir=TB,
+        splines=ortho,
+        nodesep=0.75,
+        ranksep=0.95,
+        pad=0.35,
+        bgcolor="transparent"
+    ];
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Helvetica",
+        fontsize=11,
+        margin="0.20,0.14"
+    ];
+    edge [
+        arrowsize=0.7,
+        fontname="Helvetica",
+        fontsize=11
+    ];
+
+    {' '.join(node_styles)}
+    {' '.join(edge_styles)}
+
+    {{ rank=same; start; }}
+    {{ rank=same; memory; }}
+    {{ rank=same; low_vram_quality; quality; }}
+    {{ rank=same; memory_reduction; highest_fidelity; policy_insight; }}
+    {{ rank=same; quality_runtime; reference_result; }}
+    {{ rank=same; flowcache_soft; flowcache_prune; quarot; rtn_recent2; rtn_refresh; bf16; }}
+
+    low_vram_quality -> quality [style=invis, weight=10];
+    memory_reduction -> highest_fidelity [style=invis, weight=10];
+    highest_fidelity -> policy_insight [style=invis, weight=10];
+    quality_runtime -> reference_result [style=invis, weight=10];
+    flowcache_soft -> flowcache_prune [style=invis, weight=10];
+    flowcache_prune -> quarot [style=invis, weight=10];
+    quarot -> rtn_recent2 [style=invis, weight=10];
+    rtn_recent2 -> rtn_refresh [style=invis, weight=10];
+    rtn_refresh -> bf16 [style=invis, weight=10];
+}}
+"""
+
+    st.graphviz_chart(dot, use_container_width=True)
 
 
 def _project_sorted_table(
@@ -286,6 +815,171 @@ def _project_sorted_table(
         sort_by, sort_ascending = zip(*sort_pairs)
         ordered = df.sort_values(list(sort_by), ascending=list(sort_ascending), na_position="last")
     return ordered[present_cols]
+
+
+def _safe_sort(df: pd.DataFrame, sort_columns: list[str], ascending: list[bool]) -> pd.DataFrame:
+    sort_pairs = [(column, direction) for column, direction in zip(sort_columns, ascending) if column in df.columns]
+    if not sort_pairs:
+        return df
+    sort_by, sort_ascending = zip(*sort_pairs)
+    return df.sort_values(list(sort_by), ascending=list(sort_ascending), na_position="last")
+
+
+def _top_constraint_calibration_rows(method_df: pd.DataFrame, recommendation_focus: str) -> pd.DataFrame:
+    if method_df.empty:
+        return method_df
+    candidate_df = method_df[method_df["method"] != "BF16"].copy()
+    if candidate_df.empty:
+        candidate_df = method_df.copy()
+    sort_columns, sort_ascending = get_recommendation_sort(recommendation_focus)
+    candidate_df = _safe_sort(candidate_df, sort_columns, sort_ascending)
+    return candidate_df.head(min(3, len(candidate_df)))
+
+
+def _calibrated_constraint_defaults(method_df: pd.DataFrame, recommendation_focus: str) -> dict[str, float | str]:
+    top_rows = _top_constraint_calibration_rows(method_df, recommendation_focus)
+    source_methods = ", ".join(top_rows["method"].astype(str).tolist()) if not top_rows.empty else "-"
+
+    def _series_max(column: str, fallback: float) -> float:
+        if column not in top_rows.columns:
+            return fallback
+        series = pd.to_numeric(top_rows[column], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+        return float(series.max()) if not series.empty else fallback
+
+    def _series_min(column: str, fallback: float) -> float:
+        if column not in top_rows.columns:
+            return fallback
+        series = pd.to_numeric(top_rows[column], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+        return float(series.min()) if not series.empty else fallback
+
+    return {
+        "runtime_max": _series_max("avg_runtime_s_per_prompt", 60.0),
+        "vram_max": _series_max("peak_vram_gb", 16.0),
+        "ssim_drop_max": max(_series_max("ssim_drop_vs_bf16", float(DEFAULT_THRESHOLDS["acceptable_ssim_drop"])), 0.0),
+        "lpips_increase_max": max(_series_max("lpips_delta_vs_bf16", float(DEFAULT_THRESHOLDS["acceptable_lpips_increase"])), 0.0),
+        "drift_drop_max": max(_series_max("drift_last_imaging_quality_drop_vs_bf16", float(DEFAULT_THRESHOLDS["acceptable_drift_drop"])), 0.0),
+        "min_compression": max(_series_min("compression_ratio", float(DEFAULT_THRESHOLDS["min_compression"])), 1.0),
+        "psnr_min": _series_min("psnr", 20.0),
+        "source_methods": source_methods,
+    }
+
+
+def _prepare_constraint_table(table: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "method",
+        "method_family",
+        "compression_ratio",
+        "peak_vram_gb",
+        "avg_runtime_s_per_prompt",
+        "psnr",
+        "ssim",
+        "lpips",
+        "psnr_delta_vs_bf16",
+        "ssim_delta_vs_bf16",
+        "lpips_delta_vs_bf16",
+        "drift_last_imaging_quality",
+        "drift_last_imaging_quality_delta_vs_bf16",
+        "runtime_overhead_vs_bf16_pct",
+        "peak_vram_reduction_vs_bf16_pct",
+        "recommended_for",
+        "caution_label",
+    ]
+    present = [column for column in columns if column in table.columns]
+    return table[present].reset_index(drop=True)
+
+
+def _build_live_constraint_rankings(method_df: pd.DataFrame, recommendation_focus: str, limits: dict[str, float]) -> dict[str, pd.DataFrame]:
+    if method_df.empty:
+        return {}
+
+    sort_columns, sort_ascending = get_recommendation_sort(recommendation_focus)
+    runtime_max = limits["runtime_max"]
+    vram_max = limits["vram_max"]
+    ssim_drop_max = limits["ssim_drop_max"]
+    lpips_increase_max = limits["lpips_increase_max"]
+    drift_drop_max = limits["drift_drop_max"]
+    psnr_min = limits["psnr_min"]
+
+    rankings: dict[str, pd.DataFrame] = {}
+
+    rankings[f"Quality | runtime <= {runtime_max:.1f}s"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["avg_runtime_s_per_prompt"].fillna(np.inf) <= runtime_max],
+            ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "psnr", "drift_last_imaging_quality_drop_vs_bf16", "peak_vram_gb"],
+            [True, True, False, True, True],
+        )
+    )
+    rankings[f"Quality | peak VRAM <= {vram_max:.2f} GB"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["peak_vram_gb"].fillna(np.inf) <= vram_max],
+            ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "psnr", "avg_runtime_s_per_prompt"],
+            [True, True, False, True],
+        )
+    )
+    rankings[f"Compression | SSIM drop <= {ssim_drop_max:.3f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop_max],
+            ["compression_ratio", "ssim", "lpips", "psnr"],
+            [False, False, True, False],
+        )
+    )
+    rankings[f"Compression | PSNR >= {psnr_min:.2f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["psnr"].fillna(-np.inf) >= psnr_min],
+            ["compression_ratio", "ssim", "lpips", "psnr"],
+            [False, False, True, False],
+        )
+    )
+    rankings[f"Compression | LPIPS increase <= {lpips_increase_max:.3f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase_max],
+            ["compression_ratio", "ssim", "lpips", "psnr"],
+            [False, False, True, False],
+        )
+    )
+    rankings[f"Runtime | SSIM drop <= {ssim_drop_max:.3f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop_max],
+            ["avg_runtime_s_per_prompt", "compression_ratio", "ssim", "lpips"],
+            [True, False, False, True],
+        )
+    )
+    rankings[f"Runtime | PSNR >= {psnr_min:.2f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["psnr"].fillna(-np.inf) >= psnr_min],
+            ["avg_runtime_s_per_prompt", "compression_ratio", "ssim", "lpips"],
+            [True, False, False, True],
+        )
+    )
+    rankings[f"Runtime | LPIPS increase <= {lpips_increase_max:.3f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase_max],
+            ["avg_runtime_s_per_prompt", "compression_ratio", "ssim", "lpips"],
+            [True, False, False, True],
+        )
+    )
+    rankings[f"Stability | drift drop <= {drift_drop_max:.3f}"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[method_df["drift_last_imaging_quality_drop_vs_bf16"].fillna(np.inf) <= drift_drop_max],
+            ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "compression_ratio", "avg_runtime_s_per_prompt"],
+            [True, True, False, True],
+        )
+    )
+    rankings["Best under all active constraints"] = _prepare_constraint_table(
+        _safe_sort(
+            method_df[
+                (method_df["avg_runtime_s_per_prompt"].fillna(np.inf) <= runtime_max)
+                & (method_df["peak_vram_gb"].fillna(np.inf) <= vram_max)
+                & (method_df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop_max)
+                & (method_df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase_max)
+                & (method_df["drift_last_imaging_quality_drop_vs_bf16"].fillna(np.inf) <= drift_drop_max)
+                & (method_df["psnr"].fillna(-np.inf) >= psnr_min)
+            ],
+            sort_columns,
+            sort_ascending,
+        )
+    )
+    return rankings
 
 
 def _run_member_roots(run: RunLayout) -> list[Path]:
@@ -332,10 +1026,9 @@ def _metric_column_config() -> dict[str, Any]:
             help="Number of prompt records found in generation logs.",
             format="%d",
         ),
-        "psnr": st.column_config.NumberColumn(
+        "psnr": st.column_config.TextColumn(
             "psnr",
-            help="Peak Signal-to-Noise Ratio vs BF16 reference. Higher is better.",
-            format="%.4f",
+            help="Peak Signal-to-Noise Ratio vs BF16 reference. Higher is better. BF16 self-comparison is shown as a reference label instead of a raw infinite value.",
         ),
         "ssim": st.column_config.NumberColumn(
             "ssim",
@@ -408,6 +1101,55 @@ def _metric_column_config() -> dict[str, Any]:
             format="%.4f",
         ),
     }
+
+
+def _decision_column_config(columns: list[str]) -> dict[str, Any]:
+    configs: dict[str, Any] = {
+        "method": st.column_config.TextColumn("Method", help="Quantization method name."),
+        "method_family": st.column_config.TextColumn("Family", help=_tooltip_text("method_family")),
+        "bit_width_label": st.column_config.TextColumn("Bit-width / mode", help=_tooltip_text("bit_width_mode")),
+        "source_users": st.column_config.TextColumn("Source users", help=_tooltip_text("source_users")),
+        "run_count": st.column_config.NumberColumn("Run count", help="Number of run-level summaries contributing to this benchmark-level method row.", format="%d"),
+        "prompt_count": st.column_config.NumberColumn("Prompt count", help="Total prompt-level observations contributing to the method summary.", format="%d"),
+        "seed_count": st.column_config.NumberColumn("Seed count", help="Number of prompt/seed records represented by the method summary.", format="%d"),
+        "compression_ratio": st.column_config.NumberColumn("Compression", help=_tooltip_text("compression_ratio"), format="%.2fx"),
+        "peak_vram_gb": st.column_config.NumberColumn("Peak VRAM", help=_tooltip_text("peak_vram"), format="%.2f GB"),
+        "peak_compressed_kv_gb": st.column_config.NumberColumn("Compressed KV", help="Maximum compressed KV-cache footprint observed during the run, in gigabytes. Lower is smaller.", format="%.2f GB"),
+        "avg_runtime_s_per_prompt": st.column_config.NumberColumn("Runtime / prompt", help=_tooltip_text("runtime"), format="%.1f s"),
+        "imaging_quality": st.column_config.NumberColumn("Imaging quality", help="VBench imaging-quality score. Higher is better.", format="%.3f"),
+        "drift_last_imaging_quality": st.column_config.NumberColumn("Drift last", help="Last available imaging-quality point from the drift curve. Higher is better for temporal stability.", format="%.3f"),
+        "psnr": st.column_config.TextColumn("PSNR", help="Peak Signal-to-Noise Ratio relative to BF16. Higher is better. BF16 self-comparison is shown as a reference label instead of a raw infinite value."),
+        "ssim": st.column_config.NumberColumn("SSIM", help="Structural Similarity Index relative to BF16. Higher is better.", format="%.3f"),
+        "lpips": st.column_config.NumberColumn("LPIPS", help="Learned perceptual image distance relative to BF16. Lower is better.", format="%.3f"),
+        "psnr_delta_vs_bf16": st.column_config.NumberColumn("PSNR Δ vs BF16", help="PSNR difference relative to BF16. This can be undefined when BF16 PSNR is infinite.", format="%+.3f"),
+        "imaging_quality_delta_vs_bf16": st.column_config.NumberColumn("Imaging Δ vs BF16", help=_tooltip_text("imaging_delta_vs_bf16"), format="%+.3f"),
+        "drift_last_imaging_quality_delta_vs_bf16": st.column_config.NumberColumn("Drift Δ vs BF16", help=_tooltip_text("drift_delta_vs_bf16"), format="%+.3f"),
+        "ssim_delta_vs_bf16": st.column_config.NumberColumn("SSIM Δ vs BF16", help="SSIM difference relative to BF16. Values near zero preserve structure better.", format="%+.3f"),
+        "lpips_delta_vs_bf16": st.column_config.NumberColumn("LPIPS Δ vs BF16", help="LPIPS difference relative to BF16. Smaller or negative is better.", format="%+.3f"),
+        "runtime_overhead_vs_bf16_pct": st.column_config.NumberColumn("Runtime vs BF16", help="Relative runtime change compared with BF16. Lower or negative is better.", format="%+.1f%%"),
+        "peak_vram_reduction_vs_bf16_pct": st.column_config.NumberColumn("VRAM reduction vs BF16", help="Peak-VRAM reduction relative to BF16. Higher means more memory saved.", format="%.1f%%"),
+        "compression_gain_vs_bf16": st.column_config.NumberColumn("Compression gain vs BF16", help="Additional compression beyond the BF16 baseline. Higher means stronger compression improvement.", format="%.2fx"),
+        "recommended_for": st.column_config.TextColumn("Recommended for", help=_tooltip_text("recommended_for")),
+        "caution_label": st.column_config.TextColumn("Caution", help=_tooltip_text("caution_label")),
+        "auto_explanation": st.column_config.TextColumn("Why it lands here", help="Auto-generated summary of the method's practical strengths and weaknesses under the current benchmark."),
+        "pareto_balanced_practical": st.column_config.CheckboxColumn("Balanced frontier", help="Whether the method lies on the balanced practical frontier."),
+        "pareto_quality_preserving_compression": st.column_config.CheckboxColumn("Quality-preserving frontier", help="Whether the method lies on the compression-versus-quality frontier."),
+        "pareto_systems_efficiency": st.column_config.CheckboxColumn("Systems frontier", help="Whether the method lies on the runtime-versus-VRAM-versus-compression frontier."),
+        "pareto_quality_first": st.column_config.CheckboxColumn("Quality-first frontier", help="Whether the method lies on the quality-first frontier."),
+        "dominated_by_balanced_practical_count": st.column_config.NumberColumn("Balanced dominators", help="How many methods jointly beat this one on the balanced practical frontier objectives.", format="%d"),
+        "dominated_by_balanced_practical": st.column_config.TextColumn("Dominated by", help="Methods that jointly dominate this one on the balanced practical frontier."),
+        "pareto_balanced_practical_explanation": st.column_config.TextColumn("Balanced-frontier explanation", help="Why the method does or does not survive the balanced practical frontier."),
+        "frontier": st.column_config.TextColumn("Frontier", help=_tooltip_text("pareto_frontier")),
+        "methods": st.column_config.TextColumn("Methods", help="Methods currently lying on that frontier."),
+        "path": st.column_config.TextColumn("Path", help="Relative path of the discovered source artifact."),
+        "kind": st.column_config.TextColumn("Kind", help="Heuristic source category used during source discovery."),
+        "analysis_role": st.column_config.TextColumn("Analysis role", help="Whether the source is the selected primary table or a supporting provenance artifact."),
+        "selected_as_primary": st.column_config.CheckboxColumn("Primary", help="Whether this source was selected as the main comparison table."),
+        "rows": st.column_config.NumberColumn("Rows", help="Number of rows read from the discovered CSV.", format="%d"),
+        "column_count": st.column_config.NumberColumn("Columns", help="Number of columns present in the discovered CSV.", format="%d"),
+        "note": st.column_config.TextColumn("Note", help="Discovery note, including skipped-inline-read or load-status details."),
+    }
+    return {column: config for column, config in configs.items() if column in columns}
 
 
 def discover_runs_payload(results_root_str: str) -> list[dict[str, Any]]:
@@ -883,33 +1625,6 @@ def build_storyeval_metric_table(run: RunLayout, methods: list[str]) -> pd.DataF
     return pd.DataFrame(rows)
 
 
-def render_experiment_takeaways_storyeval(metric_df: pd.DataFrame) -> None:
-    methods = set(metric_df["method"].dropna().astype(str).tolist()) if not metric_df.empty else set()
-    stable_methods = {
-        "BF16",
-        "RTN_INT4_REFRESH",
-        "KIVI_INT4_REFRESH",
-        "RTN_INT4_RECENT2",
-        "QUAROT_KV_INT4_RECENT2",
-    }
-    if not stable_methods.issubset(methods):
-        return
-
-    st.markdown("### Experiment Takeaways")
-    st.info(
-        "\n".join(
-            [
-                "On StoryEval, the ranking matches MovieGen: `RTN_INT4_RECENT2` is the strongest completed quantized method.",
-                "`RTN_INT4_REFRESH` is the simplest strong baseline when higher compression matters more than absolute quality.",
-                "`KIVI_INT4_REFRESH` underperforms the RTN variants on imaging quality, subject consistency, and drift.",
-                "`QUAROT_KV_INT4_RECENT2` is competitive, but its runtime cost is much higher.",
-                "See `EXPERIMENTS.md` for run paths, full metrics, and method-by-method analysis.",
-            ]
-        ),
-        icon="📌",
-    )
-
-
 def render_storyeval_overview(run: RunLayout, methods: list[str]) -> None:
     summary = load_storyeval_summary(run)
     vbench = load_storyeval_vbench(run)
@@ -931,8 +1646,6 @@ def render_storyeval_overview(run: RunLayout, methods: list[str]) -> None:
     c6.metric("Best Imaging", f"{metric_df['imaging_quality'].max(skipna=True):.4f}" if not metric_df.empty and metric_df["imaging_quality"].notna().any() else "-")
     c7.metric("Best Subject", f"{metric_df['subject_consistency'].max(skipna=True):.4f}" if not metric_df.empty and metric_df["subject_consistency"].notna().any() else "-")
     c8.metric("Best Aesthetic", f"{metric_df['aesthetic_quality'].max(skipna=True):.4f}" if not metric_df.empty and metric_df["aesthetic_quality"].notna().any() else "-")
-
-    render_experiment_takeaways_storyeval(metric_df)
 
     if not metric_df.empty:
         st.markdown("### Unified method table")
@@ -1365,6 +2078,163 @@ def render_header() -> None:
             font-family: 'IBM Plex Mono', monospace;
             color: var(--text-color);
         }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .tooltip-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.38rem;
+            flex-wrap: wrap;
+        }
+
+        .info-dot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 1.05rem;
+            height: 1.05rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: rgba(148, 163, 184, 0.08);
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: help;
+        }
+
+        .info-dot::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 0.4rem);
+            transform: translateX(-50%);
+            min-width: 12rem;
+            max-width: 18rem;
+            padding: 0.45rem 0.55rem;
+            border-radius: 10px;
+            border: 1px solid rgba(203, 213, 225, 0.95);
+            background: rgba(255, 255, 255, 0.98);
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 500;
+            line-height: 1.35;
+            text-align: left;
+            white-space: normal;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .info-dot::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 0.12rem);
+            width: 0.45rem;
+            height: 0.45rem;
+            transform: translateX(-50%) rotate(45deg);
+            background: rgba(255, 255, 255, 0.98);
+            border-right: 1px solid rgba(203, 213, 225, 0.95);
+            border-bottom: 1px solid rgba(203, 213, 225, 0.95);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .info-dot:hover::after,
+        .info-dot:hover::before,
+        .info-dot:focus::after,
+        .info-dot:focus::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-dot:focus {
+            outline: 1px solid rgba(148, 163, 184, 0.25);
+            outline-offset: 1px;
+        }
+
+        span.doinfo,
+        [data-testid="stTooltipIcon"],
+        [data-testid="stTooltipIcon"] span,
+        button[aria-label*="Help"] span {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 1.05rem !important;
+            height: 1.05rem !important;
+            min-width: 1.05rem !important;
+            min-height: 1.05rem !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            background: rgba(148, 163, 184, 0.08) !important;
+            color: #94a3b8 !important;
+            fill: #94a3b8 !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            box-shadow: none !important;
+        }
+
+        button[aria-label*="Help"] {
+            position: relative !important;
+            padding: 0 !important;
+            min-height: 1.05rem !important;
+            min-width: 1.05rem !important;
+            width: 1.05rem !important;
+            height: 1.05rem !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+            background: rgba(148, 163, 184, 0.08) !important;
+            color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        button[aria-label*="Help"] svg {
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        button[aria-label*="Help"]::before {
+            content: "i";
+            position: absolute;
+            inset: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        button[aria-label*="Help"]:hover,
+        button[aria-label*="Help"]:focus,
+        button[aria-label*="Help"]:focus-visible {
+            border-color: rgba(148, 163, 184, 0.34) !important;
+            background: rgba(148, 163, 184, 0.12) !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.62rem !important;
+        }
+
+        [data-testid="stMetricLabel"] {
+            font-size: 0.92rem !important;
+        }
         </style>
         <div class="hero">
             <h1>KV-Cache Quantization Dashboard</h1>
@@ -1373,7 +2243,6 @@ def render_header() -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.info(QUANT_VRAM_NOTE, icon="ℹ️")
 
 
 def _describe_method(method_name: str) -> str:
@@ -1520,34 +2389,6 @@ def render_overview_explainers(metric_df: pd.DataFrame) -> None:
         st.info("No metric descriptions available for the current selection.")
 
 
-def render_experiment_takeaways_moviegen(df: pd.DataFrame) -> None:
-    methods = set(df["method"].dropna().astype(str).tolist()) if not df.empty else set()
-    stable_methods = {
-        "BF16",
-        "RTN_INT4_REFRESH",
-        "KIVI_INT4_REFRESH",
-        "RTN_INT4_RECENT2",
-        "QUAROT_KV_INT4_RECENT2",
-    }
-    if not stable_methods.issubset(methods):
-        return
-
-    st.markdown("### Experiment Takeaways")
-    st.info(
-        "\n".join(
-            [
-                "Best overall quantized method: `RTN_INT4_RECENT2`.",
-                "Best high-compression option: `RTN_INT4_REFRESH`.",
-                "`KIVI_INT4_REFRESH` completed, but its fidelity drop is materially larger than the RTN variants.",
-                "`QUAROT_KV_INT4_RECENT2` is usable, but much slower than `RTN_INT4_RECENT2`.",
-                "Quantized methods compress KV state, but in this implementation they do not beat BF16 on peak VRAM.",
-                "See `EXPERIMENTS.md` for the full motivation, methodology, run registry, and per-benchmark analysis.",
-            ]
-        ),
-        icon="📌",
-    )
-
-
 def render_overview(df: pd.DataFrame) -> None:
     if df.empty:
         st.warning("No metrics are available for the selected run yet.")
@@ -1559,7 +2400,7 @@ def render_overview(df: pd.DataFrame) -> None:
         label = df.loc[df["psnr"].idxmax(), "method"] if df["psnr"].notna().any() else "-"
         st.metric(
             "Best PSNR",
-            f"{best_psnr:.3f}" if pd.notna(best_psnr) else "-",
+            _format_psnr_value(best_psnr, is_bf16_reference=(label == "BF16")) if pd.notna(best_psnr) else "-",
             label,
             help="Peak Signal-to-Noise Ratio vs BF16 reference. Higher is better.",
         )
@@ -1590,8 +2431,6 @@ def render_overview(df: pd.DataFrame) -> None:
             label,
             help="Average generation runtime per prompt. Lower is better.",
         )
-
-    render_experiment_takeaways_moviegen(df)
 
     st.markdown("### Unified method table")
     st.caption(KV_BYTES_NOTE)
@@ -1748,7 +2587,7 @@ def render_video_comparison(
                 psnr = metric.get("psnr")
                 lpips = metric.get("lpips")
                 st.caption(
-                    f"PSNR: {psnr:.3f} | SSIM: {ssim:.4f} | LPIPS: {lpips:.4f}" if lpips is not None else f"PSNR: {psnr:.3f} | SSIM: {ssim:.4f}"
+                    f"PSNR: {_format_psnr_value(psnr, is_bf16_reference=str(row.get('method', '')) == 'BF16')} | SSIM: {ssim:.4f} | LPIPS: {lpips:.4f}" if lpips is not None else f"PSNR: {_format_psnr_value(psnr, is_bf16_reference=str(row.get('method', '')) == 'BF16')} | SSIM: {ssim:.4f}"
                 )
 
 
@@ -2154,10 +2993,13 @@ def build_dataset_trace_df(filtered_df: pd.DataFrame, benchmark: str) -> pd.Data
         return pd.DataFrame()
 
     trace_rows: list[dict[str, Any]] = []
-    unique_rows = filtered_df[required_cols].drop_duplicates()
-    for source_user, run_name, run_root, method, method_display in unique_rows.itertuples(index=False, name=None):
+    grouped = filtered_df.groupby(required_cols, dropna=False)
+    for keys, group in grouped:
+        source_user, run_name, run_root, method, method_display = keys
         if pd.isna(run_root) or pd.isna(method):
             continue
+        fallback_bf16_kv_bytes = _first_nonnull(group.get("bf16_kv_bytes", pd.Series(dtype=float)))
+        fallback_compressed_kv_bytes = _first_nonnull(group.get("compressed_kv_bytes", pd.Series(dtype=float)))
         records = load_dataset_vram_trace_records(str(run_root), benchmark, str(method))
         for rec in records:
             rec_method = str(rec.get("method", method))
@@ -2177,6 +3019,12 @@ def build_dataset_trace_df(filtered_df: pd.DataFrame, benchmark: str) -> pd.Data
                 t_s = sample.get("t_s")
                 if allocated_bytes is None or reserved_bytes is None or t_s is None:
                     continue
+                sample_bf16_kv_bytes = sample.get("bf16_kv_bytes")
+                if sample_bf16_kv_bytes in (None, 0, 0.0):
+                    sample_bf16_kv_bytes = fallback_bf16_kv_bytes
+                sample_compressed_kv_bytes = sample.get("compressed_kv_bytes")
+                if sample_compressed_kv_bytes in (None, 0, 0.0):
+                    sample_compressed_kv_bytes = fallback_compressed_kv_bytes
                 trace_rows.append(
                     {
                         "source_user": str(source_user),
@@ -2189,8 +3037,8 @@ def build_dataset_trace_df(filtered_df: pd.DataFrame, benchmark: str) -> pd.Data
                         "t_s": float(t_s),
                         "allocated_gb": float(allocated_bytes) / (1024**3),
                         "reserved_gb": float(reserved_bytes) / (1024**3),
-                        "bf16_kv_gb": float(sample.get("bf16_kv_bytes", 0) or 0) / (1024**3),
-                        "compressed_kv_gb": float(sample.get("compressed_kv_bytes", 0) or 0) / (1024**3),
+                        "bf16_kv_gb": float(sample_bf16_kv_bytes or 0) / (1024**3),
+                        "compressed_kv_gb": float(sample_compressed_kv_bytes or 0) / (1024**3),
                     }
                 )
     return pd.DataFrame(trace_rows)
@@ -2249,6 +3097,7 @@ def build_dataset_metric_table(df: pd.DataFrame) -> pd.DataFrame:
         drift_last = _first_nonnull(group.get("storyeval_drift_last_imaging_quality", pd.Series(dtype=float)))
         if drift_last is None:
             drift_last = _first_nonnull(group.get("moviegen_drift_last_imaging_quality", pd.Series(dtype=float)))
+        normalized_family = infer_method_family(str(method), str(method_family) if pd.notna(method_family) else None)
         rows.append(
             {
                 "method": method_display,
@@ -2261,7 +3110,7 @@ def build_dataset_metric_table(df: pd.DataFrame) -> pd.DataFrame:
                 "run_root": run_root,
                 "raw_method": method,
                 "config_id": config_id,
-                "method_family": method_family,
+                "method_family": normalized_family,
                 "videos": int(len(group)),
                 "logged_prompts": int(len(group)),
                 "psnr": psnr,
@@ -2440,7 +3289,7 @@ def render_dataset_video_explorer(filtered_df: pd.DataFrame, benchmark: str) -> 
                 ]
             else:
                 captions = [
-                    f"PSNR: {row['moviegen_fidelity_psnr']:.3f}" if pd.notna(row.get("moviegen_fidelity_psnr")) else None,
+                    f"PSNR: {_format_psnr_value(row.get('moviegen_fidelity_psnr'), is_bf16_reference=str(row.get('method_display', row.get('method', ''))) == 'BF16')}" if pd.notna(row.get("moviegen_fidelity_psnr")) else None,
                     f"SSIM: {row['moviegen_fidelity_ssim']:.4f}" if pd.notna(row.get("moviegen_fidelity_ssim")) else None,
                     f"LPIPS: {row['moviegen_fidelity_lpips']:.4f}" if pd.notna(row.get("moviegen_fidelity_lpips")) else None,
                 ]
@@ -2469,7 +3318,8 @@ def render_dataset_video_explorer(filtered_df: pd.DataFrame, benchmark: str) -> 
     else:
         keep_cols.extend(["moviegen_fidelity_psnr", "moviegen_fidelity_ssim", "moviegen_fidelity_lpips"])
     st.markdown("### Prompt/seed records")
-    st.dataframe(prompt_df[keep_cols], use_container_width=True, hide_index=True)
+    prompt_table = _prepare_psnr_display_df(prompt_df[keep_cols], method_column="method_display" if "method_display" in prompt_df.columns else "method")
+    st.dataframe(prompt_table, use_container_width=True, hide_index=True)
 
 
 def render_dataset_prompt_analytics(filtered_df: pd.DataFrame, benchmark: str) -> None:
@@ -2648,11 +3498,12 @@ def render_dataset_artifacts(filtered_df: pd.DataFrame, gaps_df: pd.DataFrame) -
         st.dataframe(filtered_df[sample_cols].head(200), use_container_width=True, hide_index=True)
 
 
-def _render_html_card(title: str, body: str, css_class: str = "info-card") -> None:
+def _render_html_card(title: str, body: str, css_class: str = "info-card", title_tooltip: str | None = None) -> None:
+    heading = _tooltip_inline_html(title, title_tooltip) if title_tooltip else escape(title)
     st.markdown(
         f"""
         <div class="{css_class}">
-            <h4>{title}</h4>
+            <h4>{heading}</h4>
             {body}
         </div>
         """,
@@ -2669,41 +3520,13 @@ def _primary_source_note(analysis: DecisionAnalysis) -> str:
 
 
 def render_dataset_decision_header(analysis: DecisionAnalysis) -> None:
-    st.markdown("## Research decision layer")
-    st.markdown(
-        "This dashboard is for selecting KV-cache methods for Self-Forcing Wan-1.3B under the actual project objective: "
-        "preserve visual quality and rollout stability first, then earn practical memory relief and acceptable runtime."
-    )
-    st.warning(
-        "Current limitation: the available runs are short-horizon proxies rather than definitive longer-horizon validation. "
-        "Drift metrics are therefore used as the closest available signal for long-range stability.",
-        icon="⚠️",
-    )
+    _render_heading(2, "Research decision layer", _tooltip_text("research_decision_layer"))
 
-    intro_cols = st.columns(2)
-    with intro_cols[0]:
-        _render_html_card(
-            "How to read this dashboard",
-            """
-            <p>Start with the recommendation cards, then check the Pareto plots to see which methods survive multi-objective trade-offs.</p>
-            <p>Use the constraint rankings to answer deployment-style questions such as “best quality under a VRAM cap” or “best compression without too much drift loss”.</p>
-            <p>The raw table and method explorer preserve the exact derived metrics behind every recommendation.</p>
-            """,
-        )
-    with intro_cols[1]:
-        _render_html_card(
-            "Goal hierarchy",
-            """
-            <ol>
-                <li>Preserve video quality and rollout stability.</li>
-                <li>Reduce peak VRAM and KV footprint enough to make longer runs practical.</li>
-                <li>Keep runtime reasonable.</li>
-                <li>Prefer higher compression only when the first three goals are not materially harmed.</li>
-            </ol>
-            """,
-        )
-
-    st.markdown("### Method recommendations")
+    _render_heading(3, "Method recommendations", "Headline candidate cards for the main presentation narrative.")
+    st.caption(
+        f"{_tooltip_text('recommendation_focus')} Current recommendation focus: `{analysis.recommendation_focus}`. "
+        f"{analysis.recommendation_focus_description}"
+    )
     card_order = [
         "default_practical",
         "aggressive_compression",
@@ -2716,21 +3539,28 @@ def render_dataset_decision_header(analysis: DecisionAnalysis) -> None:
         payload = analysis.recommendations.get(key)
         with card_columns[idx]:
             if not payload:
-                st.info("No recommendation available under the current filters.")
+                if key == "default_practical":
+                    st.info("No non-BF16 method meets the active practical caps and quality tolerances.")
+                else:
+                    st.info("No recommendation available under the current filters.")
                 continue
             row = payload["row"]
+            psnr_delta_text = _psnr_delta_tooltip_text(row)
             body = (
-                f"<div class='pill'>{payload['label']}</div>"
-                f"<p>{payload['reason']}</p>"
-                f"<p><strong>Compression:</strong> {_format_metric_value(row.get('compression_ratio'), 2, 'x')}</p>"
-                f"<p><strong>Runtime:</strong> {_format_metric_value(row.get('avg_runtime_s_per_prompt'), 1, 's')}</p>"
-                f"<p><strong>Peak VRAM:</strong> {_format_metric_value(row.get('peak_vram_gb'), 2, ' GB')}</p>"
-                f"<p><strong>Imaging Δ vs BF16:</strong> {_format_signed_metric(row.get('imaging_quality_delta_vs_bf16'), 3)}</p>"
-                f"<p><strong>Drift Δ vs BF16:</strong> {_format_signed_metric(row.get('drift_last_imaging_quality_delta_vs_bf16'), 3)}</p>"
+                f"<div class='pill'>{escape(payload['label'])}</div>"
+                f"<p>{escape(payload['reason'])}</p>"
+                f"{_card_metric_line('Compression', _format_metric_value(row.get('compression_ratio'), 2, 'x'), 'compression_ratio', 'Higher means stronger KV-cache compression.')}"
+                f"{_card_metric_line('Runtime', _format_metric_value(row.get('avg_runtime_s_per_prompt'), 1, 's'), 'runtime', 'Average generation wall-clock time per prompt.')}"
+                f"{_card_metric_line('Peak VRAM', _format_metric_value(row.get('peak_vram_gb'), 2, ' GB'), 'peak_vram', 'Maximum GPU memory observed during generation.')}"
+                f"<p><strong>{_tooltip_inline_html('SSIM Δ vs BF16', 'Difference in SSIM relative to BF16 for this method.') }:</strong> {_format_metric_for_tooltip(row.get('ssim_delta_vs_bf16'))}</p>"
+                f"<p><strong>{_tooltip_inline_html('LPIPS Δ vs BF16', 'Difference in LPIPS relative to BF16 for this method. More negative is better.') }:</strong> {_format_metric_for_tooltip(row.get('lpips_delta_vs_bf16'))}</p>"
+                f"{_card_metric_line('Drift Δ vs BF16', _format_signed_metric(row.get('drift_last_imaging_quality_delta_vs_bf16'), 3), 'drift_delta_vs_bf16', 'Difference in drift-last imaging quality relative to BF16.')}"
             )
+            if psnr_delta_text is not None:
+                body += f"<p><strong>{_tooltip_inline_html('PSNR Δ vs BF16', 'Difference in PSNR relative to BF16 for this method.') }:</strong> {psnr_delta_text}</p>"
             if payload.get("caution"):
-                body += f"<p><strong>Caution:</strong> {payload['caution']}</p>"
-            _render_html_card(payload["method"], body, css_class="recommendation-card")
+                body += f"<p><strong>{_tooltip_inline_html('Caution', _tooltip_text('caution_label'))}:</strong> {escape(payload['caution'])}</p>"
+            _render_html_card(payload["method"], body, css_class="recommendation-card", title_tooltip=_describe_method(payload["method"]))
 
     st.caption(_primary_source_note(analysis))
 
@@ -2742,24 +3572,34 @@ def render_executive_summary_tab(analysis: DecisionAnalysis) -> None:
         return
 
     summary_cols = st.columns(5)
-    summary_cols[0].metric("Methods in scope", int(method_df["method"].nunique()))
-    summary_cols[1].metric("Source users", int(analysis.run_summary["source_user"].nunique()) if "source_user" in analysis.run_summary.columns else 0)
-    summary_cols[2].metric("Balanced frontier", len(analysis.frontier_members.get("balanced_practical", [])))
+    summary_cols[0].metric("Methods in scope", int(method_df["method"].nunique()), help=_metric_help("methods_in_scope", "Number of visible methods after filtering."))
+    summary_cols[1].metric(
+        "Source users",
+        int(analysis.run_summary["source_user"].nunique()) if "source_user" in analysis.run_summary.columns else 0,
+        help=_metric_help("source_users", "Distinct users contributing visible rows."),
+    )
+    summary_cols[2].metric(
+        "Balanced frontier",
+        len(analysis.frontier_members.get("balanced_practical", [])),
+        help=_metric_help("balanced_frontier", "Methods that survive the balanced practical frontier."),
+    )
     summary_cols[3].metric(
         "Best VRAM reduction",
         _format_metric_value(method_df["peak_vram_reduction_vs_bf16_pct"].max(skipna=True), 1, "%"),
+        help=_metric_help("best_vram_reduction", "Largest peak-VRAM reduction relative to BF16."),
     )
-    summary_cols[4].metric("Primary benchmark", analysis.benchmark)
+    summary_cols[4].metric("Primary benchmark", analysis.benchmark, help=_metric_help("primary_benchmark", "Benchmark currently driving the recommendation layer."))
+    st.caption(f"{_tooltip_text('recommendation_focus')} Recommendation focus: `{analysis.recommendation_focus}`. {analysis.recommendation_focus_description}")
 
-    st.markdown("### Experiment takeaways")
+    _render_heading(3, "Experiment takeaways", "Short narrative summary of the main empirical conclusions for the selected benchmark.")
     takeaway_md = "\n".join(f"- {takeaway}" for takeaway in analysis.takeaways)
     st.markdown(takeaway_md)
 
-    st.markdown("### Candidate comparison")
+    _render_heading(3, "Candidate comparison", _tooltip_text("candidate_comparison"))
     st.caption("Normalized chart: higher is better on every bar. Runtime and VRAM are inverted into efficiency scores.")
     st.plotly_chart(plot_top_candidate_profile(method_df, analysis.recommendations), use_container_width=True)
 
-    st.markdown("### Family-level pattern summary")
+    _render_heading(3, "Family-level pattern summary", _tooltip_text("family_summary"))
     st.plotly_chart(plot_family_summary(method_df), use_container_width=True)
 
     frontier_rows = []
@@ -2770,8 +3610,14 @@ def render_executive_summary_tab(analysis: DecisionAnalysis) -> None:
                 "methods": ", ".join(methods) if methods else "-",
             }
         )
-    st.markdown("### Pareto frontier members")
-    st.dataframe(pd.DataFrame(frontier_rows), use_container_width=True, hide_index=True)
+    _render_heading(3, "Pareto frontier members", _tooltip_text("pareto_frontier"))
+    frontier_df = pd.DataFrame(frontier_rows)
+    st.dataframe(
+        frontier_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(frontier_df.columns.tolist()),
+    )
 
 
 def render_pareto_analysis_tab(analysis: DecisionAnalysis) -> None:
@@ -2782,7 +3628,7 @@ def render_pareto_analysis_tab(analysis: DecisionAnalysis) -> None:
     with c2:
         st.plotly_chart(plot_compression_vs_drift(method_df, analysis.recommendations), use_container_width=True)
 
-    st.markdown("### Frontier membership table")
+    _render_heading(3, "Frontier membership table", _tooltip_text("frontier_membership_table"))
     frontier_cols = [
         "method",
         "method_family",
@@ -2797,60 +3643,175 @@ def render_pareto_analysis_tab(analysis: DecisionAnalysis) -> None:
     frontier_table = _project_sorted_table(
         method_df,
         frontier_cols,
-        ["pareto_balanced_practical", "utility_score"],
-        [False, False],
+        ["pareto_balanced_practical", "peak_vram_gb", "ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "compression_ratio"],
+        [False, True, True, True, False],
     )
-    st.dataframe(frontier_table, use_container_width=True, hide_index=True)
+    st.dataframe(
+        frontier_table,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(frontier_table.columns.tolist()),
+    )
 
 
 def render_constraint_rankings_tab(analysis: DecisionAnalysis) -> None:
+    defaults = _calibrated_constraint_defaults(analysis.method_summary, analysis.recommendation_focus)
     st.caption(
-        "These tables update from the active runtime / VRAM / quality-drop controls in the sidebar. "
-        "They are intended to answer deployment-style questions rather than declare a single global winner."
+        f"{_tooltip_text('constraint_rankings')} Defaults below are calibrated from the current top 3 non-BF16 methods "
+        f"under `{analysis.recommendation_focus}`: {defaults['source_methods']}."
     )
-    ranking_tabs = st.tabs(list(analysis.constraint_tables.keys()))
-    for tab, (title, table) in zip(ranking_tabs, analysis.constraint_tables.items()):
+    c1, c2, c3 = st.columns(3)
+    runtime_max = c1.number_input(
+        "Runtime cap (s / prompt)",
+        min_value=0.0,
+        value=float(defaults["runtime_max"]),
+        step=1.0,
+        key=f"constraint_runtime_cap_{analysis.benchmark}",
+    )
+    vram_max = c2.number_input(
+        "Peak VRAM cap (GB)",
+        min_value=0.0,
+        value=float(defaults["vram_max"]),
+        step=0.1,
+        key=f"constraint_vram_cap_{analysis.benchmark}",
+    )
+    drift_drop_max = c3.number_input(
+        "Drift drop cap vs BF16",
+        min_value=0.0,
+        value=float(defaults["drift_drop_max"]),
+        step=0.005,
+        format="%.3f",
+        key=f"constraint_drift_cap_{analysis.benchmark}",
+    )
+    c4, c5, c6 = st.columns(3)
+    ssim_drop_max = c4.number_input(
+        "SSIM drop cap vs BF16",
+        min_value=0.0,
+        value=float(defaults["ssim_drop_max"]),
+        step=0.005,
+        format="%.3f",
+        key=f"constraint_ssim_cap_{analysis.benchmark}",
+    )
+    psnr_min = c5.number_input(
+        "PSNR minimum",
+        min_value=0.0,
+        value=float(defaults["psnr_min"]),
+        step=0.5,
+        key=f"constraint_psnr_min_{analysis.benchmark}",
+    )
+    lpips_increase_max = c6.number_input(
+        "LPIPS increase cap vs BF16",
+        min_value=0.0,
+        value=float(defaults["lpips_increase_max"]),
+        step=0.005,
+        format="%.3f",
+        key=f"constraint_lpips_cap_{analysis.benchmark}",
+    )
+
+    live_tables = _build_live_constraint_rankings(
+        analysis.method_summary,
+        analysis.recommendation_focus,
+        {
+            "runtime_max": float(runtime_max),
+            "vram_max": float(vram_max),
+            "ssim_drop_max": float(ssim_drop_max),
+            "psnr_min": float(psnr_min),
+            "lpips_increase_max": float(lpips_increase_max),
+            "drift_drop_max": float(drift_drop_max),
+        },
+    )
+
+    ranking_tabs = st.tabs(list(live_tables.keys()))
+    for tab, (title, table) in zip(ranking_tabs, live_tables.items()):
         with tab:
             if table.empty:
                 st.info("No methods satisfy this ranking under the current thresholds.")
             else:
-                st.dataframe(table.head(12), use_container_width=True, hide_index=True)
+                preview = table.head(12)
+                st.dataframe(
+                    preview,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config=_decision_column_config(preview.columns.tolist()),
+                )
 
 
 def render_method_explorer_tab(analysis: DecisionAnalysis) -> None:
     method_df = analysis.method_summary
     ordered_methods = _order_methods(set(method_df["method"].dropna().astype(str).tolist()))
-    selected_method = st.selectbox("Method", ordered_methods, index=0, key=f"decision_method_{analysis.benchmark}")
+    selected_method = st.selectbox(
+        "Method",
+        ordered_methods,
+        index=0,
+        key=f"decision_method_{analysis.benchmark}",
+        help="Pick one method to see its interpretation, frontier status, provenance, and derived explanation fields.",
+    )
     selected_row = method_df[method_df["method"] == selected_method].iloc[0]
 
-    metric_cols = st.columns(5)
-    metric_cols[0].metric("Compression", _format_metric_value(selected_row.get("compression_ratio"), 2, "x"))
-    metric_cols[1].metric("Peak VRAM", _format_metric_value(selected_row.get("peak_vram_gb"), 2, " GB"))
-    metric_cols[2].metric("Runtime / prompt", _format_metric_value(selected_row.get("avg_runtime_s_per_prompt"), 1, "s"))
-    metric_cols[3].metric("Imaging Δ vs BF16", _format_signed_metric(selected_row.get("imaging_quality_delta_vs_bf16"), 3))
-    metric_cols[4].metric("Drift Δ vs BF16", _format_signed_metric(selected_row.get("drift_last_imaging_quality_delta_vs_bf16"), 3))
+    metric_cols = st.columns(3)
+    metric_cols[0].metric("Compression", _format_metric_value(selected_row.get("compression_ratio"), 2, "x"), help=_metric_help("compression_ratio", "KV-cache compression ratio relative to BF16."))
+    metric_cols[1].metric("Peak VRAM", _format_metric_value(selected_row.get("peak_vram_gb"), 2, " GB"), help=_metric_help("peak_vram", "Maximum GPU memory observed during generation."))
+    metric_cols[2].metric("Runtime / prompt", _format_metric_value(selected_row.get("avg_runtime_s_per_prompt"), 1, "s"), help=_metric_help("runtime", "Average end-to-end generation time per prompt."))
+
+    detail_metric_cols = st.columns(4)
+    detail_metric_cols[0].metric("PSNR Δ vs BF16", _psnr_delta_tooltip_text(selected_row), help="Difference in PSNR relative to BF16 for the selected method.")
+    detail_metric_cols[1].metric("SSIM Δ vs BF16", _format_metric_for_tooltip(selected_row.get("ssim_delta_vs_bf16")), help="Difference in SSIM relative to BF16 for the selected method.")
+    detail_metric_cols[2].metric("LPIPS Δ vs BF16", _format_metric_for_tooltip(selected_row.get("lpips_delta_vs_bf16")), help="Difference in LPIPS relative to BF16 for the selected method. More negative is better.")
+    detail_metric_cols[3].metric("Drift Δ vs BF16", _format_signed_metric(selected_row.get("drift_last_imaging_quality_delta_vs_bf16"), 3), help=_metric_help("drift_delta_vs_bf16", "Difference in drift-last imaging quality relative to BF16."))
 
     detail_cols = st.columns(2)
     with detail_cols[0]:
-        st.markdown("#### Method interpretation")
+        _render_heading(4, "Method interpretation", "Presentation summary of what this method is, where it fits, and what to watch out for.")
         st.markdown(f"- **Family:** {selected_row.get('method_family', '-')}")
+        st.caption(_tooltip_text("method_family"))
         st.markdown(f"- **Bit-width / mode:** {selected_row.get('bit_width_label', '-')}")
+        st.caption(_tooltip_text("bit_width_mode"))
         st.markdown(f"- **Quantization details:** {selected_row.get('quantization_details', '-')}")
+        st.caption(_tooltip_text("quantization_details", "Short summary of the actual cache policy used by the method."))
         st.markdown(f"- **Recommended for:** {selected_row.get('recommended_for', '-') or '-'}")
+        st.caption(_tooltip_text("recommended_for"))
         st.markdown(f"- **Caution:** {selected_row.get('caution_label', '-') or '-'}")
+        st.caption(_tooltip_text("caution_label"))
     with detail_cols[1]:
-        st.markdown("#### Pareto status")
-        for frontier_key, frontier_cfg in FRONTIER_DEFINITIONS.items():
-            flag = bool(selected_row.get(f"pareto_{frontier_key}", False))
-            explanation = selected_row.get(f"pareto_{frontier_key}_explanation", "-")
-            st.markdown(f"- **{frontier_cfg['label']}:** {'Yes' if flag else 'No'} — {explanation}")
+        _render_heading(4, "Pareto position", _tooltip_text("pareto_status"))
+        st.caption("Orange diamond = selected method. Green = frontier members. Gray = off-frontier methods. Black guide lines mark BF16.")
+        plot_pairs = [
+            ("balanced_practical", "quality_preserving_compression"),
+            ("systems_efficiency", "quality_first"),
+        ]
+        for left_key, right_key in plot_pairs:
+            c_left, c_right = st.columns(2)
+            with c_left:
+                st.plotly_chart(
+                    plot_frontier_position(method_df, left_key, selected_method),
+                    use_container_width=True,
+                    key=f"frontier_position_{analysis.benchmark}_{selected_method}_{left_key}",
+                )
+            with c_right:
+                st.plotly_chart(
+                    plot_frontier_position(method_df, right_key, selected_method),
+                    use_container_width=True,
+                    key=f"frontier_position_{analysis.benchmark}_{selected_method}_{right_key}",
+                )
 
-    st.markdown("#### Run-level provenance")
+    _render_heading(4, "Run-level provenance", _tooltip_text("run_provenance"))
     run_rows = analysis.run_summary[analysis.run_summary["method"] == selected_method].copy()
-    st.dataframe(run_rows.sort_values(["source_user", "run_name"]), use_container_width=True, hide_index=True)
+    run_rows = run_rows.sort_values(["source_user", "run_name"])
+    st.dataframe(
+        run_rows,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(run_rows.columns.tolist()),
+    )
 
-    st.markdown("#### Explainability table")
-    st.dataframe(analysis.explainability_table, use_container_width=True, hide_index=True)
+    _render_heading(4, "Explainability table", _tooltip_text("explainability_table"))
+    explain_df = analysis.explainability_table
+    st.dataframe(
+        explain_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(explain_df.columns.tolist()),
+    )
 
 
 def render_systems_trace_preview(filtered_df: pd.DataFrame, benchmark: str, analysis: DecisionAnalysis) -> None:
@@ -2910,7 +3871,7 @@ def render_systems_trace_preview(filtered_df: pd.DataFrame, benchmark: str, anal
 
 
 def render_systems_analysis_tab(filtered_df: pd.DataFrame, benchmark: str, analysis: DecisionAnalysis) -> None:
-    st.markdown("### Systems trade-offs")
+    _render_heading(3, "Systems trade-offs", _tooltip_text("systems_tradeoffs"))
     st.caption(
         "These plots separate nominal KV compression from realized runtime and peak-VRAM behavior. "
         "This is where methods that look efficient on paper but fail in the current integration become obvious."
@@ -2927,7 +3888,7 @@ def render_systems_analysis_tab(filtered_df: pd.DataFrame, benchmark: str, analy
     with bottom_row[1]:
         st.plotly_chart(plot_compression_vs_peak_vram(analysis.method_summary), use_container_width=True)
 
-    st.markdown("### Trace preview")
+    _render_heading(3, "Trace preview", _tooltip_text("trace_preview"))
     st.caption("Trace curves are shown here as a systems sanity check rather than as isolated artifacts.")
     render_systems_trace_preview(filtered_df, benchmark, analysis)
 
@@ -2937,7 +3898,7 @@ def render_quality_drift_tab(filtered_df: pd.DataFrame, analysis: DecisionAnalys
     delta_plot_df = method_df.melt(
         id_vars=["method"],
         value_vars=[
-            "imaging_quality_delta_vs_bf16",
+            "psnr_delta_vs_bf16",
             "drift_last_imaging_quality_delta_vs_bf16",
             "ssim_delta_vs_bf16",
             "lpips_delta_vs_bf16",
@@ -2946,6 +3907,14 @@ def render_quality_drift_tab(filtered_df: pd.DataFrame, analysis: DecisionAnalys
         value_name="delta",
     ).dropna(subset=["delta"])
     if not delta_plot_df.empty:
+        delta_plot_df["metric"] = delta_plot_df["metric"].map(
+            {
+                "psnr_delta_vs_bf16": "PSNR Δ vs BF16",
+                "drift_last_imaging_quality_delta_vs_bf16": "Drift Δ vs BF16",
+                "ssim_delta_vs_bf16": "SSIM Δ vs BF16",
+                "lpips_delta_vs_bf16": "LPIPS Δ vs BF16",
+            }
+        ).fillna(delta_plot_df["metric"])
         fig = px.bar(
             delta_plot_df,
             x="method",
@@ -2965,28 +3934,31 @@ def render_quality_drift_tab(filtered_df: pd.DataFrame, analysis: DecisionAnalys
         "psnr",
         "ssim",
         "lpips",
-        "imaging_quality_delta_vs_bf16",
+        "psnr_delta_vs_bf16",
         "drift_last_imaging_quality_delta_vs_bf16",
         "ssim_delta_vs_bf16",
         "lpips_delta_vs_bf16",
         "auto_explanation",
     ]
-    st.markdown("### Quality and stability table")
+    _render_heading(3, "Quality and stability table", _tooltip_text("quality_stability_table"))
+    quality_table = _project_sorted_table(
+        method_df,
+        quality_cols,
+        ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "psnr", "drift_last_imaging_quality_drop_vs_bf16"],
+        [True, True, False, True],
+    )
+    quality_table = _prepare_psnr_display_df(quality_table)
     st.dataframe(
-        _project_sorted_table(
-            method_df,
-            quality_cols,
-            ["quality_reference_score", "imaging_quality"],
-            [False, False],
-        ),
+        quality_table,
         use_container_width=True,
         hide_index=True,
+        column_config=_decision_column_config(quality_table.columns.tolist()),
     )
 
     if analysis.benchmark == "storyeval":
         drift_df = load_dataset_storyeval_drift(filtered_df)
         if not drift_df.empty:
-            st.markdown("### StoryEval drift curves")
+            _render_heading(3, "StoryEval drift curves", _tooltip_text("storyeval_drift_curves"))
             x_col = "seconds" if "seconds" in drift_df.columns else "frame_cap"
             fig = px.line(drift_df, x=x_col, y="imaging_quality", color="method", markers=True, title="StoryEval drift curve")
             fig.update_layout(height=360)
@@ -3014,13 +3986,13 @@ def render_raw_method_table_tab(analysis: DecisionAnalysis) -> None:
         "psnr",
         "ssim",
         "lpips",
-        "imaging_quality_delta_vs_bf16",
+        "psnr_delta_vs_bf16",
+        "ssim_delta_vs_bf16",
+        "lpips_delta_vs_bf16",
         "drift_last_imaging_quality_delta_vs_bf16",
         "runtime_overhead_vs_bf16_pct",
         "peak_vram_reduction_vs_bf16_pct",
         "compression_gain_vs_bf16",
-        "utility_score",
-        "quality_reference_score",
         "pareto_balanced_practical",
         "pareto_quality_preserving_compression",
         "pareto_systems_efficiency",
@@ -3028,13 +4000,21 @@ def render_raw_method_table_tab(analysis: DecisionAnalysis) -> None:
         "recommended_for",
         "caution_label",
     ]
+    raw_sort_columns, raw_sort_ascending = get_recommendation_sort(analysis.recommendation_focus)
     ordered = _project_sorted_table(
         method_df,
         raw_cols,
-        ["utility_score", "quality_reference_score"],
-        [False, False],
+        raw_sort_columns,
+        raw_sort_ascending,
     )
-    st.dataframe(ordered, use_container_width=True, hide_index=True)
+    ordered = _prepare_psnr_display_df(ordered)
+    _render_heading(3, "Raw method table", _tooltip_text("raw_method_table"))
+    st.dataframe(
+        ordered,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(ordered.columns.tolist()),
+    )
     st.download_button(
         "Download derived method table",
         ordered.to_csv(index=False).encode("utf-8"),
@@ -3043,8 +4023,299 @@ def render_raw_method_table_tab(analysis: DecisionAnalysis) -> None:
     )
 
 
+def render_presentation_page(filtered_df: pd.DataFrame, benchmark: str, analysis: DecisionAnalysis) -> None:
+    method_options = _order_methods(set(filtered_df["method_display"].dropna().astype(str).tolist()))
+    if not method_options:
+        st.warning("No methods are available for the current presentation filters.")
+        return
+
+    _render_heading(3, "Presentation page", _tooltip_text("presentation_page"))
+    control_cols = st.columns([2, 2, 1])
+    default_methods = _resolve_presentation_methods(method_options)
+    with control_cols[0]:
+        focus_methods = st.multiselect(
+            "Presentation methods",
+            options=method_options,
+            default=default_methods,
+            key=f"presentation_methods_{benchmark}",
+            help=_tooltip_text("presentation_methods"),
+        )
+
+    if not focus_methods:
+        st.info("Select at least one presentation method.")
+        return
+
+    prompt_options = sorted([str(x) for x in filtered_df["prompt_id"].dropna().unique().tolist()])
+    if not prompt_options:
+        st.warning("No prompt-indexed rows are available for the current selection.")
+        return
+
+    prompt_labels: dict[str, str] = {}
+    for prompt_id in prompt_options:
+        prompt_rows = filtered_df[filtered_df["prompt_id"].astype(str) == prompt_id]
+        prompt_text = _first_nonnull(prompt_rows.get("prompt", pd.Series(dtype=str)))
+        prompt_preview = str(prompt_text).replace("\n", " ").strip() if prompt_text is not None else ""
+        if len(prompt_preview) > 80:
+            prompt_preview = prompt_preview[:77].rstrip() + "..."
+        prompt_labels[prompt_id] = f"{prompt_id} - {prompt_preview}" if prompt_preview else prompt_id
+
+    with control_cols[1]:
+        selected_prompt = st.selectbox(
+            "Input / prompt",
+            options=prompt_options,
+            index=0,
+            format_func=lambda prompt_id: prompt_labels.get(str(prompt_id), str(prompt_id)),
+            key=f"presentation_prompt_{benchmark}",
+            help=_tooltip_text("presentation_input"),
+        )
+
+    prompt_df = filtered_df[filtered_df["prompt_id"].astype(str) == str(selected_prompt)].copy()
+    prompt_text = _first_nonnull(prompt_df.get("prompt", pd.Series(dtype=str)))
+    with control_cols[2]:
+        st.metric(
+            "Methods shown",
+            len(focus_methods),
+            help=_metric_help("presentation_methods", "Number of methods currently pinned to the presentation page."),
+        )
+    if prompt_text:
+        st.caption(f"Prompt text: {prompt_text}")
+
+    focus_summary = _ordered_focus_rows(analysis.method_summary, focus_methods)
+    if focus_summary.empty:
+        st.warning("The selected presentation methods are not available in the current benchmark slice.")
+        return
+
+    missing_methods = [method for method in focus_methods if method not in focus_summary["method"].astype(str).tolist()]
+    if missing_methods:
+        st.warning(f"Missing in the current benchmark slice: {', '.join(missing_methods)}")
+
+    _render_heading(3, "Video comparison", _tooltip_text("presentation_videos"))
+    st.caption("Videos are shown first for the selected prompt. Each card keeps the main systems and fidelity metrics beside the clip.")
+    _render_video_sync_controls(f"presentation_{benchmark}")
+    video_cols = st.columns(min(3, max(1, len(focus_methods))))
+    focus_prompt_rows = prompt_df[prompt_df["method_display"].astype(str).isin(focus_methods)].copy()
+    focus_prompt_rows = _ordered_focus_rows(focus_prompt_rows, focus_methods, method_column="method_display")
+    for idx, method in enumerate(focus_methods):
+        method_rows = focus_prompt_rows[focus_prompt_rows["method_display"].astype(str) == method].copy()
+        col = video_cols[idx % len(video_cols)]
+        with col:
+            st.markdown(f"#### {_tooltip_inline_html(method, _describe_method(method))}", unsafe_allow_html=True)
+            if method_rows.empty:
+                st.warning("No video for this prompt")
+                continue
+            method_rows = method_rows.sort_values(["source_user", "run_name", "seed"], na_position="last")
+            row = method_rows.iloc[0]
+            st.caption(f"{row.get('source_user', '-')} / {row.get('run_name', '-')}")
+            video_path = _coerce_path_value(row.get("resolved_video_path")) or _resolve_combined_video_path(row)
+            if video_path and video_path.exists():
+                st.video(str(video_path))
+            else:
+                st.warning("Video file missing")
+
+            summary_row = focus_summary[focus_summary["method"].astype(str) == method]
+            summary = summary_row.iloc[0] if not summary_row.empty else None
+            top_metrics = st.columns(4)
+            top_metrics[0].metric(
+                "Compression",
+                _format_metric_value(summary.get("compression_ratio"), 2, "x") if summary is not None else "-",
+                help=_metric_help("compression_ratio", "KV-cache compression ratio relative to BF16."),
+            )
+            top_metrics[1].metric(
+                "Peak VRAM",
+                _format_metric_value(summary.get("peak_vram_gb"), 2, " GB") if summary is not None else "-",
+                help=_metric_help("peak_vram", "Maximum GPU memory observed during generation."),
+            )
+            top_metrics[2].metric(
+                "Runtime",
+                _format_metric_value(summary.get("avg_runtime_s_per_prompt"), 1, "s") if summary is not None else "-",
+                help=_metric_help("runtime", "Average end-to-end generation time per prompt."),
+            )
+            top_metrics[3].metric(
+                "Imaging quality",
+                _format_metric_value(summary.get("imaging_quality"), 3) if summary is not None else "-",
+                help="Aggregate VBench imaging-quality score. Higher is better.",
+            )
+            quality_metrics = st.columns(4)
+            quality_metrics[0].metric(
+                "PSNR",
+                _format_psnr_value(summary.get("psnr"), is_bf16_reference=bool(summary.get("is_bf16_reference"))) if summary is not None else "-",
+                _psnr_delta_tooltip_text(summary) if summary is not None else None,
+                help="Peak Signal-to-Noise Ratio relative to BF16. Higher is better.",
+            )
+            quality_metrics[1].metric(
+                "SSIM",
+                _format_metric_value(summary.get("ssim"), 4) if summary is not None else "-",
+                _format_metric_for_tooltip(summary.get("ssim_delta_vs_bf16")) if summary is not None else None,
+                help="Structural Similarity Index relative to BF16. Higher is better.",
+            )
+            quality_metrics[2].metric(
+                "LPIPS",
+                _format_metric_value(summary.get("lpips"), 4) if summary is not None else "-",
+                _format_metric_for_tooltip(summary.get("lpips_delta_vs_bf16")) if summary is not None else None,
+                help="Learned perceptual image distance relative to BF16. Lower is better.",
+            )
+            quality_metrics[3].metric(
+                "Last drift quality",
+                _format_metric_value(summary.get("drift_last_imaging_quality"), 3) if summary is not None else "-",
+                _format_signed_metric(summary.get("drift_last_imaging_quality_delta_vs_bf16"), 3) if summary is not None else None,
+                help="Last available imaging-quality point from the drift curve. Higher is better for temporal stability.",
+            )
+
+    _render_heading(3, "Focused comparison table", _tooltip_text("presentation_focus_table"))
+    focus_cols = [
+        "method",
+        "method_family",
+        "compression_ratio",
+        "peak_vram_gb",
+        "avg_runtime_s_per_prompt",
+        "imaging_quality",
+        "drift_last_imaging_quality",
+        "psnr",
+        "ssim",
+        "lpips",
+        "psnr_delta_vs_bf16",
+        "ssim_delta_vs_bf16",
+        "lpips_delta_vs_bf16",
+        "drift_last_imaging_quality_delta_vs_bf16",
+        "pareto_balanced_practical",
+        "pareto_quality_preserving_compression",
+        "pareto_systems_efficiency",
+        "pareto_quality_first",
+        "recommended_for",
+        "caution_label",
+    ]
+    focus_table = focus_summary[[column for column in focus_cols if column in focus_summary.columns]]
+    focus_table = _prepare_psnr_display_df(focus_table)
+    st.dataframe(
+        focus_table,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(focus_cols),
+    )
+
+    _render_heading(3, "Core trade-off plots", _tooltip_text("presentation_graphs"))
+    st.caption("Orange diamonds mark the current presentation methods directly on the same plots used elsewhere in the dashboard.")
+    plot_pairs = [
+        (
+            plot_compression_vs_quality(analysis.method_summary, analysis.recommendations),
+            "compression_ratio",
+            "ssim",
+        ),
+        (
+            plot_compression_vs_drift(analysis.method_summary, analysis.recommendations),
+            "compression_ratio",
+            "drift_last_imaging_quality",
+        ),
+        (
+            plot_peak_vram_vs_quality(analysis.method_summary, analysis.recommendations),
+            "peak_vram_gb",
+            "ssim",
+        ),
+        (
+            plot_vram_vs_runtime(analysis.method_summary),
+            "peak_vram_gb",
+            "avg_runtime_s_per_prompt",
+        ),
+        (
+            plot_runtime_vs_quality(analysis.method_summary),
+            "avg_runtime_s_per_prompt",
+            "ssim",
+        ),
+        (
+            plot_compression_vs_peak_vram(analysis.method_summary),
+            "compression_ratio",
+            "peak_vram_gb",
+        ),
+    ]
+    for left_idx in range(0, len(plot_pairs), 2):
+        row_cols = st.columns(2)
+        for col, (fig, x_col, y_col) in zip(row_cols, plot_pairs[left_idx : left_idx + 2]):
+            with col:
+                st.plotly_chart(
+                    _highlight_focus_methods(fig, analysis.method_summary, focus_methods, x_col, y_col),
+                    use_container_width=True,
+                )
+
+    trace_df = build_dataset_trace_df(filtered_df, benchmark)
+    if not trace_df.empty:
+        focus_trace_df = trace_df[
+            (trace_df["prompt_id"].astype(str) == str(selected_prompt))
+            & (trace_df["method_display"].astype(str).isin(focus_methods))
+        ].copy()
+        focus_trace_df = _ordered_focus_rows(focus_trace_df, focus_methods, method_column="method_display")
+        if not focus_trace_df.empty:
+            _render_heading(3, "Systems traces", _tooltip_text("presentation_traces"))
+            trace_cols = st.columns(2)
+            with trace_cols[0]:
+                fig = px.line(
+                    focus_trace_df.sort_values(["method_display", "t_s"]),
+                    x="t_s",
+                    y="allocated_gb",
+                    color="method_display",
+                    markers=False,
+                    title=f"Allocated VRAM over time ({selected_prompt})",
+                )
+                fig.update_layout(height=340, xaxis_title="time (s)", yaxis_title="allocated VRAM (GB)")
+                st.plotly_chart(fig, use_container_width=True)
+            with trace_cols[1]:
+                fig = px.line(
+                    focus_trace_df.sort_values(["method_display", "t_s"]),
+                    x="t_s",
+                    y="compressed_kv_gb",
+                    color="method_display",
+                    markers=False,
+                    title=f"Compressed KV over time ({selected_prompt})",
+                )
+                fig.update_layout(height=340, xaxis_title="time (s)", yaxis_title="compressed KV (GB)")
+                st.plotly_chart(fig, use_container_width=True)
+
+    _render_heading(3, "Prompt-level records", _tooltip_text("presentation_prompt_records"))
+    prompt_table_cols = [
+        "source_user",
+        "run_name",
+        "method_display",
+        "prompt_id",
+        "seed",
+        "wall_time_sec",
+        "peak_vram_mb",
+        "moviegen_imaging_quality",
+        "moviegen_fidelity_psnr",
+        "moviegen_fidelity_ssim",
+        "moviegen_fidelity_lpips",
+        "storyeval_imaging_quality",
+        "storyeval_subject_consistency",
+    ]
+    prompt_table = _ordered_focus_rows(focus_prompt_rows, focus_methods, method_column="method_display")
+    displayed_prompt_cols = [column for column in prompt_table_cols if column in prompt_table.columns]
+    st.dataframe(
+        prompt_table[displayed_prompt_cols],
+        use_container_width=True,
+        hide_index=True,
+        column_config=_presentation_prompt_column_config(displayed_prompt_cols),
+    )
+
+    _render_heading(3, "Run provenance", _tooltip_text("presentation_provenance"))
+    run_rows = _ordered_focus_rows(analysis.run_summary, focus_methods)
+    st.dataframe(
+        run_rows,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(run_rows.columns.tolist()),
+    )
+
+    _render_heading(3, "Decision tree", "Toggle open for a presentation-ready method-selection tree based on the current benchmark.")
+    show_decision_tree = st.toggle(
+        "Show decision tree for method selection",
+        value=False,
+        key=f"presentation_decision_tree_{benchmark}",
+        help="Displays the slide-ready decision tree and summary picks for the current benchmark.",
+    )
+    if show_decision_tree:
+        render_presentation_decision_tree(analysis)
+
+
 def render_notes_and_caveats_tab(filtered_df: pd.DataFrame, gaps_df: pd.DataFrame, analysis: DecisionAnalysis) -> None:
-    st.markdown("### Honest caveats")
+    _render_heading(3, "Honest caveats", "Limitations and interpretation guardrails for the current dataset and integration.")
     st.markdown(
         """
         - Current runs are proxy evaluations rather than definitive longer-horizon validation.
@@ -3054,12 +4325,18 @@ def render_notes_and_caveats_tab(filtered_df: pd.DataFrame, gaps_df: pd.DataFram
         """
     )
 
-    st.markdown("### Source catalog")
+    _render_heading(3, "Source catalog", _tooltip_text("source_catalog"))
     catalog_cols = ["path", "kind", "analysis_role", "selected_as_primary", "rows", "column_count", "note"]
     present_catalog_cols = [column for column in catalog_cols if column in analysis.source_catalog.columns]
-    st.dataframe(analysis.source_catalog[present_catalog_cols], use_container_width=True, hide_index=True)
+    source_catalog = analysis.source_catalog[present_catalog_cols]
+    st.dataframe(
+        source_catalog,
+        use_container_width=True,
+        hide_index=True,
+        column_config=_decision_column_config(source_catalog.columns.tolist()),
+    )
 
-    st.markdown("### Metric and method glossary")
+    _render_heading(3, "Metric and method glossary", _tooltip_text("metric_glossary"))
     render_overview_explainers(analysis.method_summary)
 
     st.markdown("### Dataset artifacts")
@@ -3072,25 +4349,38 @@ def render_dataset_dashboard(
     source_catalog: pd.DataFrame,
     primary_source_path: str | None,
 ) -> None:
-    primary_label = primary_source_path or "the discovered merged dataset"
-    st.info(
-        f"Using `{primary_label}` as the primary comparison table. "
-        "Additional discovered CSVs are retained for provenance in the Notes / Caveats section."
-    )
     st.sidebar.markdown("## Comparison dataset")
     benchmark_options = sorted([str(x) for x in df["benchmark"].dropna().unique().tolist()])
-    selected_benchmark = st.sidebar.selectbox("Benchmark", benchmark_options, index=0, key="dataset_benchmark")
+    selected_benchmark = st.sidebar.selectbox(
+        "Benchmark",
+        benchmark_options,
+        index=0,
+        key="dataset_benchmark",
+        help=_tooltip_text("benchmark"),
+    )
     filtered = df[df["benchmark"] == selected_benchmark].copy()
 
     source_options = sorted([str(x) for x in filtered["source_user"].dropna().unique().tolist()])
-    selected_sources = st.sidebar.multiselect("Source users", source_options, default=source_options, key="dataset_sources")
+    selected_sources = st.sidebar.multiselect(
+        "Source users",
+        source_options,
+        default=source_options,
+        key="dataset_sources",
+        help=_tooltip_text("source_users"),
+    )
     if selected_sources:
         filtered = filtered[filtered["source_user"].isin(selected_sources)]
     else:
         filtered = filtered.iloc[0:0]
 
     run_options = sorted([str(x) for x in filtered["run_name"].dropna().unique().tolist()])
-    selected_runs = st.sidebar.multiselect("Runs", run_options, default=run_options, key=f"dataset_runs_{selected_benchmark}")
+    selected_runs = st.sidebar.multiselect(
+        "Runs",
+        run_options,
+        default=run_options,
+        key=f"dataset_runs_{selected_benchmark}",
+        help=_tooltip_text("runs"),
+    )
     if selected_runs:
         filtered = filtered[filtered["run_name"].isin(selected_runs)]
     else:
@@ -3102,6 +4392,7 @@ def render_dataset_dashboard(
         method_options,
         default=method_options,
         key=f"dataset_methods_{selected_benchmark}",
+        help=_tooltip_text("methods"),
     )
     if selected_methods:
         filtered = filtered[filtered["method_display"].isin(selected_methods)]
@@ -3119,7 +4410,7 @@ def render_dataset_dashboard(
         filtered,
         source_catalog=source_catalog,
         benchmark=selected_benchmark,
-        score_weights=SCORE_PRESETS["Balanced"],
+        recommendation_focus="Single-GPU practical",
         thresholds={
             **DEFAULT_THRESHOLDS,
             "runtime_max": None,
@@ -3140,13 +4431,25 @@ def render_dataset_dashboard(
     bf16_vram = float(bf16_rows.iloc[0]["peak_vram_gb"]) if not bf16_rows.empty and pd.notna(bf16_rows.iloc[0]["peak_vram_gb"]) else None
 
     runtime_max_cap = float(runtime_values.max()) if not runtime_values.empty else 1.0
-    runtime_default = float(min(runtime_max_cap, bf16_runtime * 1.75)) if bf16_runtime is not None else runtime_max_cap
     vram_max_cap = float(vram_values.max()) if not vram_values.empty else 1.0
-    vram_default = float(min(vram_max_cap, bf16_vram)) if bf16_vram is not None else vram_max_cap
     compression_max_cap = float(compression_values.max()) if not compression_values.empty else 1.0
 
     st.sidebar.markdown("## Decision controls")
-    operating_mode = st.sidebar.selectbox("Scoring preset", list(SCORE_PRESETS.keys()), index=0, key=f"decision_mode_{selected_benchmark}")
+    recommendation_focus = st.sidebar.selectbox(
+        "Recommendation focus",
+        list(RECOMMENDATION_FOCUS_PRESETS.keys()),
+        index=0,
+        key=f"decision_focus_{selected_benchmark}",
+        help=_tooltip_text("recommendation_focus"),
+    )
+    st.sidebar.caption(RECOMMENDATION_FOCUS_PRESETS[recommendation_focus]["description"])
+    calibrated_defaults = _calibrated_constraint_defaults(method_df, recommendation_focus)
+    runtime_default = min(runtime_max_cap, float(calibrated_defaults["runtime_max"]))
+    vram_default = min(vram_max_cap, float(calibrated_defaults["vram_max"]))
+    ssim_default = min(0.30, float(calibrated_defaults["ssim_drop_max"]))
+    lpips_default = min(0.30, float(calibrated_defaults["lpips_increase_max"]))
+    drift_default = min(0.20, float(calibrated_defaults["drift_drop_max"]))
+    min_compression_default = min(max(compression_max_cap, 1.0), max(1.0, float(calibrated_defaults["min_compression"])))
     with st.sidebar.expander("Constraint thresholds", expanded=True):
         runtime_max = st.slider(
             "Runtime max (s / prompt)",
@@ -3155,6 +4458,7 @@ def render_dataset_dashboard(
             value=max(runtime_default, 0.0),
             step=1.0,
             key=f"decision_runtime_{selected_benchmark}",
+            help=_tooltip_text("runtime"),
         )
         vram_max = st.slider(
             "Peak VRAM max (GB)",
@@ -3163,62 +4467,63 @@ def render_dataset_dashboard(
             value=max(vram_default, 0.0),
             step=0.1,
             key=f"decision_vram_{selected_benchmark}",
+            help=_tooltip_text("peak_vram"),
         )
-        acceptable_imaging_drop = st.slider(
-            "Acceptable imaging-quality drop vs BF16",
+        acceptable_ssim_drop = st.slider(
+            "Acceptable SSIM drop vs BF16",
             min_value=0.0,
-            max_value=0.20,
-            value=float(DEFAULT_THRESHOLDS["acceptable_imaging_drop"]),
+            max_value=0.30,
+            value=ssim_default,
             step=0.005,
-            key=f"decision_imaging_drop_{selected_benchmark}",
+            key=f"decision_ssim_drop_{selected_benchmark}",
+            help="Maximum allowed SSIM drop relative to BF16 for methods considered practically acceptable.",
+        )
+        acceptable_lpips_increase = st.slider(
+            "Acceptable LPIPS increase vs BF16",
+            min_value=0.0,
+            max_value=0.30,
+            value=lpips_default,
+            step=0.005,
+            key=f"decision_lpips_increase_{selected_benchmark}",
+            help="Maximum allowed LPIPS increase relative to BF16 for methods considered practically acceptable.",
         )
         acceptable_drift_drop = st.slider(
             "Acceptable drift drop vs BF16",
             min_value=0.0,
             max_value=0.20,
-            value=float(DEFAULT_THRESHOLDS["acceptable_drift_drop"]),
+            value=drift_default,
             step=0.005,
             key=f"decision_drift_drop_{selected_benchmark}",
+            help=_tooltip_text("drift_delta_vs_bf16"),
         )
         min_compression = st.slider(
             "Minimum compression ratio",
             min_value=1.0,
             max_value=max(compression_max_cap, 1.0),
-            value=float(DEFAULT_THRESHOLDS["min_compression"]),
+            value=min_compression_default,
             step=0.05,
             key=f"decision_min_comp_{selected_benchmark}",
+            help=_tooltip_text("compression_ratio"),
         )
-    with st.sidebar.expander("Composite score weights"):
-        score_weights = {}
-        for metric, default_weight in SCORE_PRESETS[operating_mode].items():
-            label = metric.replace("_", " ")
-            score_weights[metric] = st.slider(
-                label,
-                min_value=0,
-                max_value=100,
-                value=int(round(default_weight * 100)),
-                step=5,
-                key=f"decision_weight_{selected_benchmark}_{metric}",
-            )
 
     analysis = build_dashboard_analysis(
         filtered,
         source_catalog=source_catalog,
         benchmark=selected_benchmark,
-        score_weights=score_weights,
+        recommendation_focus=recommendation_focus,
         thresholds={
             "runtime_max": runtime_max,
             "vram_max": vram_max,
-            "acceptable_imaging_drop": acceptable_imaging_drop,
+            "acceptable_ssim_drop": acceptable_ssim_drop,
+            "acceptable_lpips_increase": acceptable_lpips_increase,
             "acceptable_drift_drop": acceptable_drift_drop,
             "min_compression": min_compression,
         },
         primary_source_path=primary_source_path,
     )
 
-    render_dataset_decision_header(analysis)
-
     tab_labels = [
+        "Presentation Page",
         "Overview",
         "Pareto Analysis",
         "Constraint Rankings",
@@ -3230,26 +4535,28 @@ def render_dataset_dashboard(
         "Raw Method Table",
         "Notes / Caveats",
     ]
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(tab_labels)
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs(tab_labels)
     with tab1:
-        render_executive_summary_tab(analysis)
+        render_presentation_page(filtered, selected_benchmark, analysis)
     with tab2:
-        render_pareto_analysis_tab(analysis)
+        render_executive_summary_tab(analysis)
     with tab3:
-        render_constraint_rankings_tab(analysis)
+        render_pareto_analysis_tab(analysis)
     with tab4:
-        render_method_explorer_tab(analysis)
+        render_constraint_rankings_tab(analysis)
     with tab5:
-        render_systems_analysis_tab(filtered, selected_benchmark, analysis)
+        render_method_explorer_tab(analysis)
     with tab6:
-        render_quality_drift_tab(filtered, analysis)
+        render_systems_analysis_tab(filtered, selected_benchmark, analysis)
     with tab7:
-        render_dataset_video_explorer(filtered, selected_benchmark)
+        render_quality_drift_tab(filtered, analysis)
     with tab8:
-        render_dataset_prompt_analytics(filtered, selected_benchmark)
+        render_dataset_video_explorer(filtered, selected_benchmark)
     with tab9:
-        render_raw_method_table_tab(analysis)
+        render_dataset_prompt_analytics(filtered, selected_benchmark)
     with tab10:
+        render_raw_method_table_tab(analysis)
+    with tab11:
         benchmark_gaps = gaps_df[gaps_df["benchmark"] == selected_benchmark] if gaps_df is not None and not gaps_df.empty and "benchmark" in gaps_df.columns else gaps_df
         render_notes_and_caveats_tab(filtered, benchmark_gaps if isinstance(benchmark_gaps, pd.DataFrame) else pd.DataFrame(), analysis)
 

@@ -8,41 +8,54 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-SCORE_PRESETS: dict[str, dict[str, float]] = {
-    "Balanced": {
-        "imaging_quality": 0.35,
-        "drift_last_imaging_quality": 0.25,
-        "peak_vram_gb": 0.20,
-        "avg_runtime_s_per_prompt": 0.10,
-        "compression_ratio": 0.10,
+RECOMMENDATION_FOCUS_PRESETS: dict[str, dict[str, Any]] = {
+    "Single-GPU practical": {
+        "description": "Prioritize lower peak VRAM first, then preserve SSIM and LPIPS, then prefer stronger KV compression and lower runtime while keeping drift under control.",
+        "sort": [
+            ("peak_vram_gb", True),
+            ("ssim_drop_vs_bf16", True),
+            ("lpips_delta_vs_bf16", True),
+            ("drift_last_imaging_quality_drop_vs_bf16", True),
+            ("compression_ratio", False),
+            ("avg_runtime_s_per_prompt", True),
+            ("psnr", False),
+        ],
     },
-    "Quality-first": {
-        "imaging_quality": 0.40,
-        "drift_last_imaging_quality": 0.25,
-        "peak_vram_gb": 0.10,
-        "avg_runtime_s_per_prompt": 0.10,
-        "compression_ratio": 0.15,
+    "Quality retention": {
+        "description": "Prioritize staying closest to BF16 on SSIM and LPIPS first, then break ties with PSNR, drift, peak VRAM, compression, and runtime.",
+        "sort": [
+            ("ssim_drop_vs_bf16", True),
+            ("lpips_delta_vs_bf16", True),
+            ("psnr", False),
+            ("drift_last_imaging_quality_drop_vs_bf16", True),
+            ("peak_vram_gb", True),
+            ("compression_ratio", False),
+            ("avg_runtime_s_per_prompt", True),
+        ],
     },
-    "Runtime-first": {
-        "imaging_quality": 0.20,
-        "drift_last_imaging_quality": 0.15,
-        "peak_vram_gb": 0.10,
-        "avg_runtime_s_per_prompt": 0.40,
-        "compression_ratio": 0.15,
+    "Long-horizon stability": {
+        "description": "Prioritize lower drift degradation first, then SSIM and LPIPS retention, then peak VRAM, compression, runtime, and PSNR.",
+        "sort": [
+            ("drift_last_imaging_quality_drop_vs_bf16", True),
+            ("ssim_drop_vs_bf16", True),
+            ("lpips_delta_vs_bf16", True),
+            ("peak_vram_gb", True),
+            ("compression_ratio", False),
+            ("avg_runtime_s_per_prompt", True),
+            ("psnr", False),
+        ],
     },
-    "Memory-first": {
-        "imaging_quality": 0.20,
-        "drift_last_imaging_quality": 0.20,
-        "peak_vram_gb": 0.35,
-        "avg_runtime_s_per_prompt": 0.10,
-        "compression_ratio": 0.15,
-    },
-    "Aggressive compression": {
-        "imaging_quality": 0.20,
-        "drift_last_imaging_quality": 0.20,
-        "peak_vram_gb": 0.15,
-        "avg_runtime_s_per_prompt": 0.05,
-        "compression_ratio": 0.40,
+    "Maximum KV compression": {
+        "description": "Prioritize higher KV compression first, then keep SSIM/LPIPS degradation, drift, peak VRAM, runtime, and PSNR under control.",
+        "sort": [
+            ("compression_ratio", False),
+            ("ssim_drop_vs_bf16", True),
+            ("lpips_delta_vs_bf16", True),
+            ("drift_last_imaging_quality_drop_vs_bf16", True),
+            ("peak_vram_gb", True),
+            ("avg_runtime_s_per_prompt", True),
+            ("psnr", False),
+        ],
     },
 }
 
@@ -50,7 +63,8 @@ FRONTIER_DEFINITIONS: dict[str, dict[str, Any]] = {
     "balanced_practical": {
         "label": "Balanced practical frontier",
         "objectives": {
-            "imaging_quality": "max",
+            "ssim": "max",
+            "lpips": "min",
             "drift_last_imaging_quality": "max",
             "compression_ratio": "max",
             "avg_runtime_s_per_prompt": "min",
@@ -61,7 +75,8 @@ FRONTIER_DEFINITIONS: dict[str, dict[str, Any]] = {
         "label": "Quality-preserving compression frontier",
         "objectives": {
             "compression_ratio": "max",
-            "imaging_quality": "max",
+            "ssim": "max",
+            "lpips": "min",
             "drift_last_imaging_quality": "max",
         },
     },
@@ -76,7 +91,8 @@ FRONTIER_DEFINITIONS: dict[str, dict[str, Any]] = {
     "quality_first": {
         "label": "Quality-first frontier",
         "objectives": {
-            "imaging_quality": "max",
+            "ssim": "max",
+            "lpips": "min",
             "drift_last_imaging_quality": "max",
             "avg_runtime_s_per_prompt": "min",
         },
@@ -97,21 +113,11 @@ FAMILY_PREFIXES = [
 ]
 
 DEFAULT_THRESHOLDS = {
-    "acceptable_imaging_drop": 0.015,
+    "acceptable_ssim_drop": 0.050,
+    "acceptable_lpips_increase": 0.050,
     "acceptable_drift_drop": 0.020,
     "min_compression": 1.10,
 }
-
-OBJECTIVE_DIRECTIONS = {
-    "imaging_quality": "max",
-    "drift_last_imaging_quality": "max",
-    "compression_ratio": "max",
-    "avg_runtime_s_per_prompt": "min",
-    "peak_vram_gb": "min",
-    "ssim": "max",
-    "lpips": "min",
-}
-
 
 @dataclass
 class DecisionAnalysis:
@@ -123,7 +129,8 @@ class DecisionAnalysis:
     takeaways: list[str]
     frontier_members: dict[str, list[str]]
     constraint_tables: dict[str, pd.DataFrame]
-    score_weights: dict[str, float]
+    recommendation_focus: str
+    recommendation_focus_description: str
     thresholds: dict[str, float]
     source_catalog: pd.DataFrame
     primary_source_path: str | None
@@ -185,6 +192,14 @@ def standardize_method_name(method_name: Any) -> str:
 
 
 def infer_method_family(method_name: str, raw_family: str | None = None) -> str:
+    method = standardize_method_name(method_name)
+    for prefix in FAMILY_PREFIXES:
+        if method.startswith(prefix):
+            if prefix == "QUAROT_KV":
+                return "QUAROT"
+            if prefix.startswith("FLOWCACHE"):
+                return "FLOWCACHE"
+            return prefix
     if raw_family:
         raw = standardize_method_name(raw_family)
         if raw.startswith("FLOWCACHE"):
@@ -194,14 +209,6 @@ def infer_method_family(method_name: str, raw_family: str | None = None) -> str:
         for prefix in FAMILY_PREFIXES:
             if raw.startswith(prefix):
                 return prefix
-    method = standardize_method_name(method_name)
-    for prefix in FAMILY_PREFIXES:
-        if method.startswith(prefix):
-            if prefix == "QUAROT_KV":
-                return "QUAROT"
-            if prefix.startswith("FLOWCACHE"):
-                return "FLOWCACHE"
-            return prefix
     return method.split("_", 1)[0] if method else "UNKNOWN"
 
 
@@ -546,75 +553,16 @@ def add_bf16_relative_metrics(summary_df: pd.DataFrame, method_column: str = "me
     return result
 
 
-def normalize_weights(weights: dict[str, float]) -> dict[str, float]:
-    cleaned = {metric: max(float(value), 0.0) for metric, value in weights.items()}
-    total = sum(cleaned.values())
-    if total <= 0:
-        default = SCORE_PRESETS["Balanced"]
-        total = sum(default.values())
-        return {metric: value / total for metric, value in default.items()}
-    return {metric: value / total for metric, value in cleaned.items()}
+def get_recommendation_focus_config(focus_name: str | None) -> dict[str, Any]:
+    if focus_name in RECOMMENDATION_FOCUS_PRESETS:
+        return RECOMMENDATION_FOCUS_PRESETS[str(focus_name)]
+    return RECOMMENDATION_FOCUS_PRESETS["Single-GPU practical"]
 
 
-def _normalize_metric(series: pd.Series, direction: str) -> pd.Series:
-    numeric = pd.to_numeric(series, errors="coerce")
-    finite = numeric.replace([np.inf, -np.inf], np.nan)
-    if finite.notna().sum() <= 1:
-        return finite.notna().astype(float)
-    min_value = finite.min(skipna=True)
-    max_value = finite.max(skipna=True)
-    if pd.isna(min_value) or pd.isna(max_value) or math.isclose(float(min_value), float(max_value)):
-        return finite.notna().astype(float)
-    scaled = (finite - min_value) / (max_value - min_value)
-    if direction == "min":
-        scaled = 1.0 - scaled
-    return scaled
-
-
-def apply_scores(method_summary: pd.DataFrame, weights: dict[str, float]) -> pd.DataFrame:
-    if method_summary.empty:
-        return method_summary.copy()
-
-    result = method_summary.copy()
-    normalized_weights = normalize_weights(weights)
-    score_components = []
-    total_weight = 0.0
-    for metric, weight in normalized_weights.items():
-        if metric not in result.columns:
-            continue
-        direction = OBJECTIVE_DIRECTIONS[metric]
-        normalized = _normalize_metric(result[metric], direction)
-        result[f"score_component_{metric}"] = normalized
-        score_components.append(normalized * weight)
-        total_weight += weight
-    if score_components and total_weight > 0:
-        result["utility_score"] = sum(score_components) / total_weight
-    else:
-        result["utility_score"] = np.nan
-
-    quality_weights = normalize_weights(
-        {
-            "imaging_quality": 0.30,
-            "drift_last_imaging_quality": 0.20,
-            "ssim": 0.35,
-            "lpips": 0.15,
-        }
-    )
-    quality_components = []
-    quality_total = 0.0
-    for metric, weight in quality_weights.items():
-        if metric not in result.columns:
-            continue
-        direction = OBJECTIVE_DIRECTIONS[metric]
-        normalized = _normalize_metric(result[metric], direction)
-        result[f"quality_component_{metric}"] = normalized
-        quality_components.append(normalized * weight)
-        quality_total += weight
-    if quality_components and quality_total > 0:
-        result["quality_reference_score"] = sum(quality_components) / quality_total
-    else:
-        result["quality_reference_score"] = np.nan
-    return result
+def get_recommendation_sort(focus_name: str | None) -> tuple[list[str], list[bool]]:
+    config = get_recommendation_focus_config(focus_name)
+    sort_spec = config["sort"]
+    return [column for column, _ in sort_spec], [ascending for _, ascending in sort_spec]
 
 
 def _dominates(left: pd.Series, right: pd.Series, objectives: dict[str, str], epsilon: float = 1e-9) -> bool:
@@ -711,19 +659,26 @@ def _prefer_capped_candidates(df: pd.DataFrame, thresholds: dict[str, float]) ->
     return capped if not capped.empty else df
 
 
-def _recommendation_reason(kind: str, row: pd.Series) -> str:
+def _caps_are_active(thresholds: dict[str, float]) -> bool:
+    return thresholds.get("runtime_max") is not None or thresholds.get("vram_max") is not None
+
+
+def _recommendation_reason(kind: str, row: pd.Series, focus_name: str | None = None) -> str:
     method = row.get("method")
     compression = _to_float(row.get("compression_ratio"))
     runtime = _to_float(row.get("avg_runtime_s_per_prompt"))
     peak_vram = _to_float(row.get("peak_vram_gb"))
-    imaging_delta = _to_float(row.get("imaging_quality_delta_vs_bf16"))
+    ssim_delta = _to_float(row.get("ssim_delta_vs_bf16"))
+    lpips_delta = _to_float(row.get("lpips_delta_vs_bf16"))
+    psnr_value = _to_float(row.get("psnr"))
     drift_delta = _to_float(row.get("drift_last_imaging_quality_delta_vs_bf16"))
     if kind == "default_practical":
+        focus_label = focus_name or "selected priority"
         return (
-            f"Best balanced option under the current filters: {method} keeps imaging and drift close to BF16 "
+            f"Best match for `{focus_label}` under the current filters: {method} keeps SSIM/LPIPS retention and drift close to BF16 "
             f"while delivering {compression:.2f}x compression, {runtime:.1f}s per prompt, and {peak_vram:.2f} GB peak VRAM."
             if compression is not None and runtime is not None and peak_vram is not None
-            else f"Best balanced option under the current filters: {method}."
+            else f"Best match for `{focus_label}` under the current filters: {method}."
         )
     if kind == "aggressive_compression":
         return (
@@ -740,8 +695,8 @@ def _recommendation_reason(kind: str, row: pd.Series) -> str:
         )
     if kind == "quality_first":
         return (
-            f"Strongest non-BF16 quality-retention candidate: imaging delta {imaging_delta:+.3f}, drift delta {drift_delta:+.3f}, peak VRAM {peak_vram:.2f} GB."
-            if imaging_delta is not None and drift_delta is not None and peak_vram is not None
+            f"Strongest non-BF16 fidelity-retention candidate: SSIM delta {ssim_delta:+.3f}, LPIPS delta {lpips_delta:+.3f}, PSNR {psnr_value:.2f}, drift delta {drift_delta:+.3f}."
+            if ssim_delta is not None and lpips_delta is not None and psnr_value is not None and drift_delta is not None
             else f"Strongest non-BF16 quality-retention candidate in the current comparison: {method}."
         )
     return "Reference baseline for all BF16-relative comparisons."
@@ -752,16 +707,27 @@ def _build_caution(row: pd.Series, thresholds: dict[str, float]) -> str:
     peak_vram_reduction = _to_float(row.get("peak_vram_reduction_vs_bf16_pct"))
     compression_ratio = _to_float(row.get("compression_ratio"))
     runtime_overhead = _to_float(row.get("runtime_overhead_vs_bf16_pct"))
-    imaging_drop = _to_float(row.get("imaging_quality_drop_vs_bf16"))
-    drift_drop = _to_float(row.get("drift_last_imaging_quality_drop_vs_bf16"))
     ssim_drop = _to_float(row.get("ssim_drop_vs_bf16"))
+    lpips_delta = _to_float(row.get("lpips_delta_vs_bf16"))
+    drift_drop = _to_float(row.get("drift_last_imaging_quality_drop_vs_bf16"))
+    runtime = _to_float(row.get("avg_runtime_s_per_prompt"))
+    peak_vram = _to_float(row.get("peak_vram_gb"))
+    runtime_max = thresholds.get("runtime_max")
+    vram_max = thresholds.get("vram_max")
+
+    if runtime_max is not None and runtime is not None and runtime > runtime_max:
+        cautions.append(f"Exceeds the active runtime cap ({runtime_max:.1f}s per prompt).")
+    if vram_max is not None and peak_vram is not None and peak_vram > vram_max:
+        cautions.append(f"Exceeds the active peak-VRAM cap ({vram_max:.2f} GB).")
 
     if compression_ratio is not None and compression_ratio > 1.0 and peak_vram_reduction is not None and peak_vram_reduction <= 0:
         cautions.append("Compressed KV bytes do not translate into lower peak VRAM in the current stack.")
     if runtime_overhead is not None and runtime_overhead > 100:
         cautions.append("Runtime is more than 2x BF16 under the current implementation.")
-    if imaging_drop is not None and imaging_drop > thresholds["acceptable_imaging_drop"]:
-        cautions.append("Imaging quality drops beyond the current tolerance.")
+    if ssim_drop is not None and ssim_drop > thresholds["acceptable_ssim_drop"]:
+        cautions.append("SSIM drops beyond the current tolerance.")
+    if lpips_delta is not None and lpips_delta > thresholds["acceptable_lpips_increase"]:
+        cautions.append("LPIPS increases beyond the current tolerance.")
     if drift_drop is not None and drift_drop > thresholds["acceptable_drift_drop"]:
         cautions.append("Drift stability drops beyond the current tolerance.")
     if ssim_drop is not None and ssim_drop > 0.20:
@@ -769,45 +735,45 @@ def _build_caution(row: pd.Series, thresholds: dict[str, float]) -> str:
     return " ".join(cautions[:2])
 
 
-def recommend_methods(method_summary: pd.DataFrame, thresholds: dict[str, float]) -> dict[str, dict[str, Any]]:
+def recommend_methods(method_summary: pd.DataFrame, thresholds: dict[str, float], recommendation_focus: str) -> dict[str, dict[str, Any]]:
     recommendations: dict[str, dict[str, Any]] = {}
     if method_summary.empty:
         return recommendations
 
     base_df = method_summary.copy()
     non_bf16 = base_df[base_df["method"] != "BF16"].copy()
-    exclude: set[str] = set()
+    caps_active = _caps_are_active(thresholds)
+    focus_sort_columns, focus_sort_ascending = get_recommendation_sort(recommendation_focus)
 
     quality_tolerant = non_bf16[
         (non_bf16["compression_ratio"].fillna(0) >= thresholds["min_compression"])
-        & (non_bf16["imaging_quality_drop_vs_bf16"].fillna(np.inf) <= thresholds["acceptable_imaging_drop"])
+        & (non_bf16["ssim_drop_vs_bf16"].fillna(np.inf) <= thresholds["acceptable_ssim_drop"])
+        & (non_bf16["lpips_delta_vs_bf16"].fillna(np.inf) <= thresholds["acceptable_lpips_increase"])
         & (non_bf16["drift_last_imaging_quality_drop_vs_bf16"].fillna(np.inf) <= thresholds["acceptable_drift_drop"])
     ]
-    fidelity_tolerant = quality_tolerant[quality_tolerant["ssim_drop_vs_bf16"].fillna(0) <= 0.35] if "ssim_drop_vs_bf16" in quality_tolerant.columns else quality_tolerant
-    quality_tolerant_practical = _prefer_capped_candidates(fidelity_tolerant, thresholds)
+    quality_tolerant_practical = _apply_recommendation_caps(quality_tolerant, thresholds) if caps_active else quality_tolerant
 
     default_candidates = quality_tolerant_practical[quality_tolerant_practical["pareto_balanced_practical"].fillna(False)]
     if default_candidates.empty:
         default_candidates = quality_tolerant_practical
-    if default_candidates.empty:
+    if default_candidates.empty and not caps_active:
         default_candidates = _prefer_capped_candidates(non_bf16[non_bf16["pareto_balanced_practical"].fillna(False)], thresholds)
-    if default_candidates.empty:
+    if default_candidates.empty and not caps_active:
         default_candidates = _prefer_capped_candidates(non_bf16, thresholds)
-    if default_candidates.empty:
+    if default_candidates.empty and not caps_active:
         default_candidates = non_bf16
     default_row = _pick_candidate(
         default_candidates,
-        ["utility_score", "peak_vram_gb", "quality_reference_score", "compression_ratio", "avg_runtime_s_per_prompt"],
-        [False, True, False, False, True],
-        exclude,
+        focus_sort_columns,
+        focus_sort_ascending,
+        set(),
     )
     if default_row is not None:
-        exclude.add(str(default_row["method"]))
         recommendations["default_practical"] = {
-            "label": "Default practical recommendation",
+            "label": f"Recommended: {recommendation_focus}",
             "method": str(default_row["method"]),
             "row": default_row,
-            "reason": _recommendation_reason("default_practical", default_row),
+            "reason": _recommendation_reason("default_practical", default_row, recommendation_focus),
             "caution": _build_caution(default_row, thresholds),
         }
 
@@ -824,12 +790,19 @@ def recommend_methods(method_summary: pd.DataFrame, thresholds: dict[str, float]
             aggressive_candidates = near_max_candidates
     aggressive_row = _pick_candidate(
         aggressive_candidates,
-        ["compression_ratio", "peak_vram_gb", "quality_reference_score", "utility_score", "imaging_quality", "drift_last_imaging_quality"],
-        [False, True, False, False, False, False],
-        exclude,
+        [
+            "compression_ratio",
+            "ssim_drop_vs_bf16",
+            "lpips_delta_vs_bf16",
+            "drift_last_imaging_quality_drop_vs_bf16",
+            "peak_vram_gb",
+            "avg_runtime_s_per_prompt",
+            "psnr",
+        ],
+        [False, True, True, True, True, True, False],
+        set(),
     )
     if aggressive_row is not None:
-        exclude.add(str(aggressive_row["method"]))
         recommendations["aggressive_compression"] = {
             "label": "Best aggressive-compression option",
             "method": str(aggressive_row["method"]),
@@ -843,12 +816,11 @@ def recommend_methods(method_summary: pd.DataFrame, thresholds: dict[str, float]
         fastest_candidates = non_bf16.copy()
     fastest_row = _pick_candidate(
         fastest_candidates,
-        ["avg_runtime_s_per_prompt", "peak_vram_gb", "imaging_quality", "drift_last_imaging_quality"],
-        [True, True, False, False],
-        exclude,
+        ["avg_runtime_s_per_prompt", "peak_vram_gb", "ssim", "lpips", "psnr"],
+        [True, True, False, True, False],
+        set(),
     )
     if fastest_row is not None:
-        exclude.add(str(fastest_row["method"]))
         recommendations["fastest"] = {
             "label": "Fastest option",
             "method": str(fastest_row["method"]),
@@ -862,12 +834,19 @@ def recommend_methods(method_summary: pd.DataFrame, thresholds: dict[str, float]
         quality_candidates = non_bf16.copy()
     quality_row = _pick_candidate(
         quality_candidates,
-        ["quality_reference_score", "ssim", "lpips", "imaging_quality", "drift_last_imaging_quality", "peak_vram_gb", "avg_runtime_s_per_prompt"],
-        [False, False, True, False, False, True, True],
-        exclude,
+        [
+            "ssim_drop_vs_bf16",
+            "lpips_delta_vs_bf16",
+            "psnr",
+            "drift_last_imaging_quality_drop_vs_bf16",
+            "peak_vram_gb",
+            "compression_ratio",
+            "avg_runtime_s_per_prompt",
+        ],
+        [True, True, False, True, True, False, True],
+        set(),
     )
     if quality_row is not None:
-        exclude.add(str(quality_row["method"]))
         recommendations["quality_first"] = {
             "label": "Quality-first option",
             "method": str(quality_row["method"]),
@@ -907,9 +886,9 @@ def annotate_recommendations(method_summary: pd.DataFrame, recommendations: dict
         if row.get("recommended_for"):
             explanations.append(f"{row['recommended_for']}: {_build_caution(row, thresholds) or 'Selected by the current rule-based recommendation engine.'}")
         elif bool(row.get("pareto_balanced_practical")):
-            explanations.append("Balanced-frontier survivor: no other method improves quality, drift, runtime, memory, and compression simultaneously.")
+            explanations.append("Balanced-frontier survivor: no other method improves SSIM, LPIPS, drift, runtime, memory, and compression simultaneously.")
         elif bool(row.get("pareto_systems_efficiency")):
-            explanations.append("Systems-frontier survivor: efficient on runtime/memory/compression, but not the strongest quality-retention choice.")
+            explanations.append("Systems-frontier survivor: efficient on runtime/memory/compression, but not the strongest fidelity-retention choice.")
         else:
             dominators = _safe_string(row.get("dominated_by_balanced_practical"))
             if dominators:
@@ -920,11 +899,12 @@ def annotate_recommendations(method_summary: pd.DataFrame, recommendations: dict
     return result
 
 
-def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str, float]) -> dict[str, pd.DataFrame]:
+def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str, float], recommendation_focus: str) -> dict[str, pd.DataFrame]:
     if method_summary.empty:
         return {}
     df = method_summary.copy()
     rankings: dict[str, pd.DataFrame] = {}
+    focus_sort_columns, focus_sort_ascending = get_recommendation_sort(recommendation_focus)
 
     def _prepare(table: pd.DataFrame) -> pd.DataFrame:
         columns = [
@@ -933,9 +913,13 @@ def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str
             "compression_ratio",
             "peak_vram_gb",
             "avg_runtime_s_per_prompt",
-            "imaging_quality",
+            "psnr",
+            "ssim",
+            "lpips",
             "drift_last_imaging_quality",
-            "imaging_quality_delta_vs_bf16",
+            "psnr_delta_vs_bf16",
+            "ssim_delta_vs_bf16",
+            "lpips_delta_vs_bf16",
             "drift_last_imaging_quality_delta_vs_bf16",
             "runtime_overhead_vs_bf16_pct",
             "peak_vram_reduction_vs_bf16_pct",
@@ -949,28 +933,32 @@ def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str
     runtime_max = np.inf if runtime_max is None else runtime_max
     vram_max = thresholds.get("vram_max", np.inf)
     vram_max = np.inf if vram_max is None else vram_max
-    image_drop = thresholds["acceptable_imaging_drop"]
+    ssim_drop = thresholds["acceptable_ssim_drop"]
+    lpips_increase = thresholds["acceptable_lpips_increase"]
     drift_drop = thresholds["acceptable_drift_drop"]
     min_compression = thresholds["min_compression"]
 
     rankings["Best quality under runtime <= X"] = _prepare(
         df[df["avg_runtime_s_per_prompt"].fillna(np.inf) <= runtime_max].sort_values(
-            ["imaging_quality", "drift_last_imaging_quality", "quality_reference_score"],
-            ascending=[False, False, False],
+            ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "psnr", "drift_last_imaging_quality_drop_vs_bf16"],
+            ascending=[True, True, False, True],
             na_position="last",
         )
     )
     rankings["Best quality under peak VRAM <= Y"] = _prepare(
         df[df["peak_vram_gb"].fillna(np.inf) <= vram_max].sort_values(
-            ["imaging_quality", "drift_last_imaging_quality", "quality_reference_score"],
-            ascending=[False, False, False],
+            ["ssim_drop_vs_bf16", "lpips_delta_vs_bf16", "psnr", "avg_runtime_s_per_prompt"],
+            ascending=[True, True, False, True],
             na_position="last",
         )
     )
-    rankings["Best compression under imaging-quality drop <= Z"] = _prepare(
-        df[df["imaging_quality_drop_vs_bf16"].fillna(np.inf) <= image_drop].sort_values(
-            ["compression_ratio", "imaging_quality", "drift_last_imaging_quality"],
-            ascending=[False, False, False],
+    rankings["Best compression under SSIM/LPIPS guard"] = _prepare(
+        df[
+            (df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop)
+            & (df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase)
+        ].sort_values(
+            ["compression_ratio", "ssim", "lpips", "psnr"],
+            ascending=[False, False, True, False],
             na_position="last",
         )
     )
@@ -981,10 +969,13 @@ def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str
             na_position="last",
         )
     )
-    rankings["Best runtime under imaging-quality drop <= Z"] = _prepare(
-        df[df["imaging_quality_drop_vs_bf16"].fillna(np.inf) <= image_drop].sort_values(
-            ["avg_runtime_s_per_prompt", "compression_ratio", "imaging_quality"],
-            ascending=[True, False, False],
+    rankings["Best runtime under SSIM/LPIPS guard"] = _prepare(
+        df[
+            (df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop)
+            & (df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase)
+        ].sort_values(
+            ["avg_runtime_s_per_prompt", "compression_ratio", "ssim", "lpips"],
+            ascending=[True, False, False, True],
             na_position="last",
         )
     )
@@ -995,14 +986,15 @@ def build_constraint_rankings(method_summary: pd.DataFrame, thresholds: dict[str
             na_position="last",
         )
     )
-    rankings["Best balanced score under configurable weights"] = _prepare(
+    rankings[f"Best under selected priority: {recommendation_focus}"] = _prepare(
         df[
             (df["avg_runtime_s_per_prompt"].fillna(np.inf) <= runtime_max)
             & (df["peak_vram_gb"].fillna(np.inf) <= vram_max)
             & (df["compression_ratio"].fillna(0) >= min_compression)
-            & (df["imaging_quality_drop_vs_bf16"].fillna(np.inf) <= image_drop)
+            & (df["ssim_drop_vs_bf16"].fillna(np.inf) <= ssim_drop)
+            & (df["lpips_delta_vs_bf16"].fillna(np.inf) <= lpips_increase)
             & (df["drift_last_imaging_quality_drop_vs_bf16"].fillna(np.inf) <= drift_drop)
-        ].sort_values(["utility_score", "imaging_quality", "drift_last_imaging_quality"], ascending=[False, False, False], na_position="last")
+        ].sort_values(focus_sort_columns, ascending=focus_sort_ascending, na_position="last")
     )
     return rankings
 
@@ -1037,7 +1029,11 @@ def generate_experiment_takeaways(method_summary: pd.DataFrame, recommendations:
     if default_payload:
         row = default_payload["row"]
         takeaways.append(
-            f"Default operating point: `{row['method']}` best balances visual quality, drift stability, runtime, and KV compression under the current filters."
+            f"Priority-based recommendation: `{row['method']}` is the top method under the selected recommendation focus and current practical filters."
+        )
+    elif _caps_are_active(thresholds):
+        takeaways.append(
+            "No quantized method satisfies the active practical caps together with the current quality and drift tolerances."
         )
     if aggressive_payload:
         row = aggressive_payload["row"]
@@ -1047,7 +1043,7 @@ def generate_experiment_takeaways(method_summary: pd.DataFrame, recommendations:
     if quality_payload:
         row = quality_payload["row"]
         takeaways.append(
-            f"Quality-first note: `{row['method']}` is the strongest non-BF16 fidelity/quality retainer, but its runtime cost may still limit default deployment."
+            f"Quality-first note: `{row['method']}` is the strongest non-BF16 retainer under the direct PSNR/SSIM/LPIPS metrics, but its runtime cost may still limit default deployment."
         )
     if fastest_payload:
         row = fastest_payload["row"]
@@ -1076,7 +1072,7 @@ def build_dashboard_analysis(
     filtered_df: pd.DataFrame,
     source_catalog: pd.DataFrame,
     benchmark: str,
-    score_weights: dict[str, float],
+    recommendation_focus: str,
     thresholds: dict[str, float],
     primary_source_path: str | None = None,
 ) -> DecisionAnalysis:
@@ -1085,16 +1081,16 @@ def build_dashboard_analysis(
     method_summary = build_method_summary(run_summary)
     method_summary = add_bf16_relative_metrics(method_summary)
     method_summary = attach_frontier_results(method_summary)
-    method_summary = apply_scores(method_summary, score_weights)
-    recommendations = recommend_methods(method_summary, thresholds)
+    recommendations = recommend_methods(method_summary, thresholds, recommendation_focus)
     method_summary = annotate_recommendations(method_summary, recommendations, thresholds)
     explainability = build_explainability_table(method_summary)
-    constraint_tables = build_constraint_rankings(method_summary, thresholds)
+    constraint_tables = build_constraint_rankings(method_summary, thresholds, recommendation_focus)
     frontier_members = {
         frontier_key: method_summary.loc[method_summary[f"pareto_{frontier_key}"].fillna(False), "method"].astype(str).tolist()
         for frontier_key in FRONTIER_DEFINITIONS
     }
     takeaways = generate_experiment_takeaways(method_summary, recommendations, thresholds)
+    focus_config = get_recommendation_focus_config(recommendation_focus)
     return DecisionAnalysis(
         benchmark=benchmark,
         run_summary=run_summary,
@@ -1104,7 +1100,8 @@ def build_dashboard_analysis(
         takeaways=takeaways,
         frontier_members=frontier_members,
         constraint_tables=constraint_tables,
-        score_weights=normalize_weights(score_weights),
+        recommendation_focus=recommendation_focus,
+        recommendation_focus_description=str(focus_config["description"]),
         thresholds=thresholds,
         source_catalog=source_catalog,
         primary_source_path=primary_source_path,
