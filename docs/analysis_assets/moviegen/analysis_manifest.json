@@ -1,0 +1,24 @@
+{
+  "benchmark": "moviegen",
+  "method_count": 33,
+  "plots": [
+    "balanced_practical.png",
+    "compression_vs_peak_vram.png",
+    "drift_curves.png",
+    "peak_vram_vs_quality.png",
+    "quality_first.png",
+    "quality_preserving_compression.png",
+    "systems_efficiency.png",
+    "trace_kv_compressed.png",
+    "trace_vram_allocated.png",
+    "vram_vs_runtime.png"
+  ],
+  "tables": [
+    "derived_method_table.csv",
+    "drift_curve_points.csv",
+    "trace_peak_summary.csv",
+    "derived_method_table.md",
+    "readme_method_table.md",
+    "trace_peak_summary.md"
+  ]
+}
