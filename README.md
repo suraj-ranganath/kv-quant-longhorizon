@@ -1,7 +1,5 @@
 # KV Cache Quantization for Self-Forcing Video Generation
 
-By Suraj Ranganath, Vaishak Menon, and Anish Patnaik
-
 This repository is the research artifact for our empirical study of KV-cache quantization in self-forcing video generation. The core question is simple: as self-forcing pushes a short-horizon model to longer rollouts, which KV-cache compression methods actually help in the full system, and which ones only look promising if you ignore runtime, reconstruction overhead, or temporal drift?
 
 We evaluate 33 quantization and cache-policy variants on MovieGen and StoryEval, measure systems behavior and output quality jointly, and package the results into a reproducible benchmark harness plus a presentation-oriented Streamlit dashboard.
@@ -187,10 +185,6 @@ These are the static figures we used repeatedly while explaining the systems/qua
 ### Memory vs compression
 
 ![VRAM vs compression](docs/figures/vram_compression.png)
-
-### Runtime vs quality
-
-![Runtime vs quality](docs/figures/runtime_quality.png)
 
 ### Temporal drift
 
