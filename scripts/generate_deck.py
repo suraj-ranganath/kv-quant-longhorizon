@@ -22,7 +22,7 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 PRESENTATION_MD = ROOT / "docs" / "presentations" / "presentation.md"
 OUTPUT_PPTX = ROOT / "docs" / "presentations" / "final_presentation.pptx"
 VRAM_CHART = ROOT / "docs" / "figures" / "vram_compression.png"

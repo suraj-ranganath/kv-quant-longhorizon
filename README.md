@@ -217,7 +217,8 @@ These are the static figures we used repeatedly while explaining the systems/qua
 │   ├── benchmarks/
 │   ├── combined/
 │   └── ...
-└── generate_deck.py
+└── scripts/
+    └── generate_deck.py
 ```
 
 ## Quick Start

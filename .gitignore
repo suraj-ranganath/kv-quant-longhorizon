@@ -30,6 +30,7 @@ wan_models/*
 .venv/
 .env
 .DS_Store
+tmp/
 
 # Third-party clones (recreated via scripts)
 third_party/*
