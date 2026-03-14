@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-03-10T23:03:16.308428+00:00",
+  "num_targets": 7,
+  "targets": [
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "RTN_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/9525a239d810abd5_RTN_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "RTN_K2_V4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e3b640f716c419c4_RTN_K2_V4.json",
+      "num_videos": 5,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_kivi_int4_bg_kivi_int2_3d327a450ca5_10s",
+      "method": "SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/da3e13c01d2c44b9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_quarot_kv_int4_bg_rtn_int2_af0e1883d58d_10s",
+      "method": "SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_1f080d8dcc0e_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/59b7a5d204a5df7f_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/4285f2901eded304_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_089f989f38f6_10s",
+      "method": "TPTQ_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/5d74a7d4623e9cb6_TPTQ_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    }
+  ]
+}

@@ -1,0 +1,3373 @@
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 13.966800163951893,
+  "ssim": 0.43468379605169866,
+  "lpips": 0.5805360584538148
+}
+prompt_map_size=10
+[W310 03:02:12.995751255 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 03:02:12.245477768 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:06,  1.44it/s] 20%|██        | 2/10 [00:01<00:05,  1.60it/s] 30%|███       | 3/10 [00:01<00:04,  1.66it/s] 40%|████      | 4/10 [00:02<00:03,  1.66it/s] 50%|█████     | 5/10 [00:03<00:02,  1.67it/s] 60%|██████    | 6/10 [00:03<00:02,  1.69it/s] 70%|███████   | 7/10 [00:04<00:01,  1.69it/s] 80%|████████  | 8/10 [00:04<00:01,  1.70it/s] 90%|█████████ | 9/10 [00:05<00:00,  1.70it/s]100%|██████████| 10/10 [00:05<00:00,  1.68it/s]100%|██████████| 10/10 [00:05<00:00,  1.67it/s]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:04<00:36,  4.10s/it] 20%|██        | 2/10 [00:09<00:37,  4.65s/it] 30%|███       | 3/10 [00:11<00:26,  3.73s/it] 40%|████      | 4/10 [00:14<00:19,  3.30s/it] 50%|█████     | 5/10 [00:17<00:15,  3.09s/it] 60%|██████    | 6/10 [00:20<00:12,  3.03s/it] 70%|███████   | 7/10 [00:25<00:11,  3.68s/it] 80%|████████  | 8/10 [00:30<00:08,  4.09s/it] 90%|█████████ | 9/10 [00:32<00:03,  3.66s/it]100%|██████████| 10/10 [00:35<00:00,  3.38s/it]100%|██████████| 10/10 [00:35<00:00,  3.55s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 03:03:00,248 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.04s/it] 20%|██        | 2/10 [00:04<00:16,  2.04s/it] 30%|███       | 3/10 [00:06<00:14,  2.08s/it] 40%|████      | 4/10 [00:08<00:12,  2.10s/it] 50%|█████     | 5/10 [00:10<00:10,  2.11s/it] 60%|██████    | 6/10 [00:12<00:08,  2.09s/it] 70%|███████   | 7/10 [00:14<00:06,  2.09s/it] 80%|████████  | 8/10 [00:16<00:04,  2.08s/it] 90%|█████████ | 9/10 [00:18<00:02,  2.08s/it]100%|██████████| 10/10 [00:20<00:00,  2.10s/it]100%|██████████| 10/10 [00:20<00:00,  2.09s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:01<00:09,  1.01s/it] 20%|██        | 2/10 [00:02<00:08,  1.02s/it] 30%|███       | 3/10 [00:03<00:07,  1.02s/it] 40%|████      | 4/10 [00:04<00:06,  1.03s/it] 50%|█████     | 5/10 [00:05<00:05,  1.03s/it] 60%|██████    | 6/10 [00:06<00:04,  1.08s/it] 70%|███████   | 7/10 [00:07<00:03,  1.08s/it] 80%|████████  | 8/10 [00:08<00:02,  1.09s/it] 90%|█████████ | 9/10 [00:09<00:01,  1.11s/it]100%|██████████| 10/10 [00:10<00:00,  1.11s/it]100%|██████████| 10/10 [00:10<00:00,  1.08s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2/results_2026-03-10-03:02:12_eval_results.json
+done
+[rank0]:[W310 03:03:39.934884686 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 --output /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/fidelity_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s --methods BF16 RTN_INT4 SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2
+Backfill completed for SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 under /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:408: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")
+KV inference with 3 frames per block
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 25.303240299224854 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+{
+  "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+  "num_prompts": 10,
+  "num_samples": 1,
+  "total_runtime_s": 1054.57801766973,
+  "avg_runtime_s_per_prompt": 105.45780176697299,
+  "peak_vram_bytes": 15437736960,
+  "quantize_time_s": 257.3296868884936,
+  "dequantize_time_s": 6.589174276217818,
+  "bf16_kv_bytes": 12076646400,
+  "compressed_kv_bytes": 3792564000,
+  "compression_ratio": 3.1842960066066124,
+  "first_video_shape": [
+    1,
+    165,
+    3,
+    480,
+    832
+  ],
+  "spatial_mask_events": 21000.0,
+  "spatial_avg_foreground_ratio": 0.6504739674925805,
+  "spatial_avg_threshold_foreground_ratio": 0.9022244810744815,
+  "spatial_topk_fallback_rate": 0.9715714285714285,
+  "spatial_target_foreground_ratio": 0.65,
+  "spatial_min_foreground_ratio": 0.45,
+  "spatial_max_foreground_ratio": 0.85,
+  "spatial_variance_threshold": 0.02,
+  "spatial_mask_policy": "hybrid",
+  "spatial_mask_policy_code": 2.0
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 18.88662786205113,
+  "ssim": 0.5772292484746484,
+  "lpips": 0.30993145835832836
+}
+prompt_map_size=10
+[W310 03:26:07.279546176 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 03:26:08.541469747 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:01<00:11,  1.22s/it] 20%|██        | 2/10 [00:02<00:08,  1.07s/it] 30%|███       | 3/10 [00:03<00:07,  1.02s/it] 40%|████      | 4/10 [00:04<00:05,  1.02it/s] 50%|█████     | 5/10 [00:05<00:04,  1.01it/s] 60%|██████    | 6/10 [00:06<00:03,  1.00it/s] 70%|███████   | 7/10 [00:07<00:02,  1.01it/s] 80%|████████  | 8/10 [00:08<00:01,  1.01it/s] 90%|█████████ | 9/10 [00:09<00:00,  1.01it/s]100%|██████████| 10/10 [00:10<00:00,  1.01s/it]100%|██████████| 10/10 [00:10<00:00,  1.01s/it]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:06<00:58,  6.44s/it] 20%|██        | 2/10 [00:09<00:35,  4.43s/it] 30%|███       | 3/10 [00:12<00:25,  3.60s/it] 40%|████      | 4/10 [00:17<00:25,  4.33s/it] 50%|█████     | 5/10 [00:21<00:20,  4.14s/it] 60%|██████    | 6/10 [00:26<00:17,  4.50s/it] 70%|███████   | 7/10 [00:29<00:11,  3.90s/it] 80%|████████  | 8/10 [00:33<00:08,  4.10s/it] 90%|█████████ | 9/10 [00:38<00:04,  4.44s/it]100%|██████████| 10/10 [00:44<00:00,  4.76s/it]100%|██████████| 10/10 [00:44<00:00,  4.44s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 03:27:17,262 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.09s/it] 20%|██        | 2/10 [00:04<00:17,  2.13s/it] 30%|███       | 3/10 [00:06<00:14,  2.14s/it] 40%|████      | 4/10 [00:08<00:12,  2.11s/it] 50%|█████     | 5/10 [00:10<00:10,  2.09s/it] 60%|██████    | 6/10 [00:12<00:08,  2.08s/it] 70%|███████   | 7/10 [00:14<00:06,  2.16s/it] 80%|████████  | 8/10 [00:17<00:04,  2.20s/it] 90%|█████████ | 9/10 [00:19<00:02,  2.22s/it]100%|██████████| 10/10 [00:21<00:00,  2.22s/it]100%|██████████| 10/10 [00:21<00:00,  2.16s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:08,  1.05it/s] 20%|██        | 2/10 [00:02<00:09,  1.17s/it] 30%|███       | 3/10 [00:03<00:09,  1.31s/it] 40%|████      | 4/10 [00:04<00:07,  1.26s/it] 50%|█████     | 5/10 [00:06<00:06,  1.23s/it] 60%|██████    | 6/10 [00:07<00:05,  1.26s/it] 70%|███████   | 7/10 [00:08<00:03,  1.32s/it] 80%|████████  | 8/10 [00:10<00:02,  1.31s/it] 90%|█████████ | 9/10 [00:11<00:01,  1.31s/it]100%|██████████| 10/10 [00:12<00:00,  1.33s/it]100%|██████████| 10/10 [00:12<00:00,  1.28s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:26:08_eval_results.json
+done
+[rank0]:[W310 03:27:59.571938308 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy hybrid --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.45 --spatial-max-foreground-ratio 0.85 --spatial-target-foreground-ratio 0.65
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --output /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/fidelity_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s --methods BF16 RTN_INT4 SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4
+Backfill completed for SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 under /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:408: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")
+KV inference with 3 frames per block
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 25.303240299224854 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+{
+  "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+  "num_prompts": 10,
+  "num_samples": 1,
+  "total_runtime_s": 1022.923517045565,
+  "avg_runtime_s_per_prompt": 102.2923517045565,
+  "peak_vram_bytes": 15436062720,
+  "quantize_time_s": 254.48070684820414,
+  "dequantize_time_s": 5.685503403190523,
+  "bf16_kv_bytes": 12076646400,
+  "compressed_kv_bytes": 3791642400,
+  "compression_ratio": 3.1850699844479005,
+  "first_video_shape": [
+    1,
+    165,
+    3,
+    480,
+    832
+  ],
+  "spatial_mask_events": 21000.0,
+  "spatial_avg_foreground_ratio": 0.8000000715255737,
+  "spatial_avg_threshold_foreground_ratio": 0.9021505189255223,
+  "spatial_topk_fallback_rate": 1.0,
+  "spatial_target_foreground_ratio": 0.8,
+  "spatial_min_foreground_ratio": 0.6,
+  "spatial_max_foreground_ratio": 0.9,
+  "spatial_variance_threshold": 0.02,
+  "spatial_mask_policy": "topk",
+  "spatial_mask_policy_code": 1.0
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 19.05325566789038,
+  "ssim": 0.583199066129185,
+  "lpips": 0.30541932406157934
+}
+prompt_map_size=10
+[W310 03:49:57.653029185 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 03:49:57.876651070 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:06,  1.35it/s] 20%|██        | 2/10 [00:01<00:05,  1.52it/s] 30%|███       | 3/10 [00:01<00:04,  1.57it/s] 40%|████      | 4/10 [00:02<00:03,  1.60it/s] 50%|█████     | 5/10 [00:03<00:03,  1.60it/s] 60%|██████    | 6/10 [00:03<00:02,  1.61it/s] 70%|███████   | 7/10 [00:04<00:01,  1.62it/s] 80%|████████  | 8/10 [00:05<00:01,  1.62it/s] 90%|█████████ | 9/10 [00:05<00:00,  1.63it/s]100%|██████████| 10/10 [00:06<00:00,  1.62it/s]100%|██████████| 10/10 [00:06<00:00,  1.60it/s]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:03<00:27,  3.00s/it] 20%|██        | 2/10 [00:05<00:23,  2.93s/it] 30%|███       | 3/10 [00:08<00:20,  2.87s/it] 40%|████      | 4/10 [00:11<00:16,  2.82s/it] 50%|█████     | 5/10 [00:14<00:13,  2.79s/it] 60%|██████    | 6/10 [00:18<00:12,  3.22s/it] 70%|███████   | 7/10 [00:23<00:11,  3.99s/it] 80%|████████  | 8/10 [00:26<00:07,  3.61s/it] 90%|█████████ | 9/10 [00:29<00:03,  3.33s/it]100%|██████████| 10/10 [00:32<00:00,  3.15s/it]100%|██████████| 10/10 [00:32<00:00,  3.21s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 03:50:41,474 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.09s/it] 20%|██        | 2/10 [00:04<00:17,  2.17s/it] 30%|███       | 3/10 [00:06<00:16,  2.31s/it] 40%|████      | 4/10 [00:09<00:14,  2.37s/it] 50%|█████     | 5/10 [00:11<00:11,  2.28s/it] 60%|██████    | 6/10 [00:13<00:08,  2.22s/it] 70%|███████   | 7/10 [00:15<00:06,  2.18s/it] 80%|████████  | 8/10 [00:17<00:04,  2.17s/it] 90%|█████████ | 9/10 [00:19<00:02,  2.14s/it]100%|██████████| 10/10 [00:22<00:00,  2.21s/it]100%|██████████| 10/10 [00:22<00:00,  2.22s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:08,  1.05it/s] 20%|██        | 2/10 [00:01<00:07,  1.01it/s] 30%|███       | 3/10 [00:02<00:07,  1.01s/it] 40%|████      | 4/10 [00:04<00:06,  1.02s/it] 50%|█████     | 5/10 [00:05<00:05,  1.03s/it] 60%|██████    | 6/10 [00:06<00:04,  1.03s/it] 70%|███████   | 7/10 [00:07<00:03,  1.03s/it] 80%|████████  | 8/10 [00:08<00:02,  1.10s/it] 90%|█████████ | 9/10 [00:09<00:01,  1.11s/it]100%|██████████| 10/10 [00:10<00:00,  1.14s/it]100%|██████████| 10/10 [00:10<00:00,  1.07s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4/results_2026-03-10-03:49:57_eval_results.json
+done
+[rank0]:[W310 03:51:22.091974604 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy topk --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.6 --spatial-max-foreground-ratio 0.9 --spatial-target-foreground-ratio 0.8
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --output /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/fidelity_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/videos/SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s/metrics/vbench_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s --methods BF16 RTN_INT4 SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4
+Backfill completed for SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 under /data/vaishak/combined-kv-quant/results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py", line 131, in <module>
+    main()
+  File "/data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py", line 102, in main
+    raise FileNotFoundError(f"Missing candidate video for {ref_path.name}")
+FileNotFoundError: Missing candidate video for prompt_0001_seed_1.mp4
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_089f989f38f6_10s/videos/TPTQ_INT2 --output /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_089f989f38f6_10s/metrics/fidelity_TPTQ_INT2.json --device cpu
+Traceback (most recent call last):
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 388, in <module>
+    main()
+    ~~~~^^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 310, in main
+    run_cmd(
+    ~~~~~~~^
+        [
+        ^
+    ...<10 lines>...
+        ]
+        ^
+    )
+    ^
+  File "/data/vaishak/combined-kv-quant/scripts/23_run_moviegen_backfill.py", line 24, in run_cmd
+    subprocess.check_call(cmd, cwd=str(REPO_ROOT), env=env)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vaishak/miniforge3/lib/python3.13/subprocess.py", line 419, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/home/suraj/miniforge3/envs/qvg_sf_infer/bin/python', '/data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py', '--bf16-dir', '/data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16', '--candidate-dir', '/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_089f989f38f6_10s/videos/TPTQ_INT2', '--output', '/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_089f989f38f6_10s/metrics/fidelity_TPTQ_INT2.json', '--device', 'cpu']' returned non-zero exit status 1.
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:408: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")
+KV inference with 3 frames per block
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 25.303240299224854 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+{
+  "method": "TPTQ_INT2",
+  "num_prompts": 10,
+  "num_samples": 1,
+  "total_runtime_s": 1611.8376508788206,
+  "avg_runtime_s_per_prompt": 161.18376508788205,
+  "peak_vram_bytes": 20888383488,
+  "quantize_time_s": 865.4509681798518,
+  "dequantize_time_s": 7.742314952425659,
+  "bf16_kv_bytes": 12076646400,
+  "compressed_kv_bytes": 4413095880,
+  "compression_ratio": 2.73654747786717,
+  "first_video_shape": [
+    1,
+    165,
+    3,
+    480,
+    832
+  ],
+  "tptq_events": 21000.0,
+  "tptq_avg_recent_ratio": 0.20000001788139343,
+  "tptq_avg_outlier_ratio": 0.0014731360414289322,
+  "tptq_config_recent_ratio": 0.2,
+  "tptq_recent_bits": 4.0,
+  "tptq_old_bits": 2.0,
+  "tptq_residual_bits": 2.0,
+  "tptq_outlier_threshold": 6.0,
+  "tptq_outlier_max_ratio": 0.002
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 20.236669949401698,
+  "ssim": 0.6503437795210414,
+  "lpips": 0.20170031866616092
+}
+prompt_map_size=10
+[W310 04:23:30.486010155 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 04:23:30.712684282 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/videos/TPTQ_INT2', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:06,  1.45it/s] 20%|██        | 2/10 [00:01<00:04,  1.63it/s] 30%|███       | 3/10 [00:01<00:04,  1.68it/s] 40%|████      | 4/10 [00:02<00:03,  1.69it/s] 50%|█████     | 5/10 [00:03<00:02,  1.68it/s] 60%|██████    | 6/10 [00:03<00:02,  1.69it/s] 70%|███████   | 7/10 [00:04<00:01,  1.71it/s] 80%|████████  | 8/10 [00:04<00:01,  1.68it/s] 90%|█████████ | 9/10 [00:05<00:00,  1.69it/s]100%|██████████| 10/10 [00:05<00:00,  1.68it/s]100%|██████████| 10/10 [00:05<00:00,  1.67it/s]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:26,  2.95s/it] 20%|██        | 2/10 [00:05<00:22,  2.86s/it] 30%|███       | 3/10 [00:08<00:19,  2.80s/it] 40%|████      | 4/10 [00:11<00:16,  2.77s/it] 50%|█████     | 5/10 [00:13<00:13,  2.75s/it] 60%|██████    | 6/10 [00:16<00:10,  2.74s/it] 70%|███████   | 7/10 [00:19<00:08,  2.74s/it] 80%|████████  | 8/10 [00:22<00:05,  2.73s/it] 90%|█████████ | 9/10 [00:24<00:02,  2.73s/it]100%|██████████| 10/10 [00:27<00:00,  2.74s/it]100%|██████████| 10/10 [00:27<00:00,  2.76s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 04:24:09,519 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.01s/it] 20%|██        | 2/10 [00:03<00:15,  1.99s/it] 30%|███       | 3/10 [00:05<00:13,  1.99s/it] 40%|████      | 4/10 [00:07<00:11,  1.99s/it] 50%|█████     | 5/10 [00:09<00:09,  2.00s/it] 60%|██████    | 6/10 [00:11<00:07,  2.00s/it] 70%|███████   | 7/10 [00:13<00:06,  2.00s/it] 80%|████████  | 8/10 [00:16<00:04,  2.01s/it] 90%|█████████ | 9/10 [00:18<00:02,  2.01s/it]100%|██████████| 10/10 [00:20<00:00,  2.02s/it]100%|██████████| 10/10 [00:20<00:00,  2.01s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:08,  1.04it/s] 20%|██        | 2/10 [00:01<00:07,  1.02it/s] 30%|███       | 3/10 [00:02<00:06,  1.01it/s] 40%|████      | 4/10 [00:03<00:05,  1.00it/s] 50%|█████     | 5/10 [00:04<00:05,  1.01s/it] 60%|██████    | 6/10 [00:05<00:04,  1.01s/it] 70%|███████   | 7/10 [00:07<00:03,  1.01s/it] 80%|████████  | 8/10 [00:08<00:02,  1.01s/it] 90%|█████████ | 9/10 [00:09<00:01,  1.01s/it]100%|██████████| 10/10 [00:10<00:00,  1.01s/it]100%|██████████| 10/10 [00:10<00:00,  1.01s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:23:30_eval_results.json
+done
+[rank0]:[W310 04:24:46.885094949 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s --method TPTQ_INT2 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --tptq-recent-ratio 0.2 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.002
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/videos/TPTQ_INT2 --output /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/fidelity_TPTQ_INT2.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/videos/TPTQ_INT2 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s/metrics/vbench_TPTQ_INT2.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s --methods BF16 RTN_INT4 TPTQ_INT2
+Backfill completed for TPTQ_INT2 under /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_2babecc6bab8_10s
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:408: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")
+KV inference with 3 frames per block
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 25.303240299224854 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+{
+  "method": "TPTQ_INT2",
+  "num_prompts": 10,
+  "num_samples": 1,
+  "total_runtime_s": 1587.9068468487822,
+  "avg_runtime_s_per_prompt": 158.79068468487822,
+  "peak_vram_bytes": 20553806336,
+  "quantize_time_s": 828.7946711080149,
+  "dequantize_time_s": 8.620041748974472,
+  "bf16_kv_bytes": 12076646400,
+  "compressed_kv_bytes": 4378402980,
+  "compression_ratio": 2.758230901807033,
+  "first_video_shape": [
+    1,
+    165,
+    3,
+    480,
+    832
+  ],
+  "tptq_events": 21000.0,
+  "tptq_avg_recent_ratio": 0.25,
+  "tptq_avg_outlier_ratio": 0.0018654580025191884,
+  "tptq_config_recent_ratio": 0.25,
+  "tptq_recent_bits": 4.0,
+  "tptq_old_bits": 2.0,
+  "tptq_residual_bits": 2.0,
+  "tptq_outlier_threshold": 6.0,
+  "tptq_outlier_max_ratio": 0.003
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 20.448498218792768,
+  "ssim": 0.6622711551693353,
+  "lpips": 0.18390340569577263
+}
+prompt_map_size=10
+[W310 04:55:55.299656531 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 04:55:55.514984090 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/videos/TPTQ_INT2', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:06,  1.47it/s] 20%|██        | 2/10 [00:01<00:04,  1.62it/s] 30%|███       | 3/10 [00:01<00:04,  1.67it/s] 40%|████      | 4/10 [00:02<00:03,  1.70it/s] 50%|█████     | 5/10 [00:03<00:02,  1.69it/s] 60%|██████    | 6/10 [00:03<00:02,  1.70it/s] 70%|███████   | 7/10 [00:04<00:01,  1.71it/s] 80%|████████  | 8/10 [00:04<00:01,  1.72it/s] 90%|█████████ | 9/10 [00:05<00:00,  1.75it/s]100%|██████████| 10/10 [00:05<00:00,  1.73it/s]100%|██████████| 10/10 [00:05<00:00,  1.70it/s]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:25,  2.86s/it] 20%|██        | 2/10 [00:05<00:22,  2.78s/it] 30%|███       | 3/10 [00:08<00:19,  2.75s/it] 40%|████      | 4/10 [00:11<00:16,  2.74s/it] 50%|█████     | 5/10 [00:13<00:13,  2.73s/it] 60%|██████    | 6/10 [00:16<00:10,  2.72s/it] 70%|███████   | 7/10 [00:19<00:08,  2.72s/it] 80%|████████  | 8/10 [00:21<00:05,  2.72s/it] 90%|█████████ | 9/10 [00:24<00:02,  2.71s/it]100%|██████████| 10/10 [00:27<00:00,  2.71s/it]100%|██████████| 10/10 [00:27<00:00,  2.73s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 04:56:33,812 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.06s/it] 20%|██        | 2/10 [00:04<00:16,  2.05s/it] 30%|███       | 3/10 [00:06<00:14,  2.04s/it] 40%|████      | 4/10 [00:08<00:12,  2.05s/it] 50%|█████     | 5/10 [00:10<00:10,  2.06s/it] 60%|██████    | 6/10 [00:12<00:08,  2.05s/it] 70%|███████   | 7/10 [00:14<00:06,  2.06s/it] 80%|████████  | 8/10 [00:16<00:04,  2.06s/it] 90%|█████████ | 9/10 [00:18<00:02,  2.06s/it]100%|██████████| 10/10 [00:20<00:00,  2.06s/it]100%|██████████| 10/10 [00:20<00:00,  2.06s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:08,  1.04it/s] 20%|██        | 2/10 [00:01<00:07,  1.01it/s] 30%|███       | 3/10 [00:02<00:06,  1.01it/s] 40%|████      | 4/10 [00:03<00:06,  1.00s/it] 50%|█████     | 5/10 [00:05<00:05,  1.01s/it] 60%|██████    | 6/10 [00:06<00:04,  1.01s/it] 70%|███████   | 7/10 [00:07<00:03,  1.01s/it] 80%|████████  | 8/10 [00:08<00:02,  1.02s/it] 90%|█████████ | 9/10 [00:09<00:01,  1.01s/it]100%|██████████| 10/10 [00:10<00:00,  1.02s/it]100%|██████████| 10/10 [00:10<00:00,  1.01s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-04:55:55_eval_results.json
+done
+[rank0]:[W310 04:57:11.868248500 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s --method TPTQ_INT2 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --tptq-recent-ratio 0.25 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.003
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/videos/TPTQ_INT2 --output /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/fidelity_TPTQ_INT2.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/videos/TPTQ_INT2 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s/metrics/vbench_TPTQ_INT2.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s --methods BF16 RTN_INT4 TPTQ_INT2
+Backfill completed for TPTQ_INT2 under /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_351b43b37ce8_10s
+/data/vaishak/combined-kv-quant/third_party/Self-Forcing/wan/modules/vae.py:634: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  torch.load(pretrained_path, map_location=device), assign=True)
+/data/vaishak/combined-kv-quant/scripts/01_generate.py:408: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(str(checkpoint_path), map_location="cpu")
+KV inference with 3 frames per block
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 25.303240299224854 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+Moving DynamicSwap_WanTextEncoder to cuda:0 with preserved memory: 24.55411195755005 GB
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+current_timestep: 1000.0
+current_timestep: 937.5
+current_timestep: 833.3333129882812
+current_timestep: 625.0
+{
+  "method": "TPTQ_INT2",
+  "num_prompts": 10,
+  "num_samples": 1,
+  "total_runtime_s": 1566.180640770588,
+  "avg_runtime_s_per_prompt": 156.61806407705882,
+  "peak_vram_bytes": 20214006784,
+  "quantize_time_s": 834.1001250045374,
+  "dequantize_time_s": 9.028950871434063,
+  "bf16_kv_bytes": 12076646400,
+  "compressed_kv_bytes": 4340782500,
+  "compression_ratio": 2.782135801551909,
+  "first_video_shape": [
+    1,
+    165,
+    3,
+    480,
+    832
+  ],
+  "tptq_events": 21000.0,
+  "tptq_avg_recent_ratio": 0.30000001192092896,
+  "tptq_avg_outlier_ratio": 0.0022025041484958307,
+  "tptq_config_recent_ratio": 0.3,
+  "tptq_recent_bits": 4.0,
+  "tptq_old_bits": 2.0,
+  "tptq_residual_bits": 2.0,
+  "tptq_outlier_threshold": 6.0,
+  "tptq_outlier_max_ratio": 0.005
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 20.61371304644481,
+  "ssim": 0.6692476371130318,
+  "lpips": 0.17432373586527045
+}
+Using MASTER_PORT=28845
+prompt_map_size=10
+[W310 05:52:54.249212654 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[rank0]:[W310 05:52:55.481759301 ProcessGroupNCCL.cpp:4115] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 to perform barrier as devices used by this process are currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect.Specify device_ids in barrier() to force use of a particular device,or call init_process_group() with a device_id.
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/clip/clip.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import packaging
+args: Namespace(output_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2', full_json_dir='/data/vaishak/combined-kv-quant/third_party/VBench/vbench/VBench_full_info.json', videos_path='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/videos/TPTQ_INT2', dimension=['background_consistency', 'imaging_quality', 'subject_consistency', 'aesthetic_quality'], load_ckpt_from_local=None, read_frame=None, mode='custom_input', prompt='None', prompt_file='/data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/prompt_map.json', category=None, imaging_quality_preprocessing_mode='longer')
+start evaluation
+Evaluation meta data saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_full_info.json
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:00<00:07,  1.21it/s] 20%|██        | 2/10 [00:01<00:05,  1.37it/s] 30%|███       | 3/10 [00:02<00:04,  1.46it/s] 40%|████      | 4/10 [00:02<00:03,  1.50it/s] 50%|█████     | 5/10 [00:03<00:03,  1.53it/s] 60%|██████    | 6/10 [00:04<00:02,  1.55it/s] 70%|███████   | 7/10 [00:04<00:01,  1.57it/s] 80%|████████  | 8/10 [00:05<00:01,  1.59it/s] 90%|█████████ | 9/10 [00:05<00:00,  1.59it/s]100%|██████████| 10/10 [00:06<00:00,  1.52it/s]100%|██████████| 10/10 [00:06<00:00,  1.51it/s]
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/home/suraj/miniforge3/envs/qvg_sf_eval/lib/python3.10/site-packages/pyiqa/archs/arch_util.py:118: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_full_info.json
+Loading pretrained model MUSIQ from /home/vaishak/.cache/vbench/pyiqa_model/musiq_spaq_ckpt-358bb6af.pth
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:04<00:36,  4.07s/it] 20%|██        | 2/10 [00:07<00:31,  3.95s/it] 30%|███       | 3/10 [00:11<00:26,  3.78s/it] 40%|████      | 4/10 [00:14<00:21,  3.60s/it] 50%|█████     | 5/10 [00:18<00:17,  3.54s/it] 60%|██████    | 6/10 [00:21<00:13,  3.44s/it] 70%|███████   | 7/10 [00:25<00:11,  3.75s/it] 80%|████████  | 8/10 [00:29<00:07,  3.71s/it] 90%|█████████ | 9/10 [00:32<00:03,  3.59s/it]100%|██████████| 10/10 [00:35<00:00,  3.42s/it]100%|██████████| 10/10 [00:35<00:00,  3.59s/it]
+Using cache found in /home/vaishak/.cache/torch/hub/facebookresearch_dino_main
+2026-03-10 05:53:44,348 - vbench.subject_consistency - INFO - Initialize DINO success
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:02<00:18,  2.10s/it] 20%|██        | 2/10 [00:04<00:17,  2.15s/it] 30%|███       | 3/10 [00:06<00:14,  2.14s/it] 40%|████      | 4/10 [00:08<00:12,  2.14s/it] 50%|█████     | 5/10 [00:10<00:10,  2.15s/it] 60%|██████    | 6/10 [00:12<00:08,  2.15s/it] 70%|███████   | 7/10 [00:15<00:06,  2.16s/it] 80%|████████  | 8/10 [00:17<00:04,  2.16s/it] 90%|█████████ | 9/10 [00:19<00:02,  2.16s/it]100%|██████████| 10/10 [00:21<00:00,  2.16s/it]100%|██████████| 10/10 [00:21<00:00,  2.15s/it]
+/data/vaishak/kv-quant-longhorizon/third_party/VBench/vbench/aesthetic_quality.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  s = torch.load(path_to_model)
+cur_full_info_path: /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_full_info.json
+  0%|          | 0/10 [00:00<?, ?it/s] 10%|█         | 1/10 [00:01<00:09,  1.04s/it] 20%|██        | 2/10 [00:02<00:08,  1.04s/it] 30%|███       | 3/10 [00:03<00:08,  1.15s/it] 40%|████      | 4/10 [00:04<00:06,  1.11s/it] 50%|█████     | 5/10 [00:05<00:05,  1.09s/it] 60%|██████    | 6/10 [00:06<00:04,  1.07s/it] 70%|███████   | 7/10 [00:07<00:03,  1.06s/it] 80%|████████  | 8/10 [00:08<00:02,  1.05s/it] 90%|█████████ | 9/10 [00:09<00:01,  1.09s/it]100%|██████████| 10/10 [00:10<00:00,  1.10s/it]100%|██████████| 10/10 [00:10<00:00,  1.09s/it]
+Evaluation results saved to /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2/results_2026-03-10-05:52:55_eval_results.json
+done
+[rank0]:[W310 05:54:25.346404505 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+Saved /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2.json
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/tables/baseline_summary.csv
+Wrote /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/tables/baseline_summary.md
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/01_generate.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s --method TPTQ_INT2 --max-prompts 10 --num-output-frames 42 --seed 0 --device cuda:0 --use-ema --tptq-recent-ratio 0.3 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.005
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/kv-quant-longhorizon/results/runs/1772751420_baseline10s_10prompts_v3/videos/BF16 --candidate-dir /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/videos/TPTQ_INT2 --output /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/fidelity_TPTQ_INT2.json --device cpu
+$ bash /data/vaishak/combined-kv-quant/scripts/03_eval_vbench.sh TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/videos/TPTQ_INT2 /data/vaishak/combined-kv-quant/prompts/MovieGenVideoBench_extended.txt /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2 /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s/metrics/vbench_TPTQ_INT2.json
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/05_summarize_results.py --results-root /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s --methods BF16 RTN_INT4 TPTQ_INT2
+Backfill completed for TPTQ_INT2 under /data/vaishak/combined-kv-quant/results/runs/backfill_tptq_int2_44c4da374609_10s
+[1/7] backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s :: SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s --run-name backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int2_bae80e29fbb6_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2 --config-id bae80e29fbb6 -- --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 2 --spatial-mask-policy topk --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.6 --spatial-max-foreground-ratio 0.9 --spatial-target-foreground-ratio 0.8
+[2/7] backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s :: SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s --run-name backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --config-id 04d60f52e048 -- --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy hybrid --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.45 --spatial-max-foreground-ratio 0.85 --spatial-target-foreground-ratio 0.65
+[3/7] backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s :: SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s --run-name backfill_spatial_mixed_fg_rtn_int4_bg_rtn_int4_580e67e08d8e_10s --method SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4 --config-id 580e67e08d8e -- --device cuda:0 --use-ema --spatial-fg-method RTN --spatial-fg-bits 4 --spatial-bg-method RTN --spatial-bg-bits 4 --spatial-mask-policy topk --spatial-variance-threshold 0.02 --spatial-min-foreground-ratio 0.6 --spatial-max-foreground-ratio 0.9 --spatial-target-foreground-ratio 0.8
+[4/7] backfill_tptq_int2_089f989f38f6_10s :: TPTQ_INT2
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_tptq_int2_089f989f38f6_10s --run-name backfill_tptq_int2_089f989f38f6_10s --method TPTQ_INT2 --config-id 089f989f38f6 -- --device cuda:0 --use-ema --tptq-recent-ratio 0.15 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.001
+[failed] backfill_tptq_int2_089f989f38f6_10s exit=1
+[5/7] backfill_tptq_int2_2babecc6bab8_10s :: TPTQ_INT2
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_tptq_int2_2babecc6bab8_10s --run-name backfill_tptq_int2_2babecc6bab8_10s --method TPTQ_INT2 --config-id 2babecc6bab8 -- --device cuda:0 --use-ema --tptq-recent-ratio 0.2 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.002
+[6/7] backfill_tptq_int2_351b43b37ce8_10s :: TPTQ_INT2
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_tptq_int2_351b43b37ce8_10s --run-name backfill_tptq_int2_351b43b37ce8_10s --method TPTQ_INT2 --config-id 351b43b37ce8 -- --device cuda:0 --use-ema --tptq-recent-ratio 0.25 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.003
+[7/7] backfill_tptq_int2_44c4da374609_10s :: TPTQ_INT2
+$ python3 scripts/23_run_moviegen_backfill.py --run-root results/runs/backfill_tptq_int2_44c4da374609_10s --run-name backfill_tptq_int2_44c4da374609_10s --method TPTQ_INT2 --config-id 44c4da374609 -- --device cuda:0 --use-ema --tptq-recent-ratio 0.3 --tptq-recent-bits 4 --tptq-recent-method RTN --tptq-residual-bits 2 --tptq-outlier-threshold 6.0 --tptq-outlier-max-ratio 0.005
+Backfill manifest completed with failures: backfill_tptq_int2_089f989f38f6_10s (exit 1)

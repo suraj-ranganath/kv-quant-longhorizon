@@ -1,365 +1,299 @@
-# KV-Cache Quantization on Self-Forcing-Wan-1.3B
+# KV Cache Quantization for Self-Forcing Video Generation
 
-## 1) Project Summary
-This repository is a replication-first project for **KV-cache quantization on Self-Forcing-Wan-1.3B**.
+By Vaishak Menon, Suraj Ranganath, and Anish Patnaik
 
-Primary objective:
-- Faithfully reproduce baseline KV-cache quantization comparisons on **Self-Forcing-Wan-1.3B**.
-- Build a reproducible research pipeline for **BF16, RTN, KIVI, QuaRot-KV-only**, and new cache-policy variants.
-- Evaluate methods consistently on **MovieGen** and **StoryEval** with unified metrics and dashboard support.
+This repository is the research artifact for our empirical study of KV-cache quantization in self-forcing video generation. The core question is simple: as self-forcing pushes a short-horizon model to longer rollouts, which KV-cache compression methods actually help in the full system, and which ones only look promising if you ignore runtime, reconstruction overhead, or temporal drift?
 
-## 2) Reference Links
-- Self-Forcing repo: https://github.com/guandeh17/Self-Forcing
-- Self-Forcing project page: https://self-forcing.github.io/
-- VBench repo: https://github.com/Vchitect/VBench
-- VBench project page: https://vchitect.github.io/VBench-project/
-- flash-kmeans repo: https://github.com/svg-project/flash-kmeans
-- KIVI repo: https://github.com/jy-yuan/KIVI
-- KIVI paper: https://proceedings.mlr.press/v235/liu24bz.html
-- QuaRot repo: https://github.com/spcl/QuaRot
-- QuaRot paper: https://arxiv.org/abs/2404.00456
+We evaluate 33 quantization and cache-policy variants on MovieGen and StoryEval, measure systems behavior and output quality jointly, and package the results into a reproducible benchmark harness plus a presentation-oriented Streamlit dashboard.
 
-## 3) Experimental Scope
-In-scope replication target:
-- Model family slice: **Self-Forcing-Wan-1.3B** (base weights: **Wan2.1-T2V-1.3B**).
-- Prompt suite: `prompts/MovieGenVideoBench_extended.txt` from Self-Forcing flow.
-- Target output resolution: **480p** (smaller smoke tests allowed for debugging only).
-- Generation mode: preserve official Self-Forcing chunk-wise autoregressive behavior.
-- Modifications allowed: KV-cache quantization boundary only.
+## Why This Repo Exists
 
-Out of scope for initial phase:
-- LongCat-13B replication.
-- HY-WorldPlay-8B replication.
+Self-forcing extends a short-horizon video model by repeatedly feeding generated output back in as future context. That makes long rollout possible, but it also causes the KV cache to grow with time. The result is the central tension of this project:
 
-Methods to reproduce in order:
-- BF16 baseline.
-- RTN (INT4/INT2, block size 16).
-- KIVI (INT4/INT2 if feasible, block size 16, asymmetric key/value treatment).
-- QuaRot-KV-only (INT4 priority; INT2 optional if principled).
-- Then cache-policy and systems variants built on the same KV boundary.
+- We need enough compression to make longer rollouts feasible on finite hardware.
+- We need enough fidelity to avoid drift, structural collapse, or hallucinated scene changes.
+- We cannot judge a method from one metric alone.
 
-## 4) Hardware Assumptions
-Target hardware:
-- **1x NVIDIA RTX A5000 24GB**.
+That is why this repo is organized around a multi-axis empirical study rather than a single benchmark score.
 
-Expected constraints vs H100-class setups:
-- Lower throughput and potentially tighter memory headroom.
-- Long-horizon runs (up to 700 frames) may take significantly longer.
-- Some sweeps may require staged smoke tests before full-scale execution.
+## At A Glance
 
-Policy:
-- Prioritize correctness and faithful behavior over aggressive optimization.
+- `33` method variants evaluated
+- `2` benchmarks: `MovieGen` and `StoryEval`
+- `5+` quality/system axes tracked jointly: peak VRAM, runtime, compression ratio, perceptual realism, structural fidelity, and drift
+- Streamlit dashboard with presentation mode, synchronized videos, Pareto plots, constraint rankings, traces, and prompt-level drilldowns
+- Full benchmark harness for generation, evaluation, summarization, backfills, combined dataset construction, and dashboard presentation
 
-## 5) Environment Plan (Two Environments)
-To reduce dependency conflicts, maintain separate environments.
+## Curated Demo Gallery
 
-### Inference environment
-Purpose:
-- Self-Forcing generation and KV-cache quantization baselines.
+The posters below link to short six-method comparison videos for the prompts we used most in presentation:
 
-Expected packages:
-- PyTorch + CUDA build compatible with local driver.
-- flash-attn (if supported in the local stack).
-- Self-Forcing dependencies.
-- LPIPS/SSIM/PSNR utility dependencies needed during generation-side checks.
-- Standard research utilities for logging, plotting, and run management.
+### MovieGen: candle / flame
 
-### Evaluation environment
-Purpose:
-- VBench metric evaluation and tooling that may conflict with inference stack.
+[![MovieGen flame comparison](docs/assets/media/moviegen_flame_selected_methods.png)](docs/assets/media/moviegen_flame_selected_methods.mp4)
 
-Expected packages:
-- VBench dependencies.
-- detectron2 and pinned transitive dependencies required by VBench.
+### MovieGen: coral reef / fish
 
-## 6) Benchmark Plan
-All baselines are evaluated against BF16 reference.
+[![MovieGen fish comparison](docs/assets/media/moviegen_fish_selected_methods.png)](docs/assets/media/moviegen_fish_selected_methods.mp4)
 
-### Fidelity vs BF16
-- PSNR
-- SSIM
-- LPIPS
+### StoryEval: bear in water
 
-### Perceptual quality (VBench)
-- background_consistency
-- imaging_quality
-- subject_consistency
-- aesthetic_quality
+[![StoryEval bear comparison](docs/assets/media/storyeval_bear_selected_methods.png)](docs/assets/media/storyeval_bear_selected_methods.mp4)
 
-### Systems / efficiency
-- KV-cache compression ratio.
-- End-to-end latency overhead.
-- Peak GPU memory (if measurable reliably in this environment).
-- Quantize/dequantize time breakdown.
+Each comparison uses the same six presentation methods:
 
-### Long-horizon drift
-- `imaging_quality` sampled every 50 frames.
-- Stretch target: up to 700 frames if feasible on A5000.
+- `BF16`
+- `FLOWCACHE_SOFT_PRUNE_INT4`
+- `FLOWCACHE_PRUNE_INT4`
+- `RTN_INT4_RECENT2`
+- `RTN_INT4_REFRESH`
+- `QUAROT_KV_INT4`
 
-## 7) Method Roadmap (Non-Negotiable Order)
-1. **Step 1: BF16 baseline**
-2. **Step 2: RTN**
-3. **Step 3: KIVI**
-4. **Step 4: QuaRot-KV-only**
-5. **Step 5: Benchmark baseline suite end-to-end**
-6. **Step 6: Cache-policy variants and long-horizon analysis**
+The full curated media notes, prompt texts, and dashboard walkthrough live in [docs/results_gallery.md](/data/suraj/combined-kv-quant-copilot-final/docs/results_gallery.md).
 
-## 8) Deliverables
-- Runnable generation scripts for BF16 and baseline quantization methods.
-- Baseline KV quantizer implementations: RTN, KIVI, QuaRot-KV-only.
-- Extended variants such as refresh-only cadence, asymmetric K/V bitwidth, and recency-aware cache windows.
-- Evaluation scripts for fidelity, VBench, efficiency, and drift curve.
-- Streamlit dashboard for presentation-grade result exploration across multiple runs.
-- Saved result artifacts:
-  - videos
-  - raw metrics JSON
-  - summary CSV/Markdown tables
-  - plots
-- Replication notes documenting deviations, assumptions, and A5000 constraints.
+## Headline Findings
 
-## 9) Known Risks / Deviations
-- A5000 is slower and smaller-memory than H100; long runs can be expensive.
-- VBench dependency stack likely needs a separate environment.
-- 700-frame long-horizon experiments may need staged execution or reduced batch parallelism.
-- Some quantized variants can reduce KV bytes without reducing peak VRAM if temporary BF16 reconstruction and scratch buffers dominate memory.
+### 1. The problem is multi-objective, not one-dimensional.
 
-## 10) Planned Repository Layout
+A method can compress the KV cache strongly and still fail as a practical systems method if temporary BF16 reconstruction, scratch buffers, or refresh policies erase the memory savings at peak. That happened repeatedly in this study.
+
+### 2. FlowCache-style pruning produced the strongest realized memory wins.
+
+The clearest practical operating region was the FlowCache branch, especially `FLOWCACHE_SOFT_PRUNE_INT4` and `FLOWCACHE_PRUNE_INT4`.
+
+- On MovieGen, `FLOWCACHE_SOFT_PRUNE_INT4` reaches about `5.49x` KV compression with about `11.23 GB` peak VRAM and `0.739` imaging quality.
+- `FLOWCACHE_PRUNE_INT4` lands in a very similar systems region, but trades more structural fidelity for slightly simpler behavior.
+
+### 3. Quality-preserving quantization ideas were still valuable even when peak VRAM did not improve.
+
+`QUAROT_KV_INT4`, `RTN_INT4_RECENT2`, and `RTN_INT4_REFRESH` matter because they isolate useful research directions:
+
+- outlier handling and rotation can preserve fidelity better
+- recency-aware protection helps more than naive uniform quantization
+- cadence and refresh policy matter for quality, even if the current memory integration is imperfect
+
+These are important research outcomes even when the current implementation does not convert them into lower peak VRAM.
+
+### 4. Perceptual realism and structural fidelity can diverge sharply.
+
+One of the central lessons of the repo is the split between:
+
+- perceptual realism: does the output still look plausible?
+- structural fidelity: does it still stay close to the BF16 reference video?
+
+The FlowCache-style soft-prune branch is the clearest example of this tension: visually strong outputs can still diverge substantially from the BF16 baseline under SSIM / LPIPS / PSNR.
+
+## Benchmark Design
+
+### MovieGen
+
+MovieGen is our single-shot setting. It is the cleanest place to compare per-prompt fidelity, realism, compression ratio, runtime, and peak VRAM under a shared prompt suite.
+
+### StoryEval
+
+StoryEval is our narrative / rollout stability setting. It is where drift and temporal degradation become easier to see, especially through the drift-last imaging-quality signal and prompt-level qualitative playback.
+
+## Quality Is Measured On Two Axes
+
+### Perceptual realism
+
+Measured primarily with VBench-derived signals:
+
+- `background_consistency`
+- `imaging_quality`
+- `subject_consistency`
+- `aesthetic_quality`
+
+### Structural fidelity
+
+Measured relative to the BF16 baseline:
+
+- `SSIM`
+- `LPIPS`
+- `PSNR`
+
+We keep these separate deliberately. A method can still make a pleasing video while drifting structurally away from BF16.
+
+## Method Coverage
+
+We evaluate 33 method variants across several design families:
+
+- `BF16`: uncompressed reference
+- `RTN`: naive low-bit round-to-nearest baselines, plus refresh/recent-context variants
+- `KIVI`: asymmetric key/value quantization
+- `QuaRot`: Hadamard-rotation quantization for outlier suppression
+- `PRQ`, `QAQ`, `TPTQ`: custom higher-fidelity or outlier-aware quantizers
+- `Age-Tier`: recency-aware temporal quantization
+- `FlowCache variants`: hybrid, adaptive, prune, soft-prune, and native-style reuse ideas
+- `Spatial mixed precision`: foreground/background precision partitioning
+
+The full grouped catalog, rationale, and method-by-method description are in [docs/method_catalog.md](/data/suraj/combined-kv-quant-copilot-final/docs/method_catalog.md).
+
+## Repository Highlights
+
+### 1. Benchmark harness
+
+The `scripts/` directory contains the full experiment flow:
+
+- environment bootstrap
+- dependency clone and patch application
+- generation
+- fidelity evaluation
+- VBench evaluation
+- drift evaluation
+- summary building
+- method-specific experiment launchers
+- combined registry and dataset construction
+- analysis figure generation
+- dashboard launch
+
+Notable entry points:
+
+- [scripts/09_run_full_research_pipeline.sh](/data/suraj/combined-kv-quant-copilot-final/scripts/09_run_full_research_pipeline.sh): end-to-end research pipeline
+- [scripts/13_launch_dashboard.sh](/data/suraj/combined-kv-quant-copilot-final/scripts/13_launch_dashboard.sh): Streamlit presentation launcher
+- [scripts/30_build_combined_comparison_dataset.py](/data/suraj/combined-kv-quant-copilot-final/scripts/30_build_combined_comparison_dataset.py): unified comparison dataset
+- [scripts/26_generate_analysis_figures.py](/data/suraj/combined-kv-quant-copilot-final/scripts/26_generate_analysis_figures.py): paper/deck-friendly plots
+
+### 2. Combined comparison dataset
+
+The public-facing comparison layer is built around [results/combined/combined_comparison_dataset.csv](/data/suraj/combined-kv-quant-copilot-final/results/combined/combined_comparison_dataset.csv), which merges prompt-level records, method summaries, evaluation outputs, and provenance across runs.
+
+This is what powers the dashboard and most of the comparative analysis in the repo.
+
+### 3. Presentation dashboard
+
+The dashboard at [dashboard/app.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/app.py) provides:
+
+- benchmark and run selection
+- method filtering across the combined dataset
+- a presentation page with synchronized videos, focused metrics, highlighted plots, and a decision tree
+- executive summaries and recommendation cards
+- Pareto frontier analysis
+- constraint-based rankings
+- detailed method exploration
+- systems traces and KV-footprint plots
+- quality and drift analysis
+- prompt-level tables
+- raw method tables
+- caveats and provenance views
+
+A full tab-by-tab guide is in [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md).
+
+## Figures
+
+These are the static figures we used repeatedly while explaining the systems/quality trade space:
+
+### Memory vs compression
+
+![VRAM vs compression](vram_compression.png)
+
+### Runtime vs quality
+
+![Runtime vs quality](runtime_quality.png)
+
+### Temporal drift
+
+![Temporal drift](temporal_drift.png)
+
+## Public-Facing Repo Layout
+
 ```text
 .
 ├── README.md
-├── third_party/
-│   ├── Self-Forcing/
-│   └── VBench/
-├── checkpoints/
-├── wan_models/
-├── prompts/
+├── dashboard/
 ├── kv_quant/
-│   ├── __init__.py
-│   ├── base.py
-│   ├── rtn.py
-│   ├── kivi.py
-│   ├── quarot_kv.py
-│   ├── packing.py
-│   ├── utils.py
-│   └── metrics.py
+├── prompts/
 ├── scripts/
-│   ├── 00_env_info.sh
-│   ├── 01_generate.py
-│   ├── 02_eval_fidelity.py
-│   ├── 03_eval_vbench.sh
-│   ├── 04_eval_drift_curve.py
-│   └── 05_summarize_results.py
+├── docs/
+│   ├── environment_setup.md
+│   ├── dashboard_guide.md
+│   ├── method_catalog.md
+│   └── results_gallery.md
 ├── results/
-│   ├── videos/
-│   ├── metrics/
-│   ├── logs/
-│   ├── tables/
-│   └── plots/
-└── docs/
+│   ├── benchmarks/
+│   ├── combined/
+│   └── ...
+├── report.md
+├── reportv2.md
+└── presentation.md
 ```
 
-## 11) Setup and Execution Plan
-### Phase 0: Documentation gate
-- Update README with full plan.
-- Commit README.
-- Push branch.
+## Quick Start
 
-### Phase 1: Repo/environment setup
-- Create scaffold directories and baseline script entry points.
-- Clone Self-Forcing and VBench into `third_party/`.
-- Prepare separate inference/eval environments.
+### Environment setup
 
-### Phase 2: BF16 baseline first
-- Run official Self-Forcing generation path at target settings.
-- Save outputs as `results/videos/BF16/prompt_{id}_seed_{seed}.mp4`.
-- Log metadata per run:
-  - prompt_id
-  - seed
-  - model config
-  - checkpoint path
-  - git commit hash
-  - frame count
-  - resolution
-  - wall-clock runtime
-  - peak VRAM (if available)
+Use the detailed environment notes in [docs/environment_setup.md](/data/suraj/combined-kv-quant-copilot-final/docs/environment_setup.md).
 
-### Phase 3: KV quantization abstraction
-- Introduce `KVQuantizer` interface:
-  - `name()`
-  - `quantize_kv(k, v, meta)`
-  - `dequantize_kv(state, meta)`
-  - `memory_bytes(state)`
-- Hook quantization only where cache is appended/read.
-
-### Phase 4: Baseline implementations
-- RTN first (INT4/INT2, block=16).
-- KIVI second (asymmetric keys/values, block=16).
-- QuaRot-KV-only third (INT4 priority; INT2 optional).
-
-### Phase 5: Evaluation harness
-- `scripts/02_eval_fidelity.py`: PSNR/SSIM/LPIPS.
-- `scripts/03_eval_vbench.sh`: selected VBench dimensions.
-- Efficiency logging: runtime, memory, quant/dequant time, cache bytes, compression ratio.
-
-### Phase 6: Required run matrix
-Minimum methods:
-- BF16
-- RTN_INT4
-- RTN_INT2
-- KIVI_INT4
-- KIVI_INT2
-- QUAROT_KV_INT4
-- QUAROT_KV_INT2 (if implemented)
-
-Workflow:
-- Smoke test on 3-5 prompts.
-- Scale to full MovieGen prompt list.
-- Fixed seeds.
-- Aggregate results into:
-  - `results/tables/baseline_summary.csv`
-  - `results/tables/baseline_summary.md`
-
-### Phase 7: Extended method studies
-After the baseline suite is stable:
-- Add refresh-only quantization cadence variants.
-- Add asymmetric K/V bitwidth variants.
-- Add recency-aware hybrid-cache variants.
-- Compare them against the baseline suite on both benchmarks.
-
-## 12) Git Workflow
-Minimum checkpoint commits:
-1. README plan commit.
-2. BF16 baseline integration.
-3. RTN.
-4. KIVI.
-5. QuaRot-KV-only.
-6. Evaluation harness.
-7. Baseline summary and replication notes.
-8. Extended method studies and benchmark notes.
-
-Push after each meaningful checkpoint.
-
-Suggested initial commit message:
-- `docs: add replication plan for Self-Forcing-Wan-1.3B quantization benchmarks`
-
-## 13) Dashboard (Presentation + Comparison)
-The project includes a Streamlit dashboard at `dashboard/app.py` to present results and compare methods visually.
-
-Key capabilities:
-- Filter runs by benchmark (`moviegen`, `storyeval`, or all).
-- Select current and historical runs directly from the results tree.
-- Compare methods side-by-side with video playback for the same prompt ID.
-- Inspect unified metrics across fidelity, VBench, and efficiency.
-- View prompt-level runtime/VRAM analytics from generation logs.
-- Plot per-prompt VRAM usage curves over time (`allocated` and `reserved`) for method overlays.
-- Export summary table artifacts for reporting.
-
-Install dependencies in your preferred environment:
+Minimal flow:
 
 ```bash
-pip install -r requirements-dashboard.txt
+./scripts/10_clone_deps.sh
+./scripts/11_apply_self_forcing_patch.sh
+conda create -n qvg_sf_infer python=3.10 -y
+conda activate qvg_sf_infer
+pip install -r requirements-inference.txt
 ```
 
-Launch:
+Optional evaluation and dashboard environments are documented in the same setup guide.
+
+### Launch the dashboard
 
 ```bash
 ./scripts/13_launch_dashboard.sh
 ```
 
-Optional:
-- `DASHBOARD_PYTHON=/path/to/python ./scripts/13_launch_dashboard.sh`
-- `PORT=8502 ./scripts/13_launch_dashboard.sh`
-
-## 14) Run Naming and Isolation
-To keep experiments reproducible and prevent overwriting outputs, full pipeline runs are stored under:
-
-`results/runs/<unix_timestamp>_<run_name>/`
-
-Example:
+### Build the combined dataset and figures
 
 ```bash
-GPU_LIST=2,3,4,5 MAX_PROMPTS=10 ./scripts/09_run_full_research_pipeline.sh --run-name longhorizon_10prompts
+python scripts/30_build_combined_comparison_dataset.py
+python scripts/26_generate_analysis_figures.py
 ```
 
-Each run directory contains:
-- `videos/`
-- `metrics/`
-- `logs/`
-- `tables/`
-- `plots/`
-- `run_meta.json` (run name, timestamp, run ID)
+## Dashboard: What It Gives You
 
-## 15) StoryEval Integration Plan (T2V Long-Horizon, 10s Default)
-StoryEval is a long-horizon text-to-video benchmark focused on multi-event prompt completion and temporal coherence. We add it to complement MovieGen-style prompts with longer, compositional stories while keeping the model fixed to **Self-Forcing-Wan-1.3B (T2V only)**.
+If you are visiting this repo mainly to understand the results, the dashboard is the fastest path.
 
-Upstream:
-- StoryEval repo: https://github.com/ypwang61/StoryEval
-- StoryEval project page: https://ypwang61.github.io/project/StoryEval
-- StoryEval paper: https://arxiv.org/abs/2412.16211
+Use it to:
 
-Replication policy for this repository:
-- T2V only (no image conditioning path).
-- Default StoryEval generation duration: **10 seconds**.
-- Prompt IDs must follow StoryEval filename mapping logic (`sentence_to_filename`) ported into this repo for stable reproducibility.
+- compare prompt-matched videos across methods
+- inspect systems tradeoffs with highlighted presentation methods
+- switch between MovieGen and StoryEval from the same UI
+- apply recommendation presets and constraint thresholds
+- see Pareto-surviving methods under different objectives
+- study VRAM traces and compressed-KV traces over time
+- see BF16-relative deltas for fidelity and drift
+- drill down to prompt-level rows and provenance
 
-### StoryEval Prompt Snapshot
-For reproducible runs we keep a local snapshot:
-- Source: `third_party/StoryEval/prompts/all_prompts.txt`
-- Local copy used by runners: `data/prompts/storyeval/all_prompts.txt`
+The detailed guide is in [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md).
 
-### StoryEval Runner (Implemented)
-```bash
-CUDA_VISIBLE_DEVICES=0 /path/to/infer-env/bin/python scripts/run_storyeval.py \
-  --run_id storyeval_$(date +%s) \
-  --out_root results/benchmarks/storyeval \
-  --max_prompts 5 \
-  --seed 0 \
-  --seeds_per_prompt 1 \
-  --duration_sec 10
-```
+## Results Interpretation Guide
 
-Expected behavior:
-- Compute `raw_frames = round(duration_sec * fps)`.
-- Align to Self-Forcing chunking using `target_frames = ceil(raw_frames / chunk_size) * chunk_size`.
-- Log requested vs effective duration in per-prompt metadata.
-- Stable prompt IDs follow StoryEval mapping ported in `benchmarks/t2v/storyeval.py`:
-  - `sentence_to_filename(prompt)` from upstream `third_party/StoryEval/utils.py`.
+The repo is intentionally opinionated about how to read the study:
 
-### StoryEval Results Layout
-`results/benchmarks/storyeval/<run_id>/`
-- `videos/` (`<prompt_id>_seed<seed>.mp4`)
-- `per_prompt/` (`<prompt_id>_seed<seed>.json`)
-- `metrics/` (`vbench.json`, `drift_imaging_quality.json`)
-- `plots/` (`drift_imaging_quality.png`)
-- `logs/`
-- `summary/` (`summary.json`, `summary.csv`)
+- `BF16` is the reference, not the deployable answer
+- `FLOWCACHE_SOFT_PRUNE_INT4` is the strongest practical single-GPU operating point in the current stack
+- `FLOWCACHE_PRUNE_INT4` is the stronger raw compression / memory point if you accept more quality loss
+- `QUAROT_KV_INT4` is the strongest quantized fidelity baseline among the selected presentation methods
+- `RTN_INT4_RECENT2` is the best practical recency-aware RTN result
+- `RTN_INT4_REFRESH` is the cleanest simple policy ablation for refresh cadence
 
-### StoryEval Evaluation Plan
-- VBench aggregates: `background_consistency`, `imaging_quality`, `subject_consistency`, `aesthetic_quality`.
-- Long-horizon drift:
-  - Imaging-quality over prefix clips every N frames (default 50).
-  - Save JSON + plot for reporting.
+## Important Public-Repo Notes
 
-Run evaluation:
-```bash
-RUN_DIR="results/benchmarks/storyeval/<run_id>"
+- Local checkpoint and model directories are expected to be created with the provided setup scripts rather than bundled directly.
+- Some MovieGen source videos referenced in the combined dataset came from external run roots during the original study. The repo includes curated derived media assets for presentation, and the dashboard is the canonical place to browse the full prompt-level comparisons.
+- The dashboard and docs are presentation-oriented, but the raw tables and scripts are preserved so others can adapt the harness later.
 
-python scripts/eval_storyeval_vbench.py --run_dir "${RUN_DIR}"
-python scripts/eval_storyeval_drift.py --run_dir "${RUN_DIR}" --max_prompts_for_drift 20
-python scripts/summarize_storyeval.py --run_dir "${RUN_DIR}"
-```
+## Additional Reading
 
-### StoryEval in Dashboard
-The Streamlit dashboard includes StoryEval run browsing under `results/benchmarks/storyeval/*` with:
-- run table (run_id/date/count/runtime/aggregate metrics),
-- drift plot rendering,
-- prompt-level viewer (prompt text, seed-specific videos, per-video metrics).
+- [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md): dashboard capabilities and analysis surfaces
+- [docs/method_catalog.md](/data/suraj/combined-kv-quant-copilot-final/docs/method_catalog.md): grouped description of the 33 methods
+- [docs/results_gallery.md](/data/suraj/combined-kv-quant-copilot-final/docs/results_gallery.md): curated demos used in presentation
+- [reportv2.md](/data/suraj/combined-kv-quant-copilot-final/reportv2.md): fuller narrative write-up of the study
+- [presentation.md](/data/suraj/combined-kv-quant-copilot-final/presentation.md): deck-oriented summary and talk structure
 
-StoryEval is integrated into the main run selector:
-- launch via `./scripts/13_launch_dashboard.sh`
-- use sidebar `Benchmark` filter (`storyeval` / `moviegen`)
-- select a run in `Choose run`, then use the same tabs:
-  - `Overview`
-  - `Video Explorer`
-  - `Prompt Analytics`
-  - `Artifacts`
+## Future Work
+
+- Reproduce newer long-video KV-cache methods such as QVG / QVG-Pro within the same harness
+- Extend the study beyond 10-second settings to stronger long-horizon drift evaluation
+- Test generalization beyond the current self-forcing stack
+- Push into first-frame-grounded, embodied, and stronger consistency-sensitive settings

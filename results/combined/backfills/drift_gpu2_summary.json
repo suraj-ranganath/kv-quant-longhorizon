@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-03-10T23:05:40.042090+00:00",
+  "num_targets": 7,
+  "targets": [
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_age_tier_int2_9bbee19b8cfd_10s",
+      "method": "AGE_TIER_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/e2bffc685f645814_AGE_TIER_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_age_tier_int4_74dcf380574b_10s",
+      "method": "AGE_TIER_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/1f42a23e6189f60d_AGE_TIER_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_flowcache_adaptive_int2_1a41612d204d_10s",
+      "method": "FLOWCACHE_ADAPTIVE_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/4497296828e2a153_FLOWCACHE_ADAPTIVE_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_flowcache_hybrid_int2_973ebc836fd7_10s",
+      "method": "FLOWCACHE_HYBRID_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/63486d5408b1877c_FLOWCACHE_HYBRID_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_flowcache_native_7743d4e12ea8_10s",
+      "method": "FLOWCACHE_NATIVE",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/cbb131629259b872_FLOWCACHE_NATIVE.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_flowcache_native_soft_prune_int4_56d7f051182b_10s",
+      "method": "FLOWCACHE_NATIVE_SOFT_PRUNE_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_flowcache_prune_int2_990b60e0bbd4_10s",
+      "method": "FLOWCACHE_PRUNE_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/74fdbe70d77407be_FLOWCACHE_PRUNE_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    }
+  ]
+}

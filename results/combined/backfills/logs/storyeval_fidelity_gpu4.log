@@ -1,0 +1,91 @@
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": Infinity,
+  "ssim": 0.7068964692142641,
+  "lpips": 0.2222657917492759
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 13.573050883637046,
+  "ssim": 0.45909743462004854,
+  "lpips": 0.5263433156073072
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 18.661523384064914,
+  "ssim": 0.6607927620770396,
+  "lpips": 0.24520274784645218
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": Infinity,
+  "ssim": 0.7241361438375318,
+  "lpips": 0.18757826516918033
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 11.79393484245956,
+  "ssim": 0.32441083052984493,
+  "lpips": 0.6351200775621864
+}
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/suraj/miniforge3/envs/qvg_sf_infer/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+{
+  "num_videos": 10,
+  "psnr": 11.029009255478181,
+  "ssim": 0.23754242320723656,
+  "lpips": 0.7186288769488841
+}
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_BF16_presentation_fullmatrix_1773110004/videos --candidate-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_QUAROT_KV_INT4_RECENT2_presentation_fullmatrix_1773110004/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/5477f363bcfa7b13_QUAROT_KV_INT4_RECENT2.json --device cuda:0
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_BF16_presentation_fullmatrix_1773110004/videos --candidate-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT2_presentation_fullmatrix_1773110004/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/24f407fcaf734db4_RTN_INT2.json --device cuda:0
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_BF16_presentation_fullmatrix_1773110004/videos --candidate-dir /data/suraj/kv-quant-longhorizon/results/benchmarks/storyeval/storyeval_RTN_INT4_presentation_fullmatrix_1773110004/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/7ed07ec08de02f7d_RTN_INT4.json --device cuda:0
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos --candidate-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_prq_int4_23a612bd2862_10prompts_10s/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/2295744d8b06cf79_PRQ_INT4.json --device cuda:0
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos --candidate-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_qaq_int2_dcc080e7d18f_10prompts_10s/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/0cbe0e1b161cf937_QAQ_INT2.json --device cuda:0
+$ /home/suraj/miniforge3/envs/qvg_sf_infer/bin/python /data/vaishak/combined-kv-quant/scripts/02_eval_fidelity.py --bf16-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos --candidate-dir /data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_qaq_int4_aa6e42af3d16_10prompts_10s/videos --output /data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/c42ea0d509bd7ecd_QAQ_INT4.json --device cuda:0
+[missing-evals] summary results/combined/backfills/storyeval_fidelity_gpu4_summary.json

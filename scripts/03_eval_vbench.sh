@@ -9,8 +9,11 @@ VIDEOS_DIR="${2:-${RUN_ROOT}/videos/${METHOD}}"
 PROMPT_FILE="${3:-${ROOT_DIR}/prompts/MovieGenVideoBench_extended.txt}"
 OUT_DIR="${4:-${RUN_ROOT}/metrics/vbench_${METHOD}}"
 FINAL_JSON="${5:-${RUN_ROOT}/metrics/vbench_${METHOD}.json}"
+MASTER_PORT="${MASTER_PORT:-$((15000 + ($$ % 20000)))}"
 
 mkdir -p "${OUT_DIR}"
+export MASTER_PORT
+echo "Using MASTER_PORT=${MASTER_PORT}"
 
 PROMPT_MAP_JSON="${OUT_DIR}/prompt_map.json"
 "${PYTHON_BIN}" - <<'PY' "${VIDEOS_DIR}" "${PROMPT_FILE}" "${PROMPT_MAP_JSON}"

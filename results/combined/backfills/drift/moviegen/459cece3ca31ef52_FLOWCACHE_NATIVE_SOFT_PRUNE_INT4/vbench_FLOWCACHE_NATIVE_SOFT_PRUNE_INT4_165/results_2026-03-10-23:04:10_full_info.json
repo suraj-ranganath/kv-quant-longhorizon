@@ -1,0 +1,92 @@
+[
+    {
+        "prompt_en": "A photorealistic closeup video of two pirate ships battling each other as they sail inside a steaming cup of coffee. The ships are intricately detailed, with wooden planks, sails flapping in the breeze, and cannons aimed at each other. The crew members, wearing authentic pirate attire, brandish swords and pistols, their expressions fierce and determined. The coffee foam creates a frothy, turbulent sea, with ripples and waves realistically depicted. The background is a blurred, warm brown coffee surface, with steam rising gently. The camera angle is slightly elevated, capturing the intense action from above.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0007_seed_7.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A close-up shot of a Victoria crowned pigeon in a naturalistic wildlife photography style, showcasing its striking blue plumage and red chest. The bird\u2019s crest is adorned with delicate, lacy feathers, and its eye is a striking red color, adding to its regal and majestic appearance. The pigeon\u2019s head is tilted slightly to the side, giving it a regal gaze. The background is blurred, emphasizing the bird\u2019s striking beauty against a soft, muted backdrop. The lighting highlights the bird\u2019s feathers, creating a vibrant and lifelike image.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0006_seed_6.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A close-up 3D animated scene of a short, fluffy monster kneeling beside a melting red candle. The monster has large, wide eyes and an open mouth, gazing at the flame with a look of wonder and curiosity. Its soft, fluffy fur contrasts with the warm, dramatic lighting that highlights every detail of its gentle, innocent expression. The pose conveys a sense of playfulness and exploration, as if the creature is discovering the world for the first time. The background features a cozy, warmly lit room with subtle hints of a fireplace and soft furnishings, enhancing the overall atmosphere. The use of warm colors and dramatic lighting creates a captivating and inviting scene.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0004_seed_4.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A drone view of waves crashing against the rugged cliffs along Big Sur\u2019s Garay Point beach. The crashing blue waters create white-tipped waves, while the golden light of the setting sun illuminates the rocky shore, casting long shadows. In the distance, a small island with a lighthouse stands tall, its beam piercing the twilight. Green shrubbery covers the cliff\u2019s edge, and the steep drop from the road down to the beach is a dramatic feat, with the cliff\u2019s edges jutting out over the sea. The camera angle provides a bird's-eye view, capturing the raw beauty of the coast and the rugged landscape of the Pacific Coast Highway. The scene is bathed in a warm, golden hue, highlighting the textures and details of the rocky terrain.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0003_seed_3.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A beautifully detailed papercraft illustration of a vibrant coral reef teeming with colorful fish and sea creatures. The coral formations are intricately designed, with each polyp and branch meticulously crafted. Schools of tropical fish swim gracefully among the corals, their scales shimmering in hues of turquoise, orange, and purple. Sea turtles glide smoothly over the reef, while a school of clownfish dart playfully around an anemone. The background features a soft, pastel-colored ocean with gentle waves and a hint of sunlight breaking through. The entire scene is rendered with a lifelike and textured papercraft style, capturing the essence of a thriving underwater ecosystem. A close-up view from a slightly elevated angle.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0005_seed_5.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A movie trailer in a classic cinematic style, featuring the adventurous journey of a 30-year-old space man wearing a vibrant red wool knitted motorcycle helmet. The scene unfolds against a vast blue sky and a desolate salt desert landscape. Shot on 35mm film, the trailer showcases vivid and rich colors, capturing the hero as he navigates through the harsh terrain with determination. His helmet glints under the sun, adding to the dramatic effect. The background is a mix of sweeping desert vistas and distant horizons, with the occasional shimmer of light reflecting off the salt flats. A dynamic medium shot with a sweeping overhead angle, emphasizing the hero's resilience and the vastness of his adventure.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0002_seed_2.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A stunning mid-afternoon landscape photograph with a low camera angle, showcasing several giant wooly mammoths treading through a snowy meadow. Their long, wooly fur gently billows in the brisk wind as they move, creating a sense of natural movement. Snow-covered trees and dramatic snow-capped mountains loom in the distance, adding to the majestic setting. Wispy clouds and a high sun cast a warm glow over the scene, enhancing the serene and awe-inspiring atmosphere. The depth of field brings out the detailed textures of the mammoths and the snowy environment, capturing every nuance of these prehistoric giants in breathtaking clarity.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0001_seed_1.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A historical footage style photograph depicting a bustling gold rush town in California. The scene captures miners panning for gold in a stream, their faces weathered and determined. Behind them, makeshift wooden shacks and tents line the streets, with smoke rising from chimneys. A man in a dusty hat and tattered clothes stands near a sluice box, his hand on his hip, looking out towards the camera with a mix of hope and hardship. The background features rolling hills and dense forests, with a few oxen-drawn wagons in the distance. The photo has a sepia tone and a grainy texture, capturing the essence of the era. A medium shot with a slightly tilted angle.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0009_seed_9.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A vibrant anime illustration in a thick painting style featuring a young man in his 20s sitting on a fluffy white cloud in the sky, engrossed in reading a classic leather-bound book. He has short, messy black hair and expressive brown eyes, wearing a casual white t-shirt and blue jeans. His posture is relaxed yet attentive, with one leg crossed over the other. The background is a vivid sky with cotton-like clouds and a soft sunset glow, casting a warm orange hue. The scene has a dreamy and ethereal quality. A medium shot with a slightly downward angle.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0008_seed_8.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A stylish woman strolls down a bustling Tokyo street, the warm glow of neon lights and animated city signs casting vibrant reflections. She wears a sleek black leather jacket paired with a flowing red dress and black boots, her black purse slung over her shoulder. Sunglasses perched on her nose and a bold red lipstick add to her confident, casual demeanor. The street is damp and reflective, creating a mirror-like effect that enhances the colorful lights and shadows. Pedestrians move about, adding to the lively atmosphere. The scene is captured in a dynamic medium shot with the woman walking slightly to one side, highlighting her graceful strides.",
+        "dimension": [
+            "imaging_quality"
+        ],
+        "video_list": [
+            "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/459cece3ca31ef52_FLOWCACHE_NATIVE_SOFT_PRUNE_INT4/FLOWCACHE_NATIVE_SOFT_PRUNE_INT4_frames_165/prompt_0000_seed_0.mp4"
+        ]
+    }
+]

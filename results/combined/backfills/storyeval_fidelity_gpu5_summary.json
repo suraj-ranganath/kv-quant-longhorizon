@@ -1,0 +1,63 @@
+{
+  "generated_at_utc": "2026-03-10T22:37:08.161115+00:00",
+  "task_counts": {
+    "storyeval_fidelity": 5
+  },
+  "tasks": [
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_kivi_int4_bg_kivi_int2_3d327a450ca5_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_kivi_int4_bg_kivi_int2_3d327a450ca5_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/a439bcc5cfd77fa9_SPATIAL_MIXED_FG_KIVI_INT4_BG_KIVI_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_quarot_kv_int4_bg_rtn_int2_af0e1883d58d_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_quarot_kv_int4_bg_rtn_int2_af0e1883d58d_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/8053e38a657f4b7c_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int2_1f080d8dcc0e_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int2_1f080d8dcc0e_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/f5e94f7bbe3067b6_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10prompts_10s",
+      "method": "SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_spatial_mixed_fg_rtn_int4_bg_rtn_int4_04d60f52e048_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/472a89542dc1aa54_SPATIAL_MIXED_FG_RTN_INT4_BG_RTN_INT4.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    },
+    {
+      "task": "storyeval_fidelity",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_tptq_int2_089f989f38f6_10prompts_10s",
+      "method": "TPTQ_INT2",
+      "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+      "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_tptq_int2_089f989f38f6_10prompts_10s/videos",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/fidelity/storyeval/18f8bc283395500d_TPTQ_INT2.json",
+      "match_intersection": false,
+      "num_candidate_videos": 10
+    }
+  ]
+}

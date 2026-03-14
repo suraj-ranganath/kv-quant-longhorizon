@@ -1,0 +1,58 @@
+{
+    "background_consistency": [
+        0.9410452493807164,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0001_seed_1.mp4",
+                "video_results": 0.9651027772484756,
+                "video_sim": 158.27685546875,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0000_seed_0.mp4",
+                "video_results": 0.9169877215129573,
+                "video_sim": 150.385986328125,
+                "cnt_per_video": 164
+            }
+        ]
+    ],
+    "imaging_quality": [
+        0.7217673529422644,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0001_seed_1.mp4",
+                "video_results": 76.5012598211115
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0000_seed_0.mp4",
+                "video_results": 67.85221076734138
+            }
+        ]
+    ],
+    "subject_consistency": [
+        0.9365013442570116,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0001_seed_1.mp4",
+                "video_results": 0.9537286827477013
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0000_seed_0.mp4",
+                "video_results": 0.919274005766322
+            }
+        ]
+    ],
+    "aesthetic_quality": [
+        0.6484997272491455,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0001_seed_1.mp4",
+                "video_results": 0.6581548452377319
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/QUAROT_KV_INT4_REFRESH/prompt_0000_seed_0.mp4",
+                "video_results": 0.6388446092605591
+            }
+        ]
+    ]
+}

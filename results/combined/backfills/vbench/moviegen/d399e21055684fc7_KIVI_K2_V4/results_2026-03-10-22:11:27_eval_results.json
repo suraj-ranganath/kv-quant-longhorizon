@@ -1,0 +1,76 @@
+{
+    "background_consistency": [
+        0.8936435110200711,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.8836476395769817,
+                "video_sim": 144.918212890625,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.8979909012957317,
+                "video_sim": 147.2705078125,
+                "cnt_per_video": 164
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.8992919921875,
+                "video_sim": 147.48388671875,
+                "cnt_per_video": 164
+            }
+        ]
+    ],
+    "imaging_quality": [
+        0.6232756448225542,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 71.0098882039388
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 66.95092858979196
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 49.021876653035484
+            }
+        ]
+    ],
+    "subject_consistency": [
+        0.8729120450533503,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.8942318476918267
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.8327196522093401
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.891784635258884
+            }
+        ]
+    ],
+    "aesthetic_quality": [
+        0.6039022008577982,
+        [
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0002_seed_2.mp4",
+                "video_results": 0.649140477180481
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0001_seed_1.mp4",
+                "video_results": 0.550527036190033
+            },
+            {
+                "video_path": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0000_seed_0.mp4",
+                "video_results": 0.6120390892028809
+            }
+        ]
+    ]
+}

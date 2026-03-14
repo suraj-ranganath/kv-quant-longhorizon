@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-03-10T23:05:10.740814+00:00",
+  "num_targets": 7,
+  "targets": [
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "QUAROT_KV_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "QUAROT_KV_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/cc9d575050e2ca05_QUAROT_KV_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "QUAROT_KV_INT4_REFRESH",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/1004b806a2a39d46_QUAROT_KV_INT4_REFRESH.json",
+      "num_videos": 2,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "suraj",
+      "run_root": "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix",
+      "method": "RTN_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/a5845b3e8ce92b43_RTN_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_prq_int4_23a612bd2862_10s",
+      "method": "PRQ_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/50ee67a1d4abb902_PRQ_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_qaq_int2_dcc080e7d18f_10s",
+      "method": "QAQ_INT2",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/f9613337b9bbed86_QAQ_INT2.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    },
+    {
+      "benchmark": "moviegen",
+      "source_user": "vaishak",
+      "run_root": "/data/vaishak/combined-kv-quant/results/runs/backfill_qaq_int4_aa6e42af3d16_10s",
+      "method": "QAQ_INT4",
+      "output_json": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/4eb702b8d0309ef7_QAQ_INT4.json",
+      "num_videos": 10,
+      "terminal_frame_cap": 165,
+      "drift_points": 1
+    }
+  ]
+}

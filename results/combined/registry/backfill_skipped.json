@@ -1,0 +1,42 @@
+{
+  "already has 10s coverage": [
+    "0db1312571c7",
+    "91268059fdda",
+    "07ef11189f21",
+    "69f09414a336",
+    "7f8b57339986",
+    "debbb03d1c5b",
+    "71a98ce634cd",
+    "25522089e304",
+    "1a32fb70e666",
+    "9d4cb6a1d81e",
+    "e56f613f7d68",
+    "cb9b6c981287",
+    "38e1ba7158a6",
+    "a529c4b9b5bc",
+    "6d1d030c9066",
+    "c3dbce195491",
+    "a5f3a9f0caab"
+  ],
+  "no dashboard-ready short baseline": [
+    "6f32ad98b6b8",
+    "ac822d436745",
+    "068de819e000",
+    "d94a86f7481e"
+  ],
+  "non-moviegen benchmark": [
+    "676751ca069e",
+    "d56d6c39cf80",
+    "5c6eb3274bbf",
+    "6bf0672ff51a",
+    "196ce26957d9",
+    "ed1b4a5bb2b5",
+    "bc025aaf2025",
+    "d75358dcd39b",
+    "e10f5f85e90d",
+    "8920bfe5de44",
+    "0340d3dd302f",
+    "fb86957810b5",
+    "57ae6bf0555f"
+  ]
+}

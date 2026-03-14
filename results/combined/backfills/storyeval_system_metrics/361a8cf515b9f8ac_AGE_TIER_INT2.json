@@ -1,0 +1,124 @@
+{
+  "generated_at_utc": "2026-03-10T22:11:10.624879+00:00",
+  "source_user": "vaishak",
+  "benchmark": "storyeval",
+  "run_root": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_age_tier_int2_9bbee19b8cfd_10prompts_10s",
+  "method": "AGE_TIER_INT2",
+  "source_trace_path": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_age_tier_int2_9bbee19b8cfd_10prompts_10s/logs/vram_trace_storyeval.jsonl",
+  "source_efficiency_path": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_age_tier_int2_9bbee19b8cfd_10prompts_10s/metrics/efficiency_AGE_TIER_INT2.json",
+  "aggregate": {
+    "bf16_kv_bytes": 12076646400,
+    "compressed_kv_bytes": 2735673120,
+    "compression_ratio": 4.414506364707783,
+    "quantize_time_s": 203.52188245300204,
+    "dequantize_time_s": 6.304347584955394,
+    "total_runtime_s": 1019.4555128877982,
+    "avg_runtime_s_per_prompt": 101.94555128877982,
+    "avg_peak_vram_mb": 14646.36328125,
+    "max_peak_vram_mb": 14722.5732421875,
+    "num_videos": 10,
+    "num_trace_rows": 10
+  },
+  "per_video": {
+    "A_CD_is_inserted_into_a_player_and_then_spins_up_seed0.mp4": {
+      "prompt_id": "A_CD_is_inserted_into_a_player_and_then_spins_up",
+      "seed": 0,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 14638617600,
+      "peak_vram_mb": 13960.4736328125,
+      "wall_time_sec": 98.13470986811444
+    },
+    "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes_seed1.mp4": {
+      "prompt_id": "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes",
+      "seed": 1,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 103.26248545013368
+    },
+    "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom_seed2.mp4": {
+      "prompt_id": "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom",
+      "seed": 2,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 101.57554915221408
+    },
+    "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display_seed3.mp4": {
+      "prompt_id": "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display",
+      "seed": 3,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.430018868763
+    },
+    "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly_seed4.mp4": {
+      "prompt_id": "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly",
+      "seed": 4,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.53480131272227
+    },
+    "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape_seed5.mp4": {
+      "prompt_id": "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape",
+      "seed": 5,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.50721221789718
+    },
+    "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending_seed6.mp4": {
+      "prompt_id": "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending",
+      "seed": 6,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 101.58955065207556
+    },
+    "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge_seed7.mp4": {
+      "prompt_id": "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge",
+      "seed": 7,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.41754650371149
+    },
+    "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently_seed8.mp4": {
+      "prompt_id": "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently",
+      "seed": 8,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.47696100221947
+    },
+    "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass_seed9.mp4": {
+      "prompt_id": "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass",
+      "seed": 9,
+      "bf16_kv_bytes": 12076646400,
+      "compressed_kv_bytes": 2735673120,
+      "compression_ratio": 4.414506364707783,
+      "peak_vram_bytes": 15437736960,
+      "peak_vram_mb": 14722.5732421875,
+      "wall_time_sec": 102.52667785994709
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "method": "SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2",
+  "frame_step": 165,
+  "max_frames": 165,
+  "curve": [
+    {
+      "frame_cap": 165,
+      "imaging_quality": [
+        0.3942327691742868,
+        [
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0007_seed_7.mp4",
+            "video_results": 27.42119480479847
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0006_seed_6.mp4",
+            "video_results": 35.153414963230944
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0004_seed_4.mp4",
+            "video_results": 26.685677580399947
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0003_seed_3.mp4",
+            "video_results": 50.967628224690756
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0005_seed_5.mp4",
+            "video_results": 51.22971287351666
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0002_seed_2.mp4",
+            "video_results": 40.50990280382561
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0001_seed_1.mp4",
+            "video_results": 56.75582945852569
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0009_seed_9.mp4",
+            "video_results": 40.6009064876672
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0008_seed_8.mp4",
+            "video_results": 30.60008377306389
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/77fae235a4fdc8db_SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2/SPATIAL_MIXED_FG_QUAROT_KV_INT4_BG_RTN_INT2_frames_165/prompt_0000_seed_0.mp4",
+            "video_results": 34.30841820456765
+          }
+        ]
+      ]
+    }
+  ]
+}

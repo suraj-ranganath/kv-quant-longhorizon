@@ -1,0 +1,38 @@
+[
+    {
+        "prompt_en": "A movie trailer in a classic cinematic style, featuring the adventurous journey of a 30-year-old space man wearing a vibrant red wool knitted motorcycle helmet. The scene unfolds against a vast blue sky and a desolate salt desert landscape. Shot on 35mm film, the trailer showcases vivid and rich colors, capturing the hero as he navigates through the harsh terrain with determination. His helmet glints under the sun, adding to the dramatic effect. The background is a mix of sweeping desert vistas and distant horizons, with the occasional shimmer of light reflecting off the salt flats. A dynamic medium shot with a sweeping overhead angle, emphasizing the hero's resilience and the vastness of his adventure.",
+        "dimension": [
+            "background_consistency",
+            "imaging_quality",
+            "subject_consistency",
+            "aesthetic_quality"
+        ],
+        "video_list": [
+            "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0002_seed_2.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A stunning mid-afternoon landscape photograph with a low camera angle, showcasing several giant wooly mammoths treading through a snowy meadow. Their long, wooly fur gently billows in the brisk wind as they move, creating a sense of natural movement. Snow-covered trees and dramatic snow-capped mountains loom in the distance, adding to the majestic setting. Wispy clouds and a high sun cast a warm glow over the scene, enhancing the serene and awe-inspiring atmosphere. The depth of field brings out the detailed textures of the mammoths and the snowy environment, capturing every nuance of these prehistoric giants in breathtaking clarity.",
+        "dimension": [
+            "background_consistency",
+            "imaging_quality",
+            "subject_consistency",
+            "aesthetic_quality"
+        ],
+        "video_list": [
+            "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0001_seed_1.mp4"
+        ]
+    },
+    {
+        "prompt_en": "A stylish woman strolls down a bustling Tokyo street, the warm glow of neon lights and animated city signs casting vibrant reflections. She wears a sleek black leather jacket paired with a flowing red dress and black boots, her black purse slung over her shoulder. Sunglasses perched on her nose and a bold red lipstick add to her confident, casual demeanor. The street is damp and reflective, creating a mirror-like effect that enhances the colorful lights and shadows. Pedestrians move about, adding to the lively atmosphere. The scene is captured in a dynamic medium shot with the woman walking slightly to one side, highlighting her graceful strides.",
+        "dimension": [
+            "background_consistency",
+            "imaging_quality",
+            "subject_consistency",
+            "aesthetic_quality"
+        ],
+        "video_list": [
+            "/data/suraj/kv-quant-longhorizon/results/runs/1773110004_presentation_moviegen_fullmatrix/videos/KIVI_K2_V4/prompt_0000_seed_0.mp4"
+        ]
+    }
+]

@@ -1,0 +1,139 @@
+{
+  "bf16_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_bf16_10prompts_10s/videos",
+  "candidate_dir": "/data/vaishak/combined-kv-quant/results/benchmarks/storyeval/storyeval_tptq_int2_089f989f38f6_10prompts_10s/videos",
+  "match_policy": "strict_bf16_reference",
+  "num_bf16_videos": 10,
+  "num_candidate_videos": 10,
+  "matched_videos": [
+    "A_CD_is_inserted_into_a_player_and_then_spins_up_seed0.mp4",
+    "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes_seed1.mp4",
+    "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom_seed2.mp4",
+    "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display_seed3.mp4",
+    "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly_seed4.mp4",
+    "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape_seed5.mp4",
+    "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending_seed6.mp4",
+    "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge_seed7.mp4",
+    "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently_seed8.mp4",
+    "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass_seed9.mp4"
+  ],
+  "missing_in_candidate": [],
+  "missing_in_bf16": [],
+  "aggregate": {
+    "num_videos": 10,
+    "psnr": 17.034951615411938,
+    "ssim": 0.6147203321085718,
+    "lpips": 0.3008096416335673
+  },
+  "per_video": [
+    {
+      "video": "A_CD_is_inserted_into_a_player_and_then_spins_up_seed0.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 20.02885028437362,
+      "ssim": 0.7305519719453517,
+      "lpips": 0.2493838951386737
+    },
+    {
+      "video": "A_CD_tray_opens_a_disc_is_placed_inside_and_then_the_tray_closes_seed1.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 14.76281459356381,
+      "ssim": 0.6000673428085505,
+      "lpips": 0.3675968119288992
+    },
+    {
+      "video": "A_Slinky_is_placed_at_the_top_of_stairs_begins_to_walk_down_and_then_reaches_the_bottom_seed2.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 21.363904348599295,
+      "ssim": 0.8475118284073294,
+      "lpips": 0.1288943138403931
+    },
+    {
+      "video": "A_baker_decorates_a_cake_with_frosting_adds_sprinkles_and_then_places_it_in_a_display_seed3.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 18.386121339970384,
+      "ssim": 0.711426501806645,
+      "lpips": 0.2090598902890854
+    },
+    {
+      "video": "A_ball_rolls_towards_a_wheelchair_collides_the_wheelchair_and_bounces_back_and_then_rolls_away_slowly_seed4.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 14.693212972729555,
+      "ssim": 0.503608705057458,
+      "lpips": 0.3407423333674105
+    },
+    {
+      "video": "A_balloon_artist_inflates_a_long_balloon_twists_it_several_times_and_creates_a_dog_shape_seed5.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 15.712822862538719,
+      "ssim": 0.4727720804865764,
+      "lpips": 0.3300086130162306
+    },
+    {
+      "video": "A_balloon_is_inflated_from_the_inital_state_released_into_the_air_and_then_slowly_deflates_while_ascending_seed6.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 18.414324203309093,
+      "ssim": 0.7930341636875448,
+      "lpips": 0.3271714448930597
+    },
+    {
+      "video": "A_bartender_shakes_a_cocktail_pours_it_into_a_glass_and_then_garnishes_it_with_a_lemon_wedge_seed7.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 15.300726440844265,
+      "ssim": 0.621017549218239,
+      "lpips": 0.29262590136125005
+    },
+    {
+      "video": "A_baseball_player_gets_ready_hit_a_flying_baseball_then_lets_go_of_the_bat_and_finally_walks_away_confidently_seed8.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 15.423786213100277,
+      "ssim": 0.562685538161836,
+      "lpips": 0.43256730327636683
+    },
+    {
+      "video": "A_bear_bathes_in_a_pond_shakes_off_water_and_then_rolls_in_grass_seed9.mp4",
+      "num_frames": 165,
+      "resolution": [
+        480,
+        832
+      ],
+      "psnr": 16.26295289509037,
+      "ssim": 0.304527639506187,
+      "lpips": 0.3300459092243038
+    }
+  ]
+}

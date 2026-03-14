@@ -31,53 +31,316 @@ from utils.misc import set_seed
 from demo_utils.memory import DynamicSwapInstaller, get_cuda_free_memory_gb
 
 
-def parse_method(method: str, bits: Optional[int], block_size: int):
+def parse_method(
+    method: str,
+    bits: Optional[int],
+    block_size: int,
+    prq_residual_bits: int,
+    qaq_outlier_threshold: float,
+    age_tier_recent_ratio: float,
+    age_tier_recent_bits: int,
+    age_tier_recent_method: str,
+    age_tier_old_method: str,
+    tptq_recent_ratio: float,
+    tptq_recent_bits: int,
+    tptq_recent_method: str,
+    tptq_residual_bits: int,
+    tptq_outlier_threshold: float,
+    tptq_outlier_max_ratio: float,
+    flowcache_recent_ratio: float,
+    flowcache_recent_bits: int,
+    flowcache_recent_method: str,
+    flowcache_old_method: str,
+    flowcache_min_layer_budget_scale: float,
+    flowcache_max_layer_budget_scale: float,
+    flowcache_important_old_ratio: float,
+    flowcache_importance_alpha: float,
+    flowcache_importance_beta: float,
+    flowcache_layer_budget_path: Optional[str],
+    flowcache_prune_retained_old_ratio: float,
+    flowcache_prune_refresh_gap_chunks: int,
+    spatial_fg_method: str,
+    spatial_fg_bits: int,
+    spatial_bg_method: str,
+    spatial_bg_bits: int,
+    spatial_mask_policy: str,
+    spatial_variance_threshold: float,
+    spatial_min_foreground_ratio: float,
+    spatial_max_foreground_ratio: float,
+    spatial_target_foreground_ratio: float,
+):
     method = method.upper()
-    cache_policy = {"cadence": "per_step", "recent_blocks": 0}
+    flowcache_layer_budget_table = load_layer_budget_table(flowcache_layer_budget_path)
+    if re.fullmatch(
+        r"SPATIAL_MIXED_FG_(RTN|KIVI|QUAROT_KV)_INT(2|4)_BG_(RTN|KIVI|QUAROT_KV)_INT(2|4)",
+        method,
+    ):
+        method = "SPATIAL_MIXED"
     if method == "BF16":
-        return "BF16", None, cache_policy
+        return "BF16", None
+    if method == "FLOWCACHE_NATIVE":
+        return "FLOWCACHE_NATIVE", None
+    if method == "FLOWCACHE_NATIVE_SOFT_PRUNE_INT4":
+        quantizer = create_quantizer(
+            "FLOWCACHE_SOFT_PRUNE",
+            bits=4,
+            block_size=block_size,
+            chunk_recent_ratio=flowcache_recent_ratio,
+            recent_bits=flowcache_recent_bits,
+            recent_method=flowcache_recent_method,
+            old_method=flowcache_old_method,
+            layer_budget_table=flowcache_layer_budget_table,
+            min_layer_budget_scale=flowcache_min_layer_budget_scale,
+            max_layer_budget_scale=flowcache_max_layer_budget_scale,
+            important_old_ratio=flowcache_important_old_ratio,
+            retained_old_ratio=flowcache_prune_retained_old_ratio,
+            importance_alpha=flowcache_importance_alpha,
+            importance_beta=flowcache_importance_beta,
+            refresh_gap_chunks=flowcache_prune_refresh_gap_chunks,
+        )
+        return "FLOWCACHE_NATIVE_SOFT_PRUNE_INT4", quantizer
+    if method == "FLOWCACHE_PROFILE":
+        return "FLOWCACHE_PROFILE", create_quantizer(
+            "FLOWCACHE_PROFILE",
+            bits=4,
+            block_size=block_size,
+            profile_recent_ratio=flowcache_recent_ratio,
+        )
+    if method == "SPATIAL_MIXED":
+        quantizer = create_quantizer(
+            "SPATIAL_MIXED",
+            bits=spatial_fg_bits,
+            block_size=block_size,
+            fg_method=spatial_fg_method,
+            fg_bits=spatial_fg_bits,
+            bg_method=spatial_bg_method,
+            bg_bits=spatial_bg_bits,
+            mask_policy=spatial_mask_policy,
+            variance_threshold=spatial_variance_threshold,
+            min_foreground_ratio=spatial_min_foreground_ratio,
+            max_foreground_ratio=spatial_max_foreground_ratio,
+            target_foreground_ratio=spatial_target_foreground_ratio,
+        )
+        return quantizer.name(), quantizer
 
     if bits is not None:
         if method in ("RTN", "KIVI", "QUAROT_KV"):
-            method_name = f"{method}_INT{bits}"
-            return method_name, create_quantizer(method, bits=bits, block_size=block_size, name=method_name), cache_policy
+            return f"{method}_INT{bits}", create_quantizer(method, bits=bits, block_size=block_size)
+        if method == "PRQ":
+            return f"{method}_INT{bits}", create_quantizer(
+                method, bits=bits, block_size=block_size, residual_bits=prq_residual_bits
+            )
+        if method == "QAQ":
+            return f"{method}_INT{bits}", create_quantizer(
+                method, bits=bits, block_size=block_size, outlier_threshold=qaq_outlier_threshold
+            )
+        if method == "AGE_TIER":
+            return f"{method}_INT{bits}", create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                recent_ratio=age_tier_recent_ratio,
+                recent_bits=age_tier_recent_bits,
+                recent_method=age_tier_recent_method,
+                old_method=age_tier_old_method,
+            )
+        if method == "TPTQ":
+            return f"{method}_INT{bits}", create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                recent_ratio=tptq_recent_ratio,
+                recent_bits=tptq_recent_bits,
+                recent_method=tptq_recent_method,
+                residual_bits=tptq_residual_bits,
+                outlier_threshold=tptq_outlier_threshold,
+                outlier_max_ratio=tptq_outlier_max_ratio,
+            )
+        if method == "FLOWCACHE_HYBRID":
+            quantizer = create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                chunk_recent_ratio=flowcache_recent_ratio,
+                recent_bits=flowcache_recent_bits,
+                recent_method=flowcache_recent_method,
+                old_method=flowcache_old_method,
+                layer_budget_table=flowcache_layer_budget_table,
+                min_layer_budget_scale=flowcache_min_layer_budget_scale,
+                max_layer_budget_scale=flowcache_max_layer_budget_scale,
+            )
+            return quantizer.name(), quantizer
+        if method == "FLOWCACHE_ADAPTIVE":
+            quantizer = create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                chunk_recent_ratio=flowcache_recent_ratio,
+                recent_bits=flowcache_recent_bits,
+                recent_method=flowcache_recent_method,
+                old_method=flowcache_old_method,
+                layer_budget_table=flowcache_layer_budget_table,
+                min_layer_budget_scale=flowcache_min_layer_budget_scale,
+                max_layer_budget_scale=flowcache_max_layer_budget_scale,
+                important_old_ratio=flowcache_important_old_ratio,
+                importance_alpha=flowcache_importance_alpha,
+                importance_beta=flowcache_importance_beta,
+            )
+            return quantizer.name(), quantizer
+        if method == "FLOWCACHE_PRUNE":
+            quantizer = create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                chunk_recent_ratio=flowcache_recent_ratio,
+                recent_bits=flowcache_recent_bits,
+                recent_method=flowcache_recent_method,
+                old_method=flowcache_old_method,
+                layer_budget_table=flowcache_layer_budget_table,
+                min_layer_budget_scale=flowcache_min_layer_budget_scale,
+                max_layer_budget_scale=flowcache_max_layer_budget_scale,
+                important_old_ratio=flowcache_important_old_ratio,
+                retained_old_ratio=flowcache_prune_retained_old_ratio,
+                importance_alpha=flowcache_importance_alpha,
+                importance_beta=flowcache_importance_beta,
+                refresh_gap_chunks=flowcache_prune_refresh_gap_chunks,
+            )
+            return quantizer.name(), quantizer
+        if method == "FLOWCACHE_SOFT_PRUNE":
+            quantizer = create_quantizer(
+                method,
+                bits=bits,
+                block_size=block_size,
+                chunk_recent_ratio=flowcache_recent_ratio,
+                recent_bits=flowcache_recent_bits,
+                recent_method=flowcache_recent_method,
+                old_method=flowcache_old_method,
+                layer_budget_table=flowcache_layer_budget_table,
+                min_layer_budget_scale=flowcache_min_layer_budget_scale,
+                max_layer_budget_scale=flowcache_max_layer_budget_scale,
+                important_old_ratio=flowcache_important_old_ratio,
+                retained_old_ratio=flowcache_prune_retained_old_ratio,
+                importance_alpha=flowcache_importance_alpha,
+                importance_beta=flowcache_importance_beta,
+                refresh_gap_chunks=flowcache_prune_refresh_gap_chunks,
+            )
+            return quantizer.name(), quantizer
         raise ValueError(f"Unsupported method={method} with explicit bits")
 
-    m = re.fullmatch(r"(RTN|KIVI|QUAROT_KV)_INT(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
-    if m:
-        base = m.group(1)
-        parsed_bits = int(m.group(2))
-        if m.group(3):
-            cache_policy["cadence"] = "refresh_only"
-        if m.group(4):
-            cache_policy["recent_blocks"] = int(m.group(4))
-        return method, create_quantizer(base, bits=parsed_bits, block_size=block_size, name=method), cache_policy
-
-    m = re.fullmatch(r"(RTN|KIVI)_K(2|4)_V(2|4)(?:_(REFRESH))?(?:_RECENT(\d+))?", method)
-    if m:
-        base = m.group(1)
-        key_bits = int(m.group(2))
-        value_bits = int(m.group(3))
-        if m.group(4):
-            cache_policy["cadence"] = "refresh_only"
-        if m.group(5):
-            cache_policy["recent_blocks"] = int(m.group(5))
-        return (
-            method,
-            create_quantizer(
-                base,
-                bits=max(key_bits, value_bits),
-                block_size=block_size,
-                key_bits=key_bits,
-                value_bits=value_bits,
-                name=method,
-            ),
-            cache_policy,
+    m = re.fullmatch(r"(RTN|KIVI|QUAROT_KV|PRQ|QAQ|AGE_TIER|TPTQ|FLOWCACHE_HYBRID|FLOWCACHE_ADAPTIVE|FLOWCACHE_PRUNE|FLOWCACHE_SOFT_PRUNE)_INT(2|4)", method)
+    if not m:
+        raise ValueError(
+            "Method must be one of BF16, FLOWCACHE_PROFILE, SPATIAL_MIXED, RTN, KIVI, QUAROT_KV, PRQ, QAQ, AGE_TIER, TPTQ, FLOWCACHE_HYBRID, FLOWCACHE_ADAPTIVE, FLOWCACHE_PRUNE, FLOWCACHE_SOFT_PRUNE, or explicit names like RTN_INT4/KIVI_INT2/TPTQ_INT2/FLOWCACHE_SOFT_PRUNE_INT2"
         )
+    base = m.group(1)
+    parsed_bits = int(m.group(2))
+    if base == "PRQ":
+        return method, create_quantizer(base, bits=parsed_bits, block_size=block_size, residual_bits=prq_residual_bits)
+    if base == "QAQ":
+        return method, create_quantizer(
+            base, bits=parsed_bits, block_size=block_size, outlier_threshold=qaq_outlier_threshold
+        )
+    if base == "AGE_TIER":
+        return method, create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            recent_ratio=age_tier_recent_ratio,
+            recent_bits=age_tier_recent_bits,
+            recent_method=age_tier_recent_method,
+            old_method=age_tier_old_method,
+        )
+    if base == "TPTQ":
+        return method, create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            recent_ratio=tptq_recent_ratio,
+            recent_bits=tptq_recent_bits,
+            recent_method=tptq_recent_method,
+            residual_bits=tptq_residual_bits,
+            outlier_threshold=tptq_outlier_threshold,
+            outlier_max_ratio=tptq_outlier_max_ratio,
+        )
+    if base == "FLOWCACHE_HYBRID":
+        quantizer = create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            chunk_recent_ratio=flowcache_recent_ratio,
+            recent_bits=flowcache_recent_bits,
+            recent_method=flowcache_recent_method,
+            old_method=flowcache_old_method,
+            layer_budget_table=flowcache_layer_budget_table,
+            min_layer_budget_scale=flowcache_min_layer_budget_scale,
+            max_layer_budget_scale=flowcache_max_layer_budget_scale,
+        )
+        return quantizer.name(), quantizer
+    if base == "FLOWCACHE_ADAPTIVE":
+        quantizer = create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            chunk_recent_ratio=flowcache_recent_ratio,
+            recent_bits=flowcache_recent_bits,
+            recent_method=flowcache_recent_method,
+            old_method=flowcache_old_method,
+            layer_budget_table=flowcache_layer_budget_table,
+            min_layer_budget_scale=flowcache_min_layer_budget_scale,
+            max_layer_budget_scale=flowcache_max_layer_budget_scale,
+            important_old_ratio=flowcache_important_old_ratio,
+            importance_alpha=flowcache_importance_alpha,
+            importance_beta=flowcache_importance_beta,
+        )
+        return quantizer.name(), quantizer
+    if base == "FLOWCACHE_PRUNE":
+        quantizer = create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            chunk_recent_ratio=flowcache_recent_ratio,
+            recent_bits=flowcache_recent_bits,
+            recent_method=flowcache_recent_method,
+            old_method=flowcache_old_method,
+            layer_budget_table=flowcache_layer_budget_table,
+            min_layer_budget_scale=flowcache_min_layer_budget_scale,
+            max_layer_budget_scale=flowcache_max_layer_budget_scale,
+            important_old_ratio=flowcache_important_old_ratio,
+            retained_old_ratio=flowcache_prune_retained_old_ratio,
+            importance_alpha=flowcache_importance_alpha,
+            importance_beta=flowcache_importance_beta,
+            refresh_gap_chunks=flowcache_prune_refresh_gap_chunks,
+        )
+        return quantizer.name(), quantizer
+    if base == "FLOWCACHE_SOFT_PRUNE":
+        quantizer = create_quantizer(
+            base,
+            bits=parsed_bits,
+            block_size=block_size,
+            chunk_recent_ratio=flowcache_recent_ratio,
+            recent_bits=flowcache_recent_bits,
+            recent_method=flowcache_recent_method,
+            old_method=flowcache_old_method,
+            layer_budget_table=flowcache_layer_budget_table,
+            min_layer_budget_scale=flowcache_min_layer_budget_scale,
+            max_layer_budget_scale=flowcache_max_layer_budget_scale,
+            important_old_ratio=flowcache_important_old_ratio,
+            retained_old_ratio=flowcache_prune_retained_old_ratio,
+            importance_alpha=flowcache_importance_alpha,
+            importance_beta=flowcache_importance_beta,
+            refresh_gap_chunks=flowcache_prune_refresh_gap_chunks,
+        )
+        return quantizer.name(), quantizer
+    return method, create_quantizer(base, bits=parsed_bits, block_size=block_size)
 
-    raise ValueError(
-        "Method must be BF16, *_INT{2|4}[ _REFRESH ][ _RECENTW ], or RTN/KIVI asymmetric forms like RTN_K2_V4"
-    )
+
+def load_layer_budget_table(path_str: Optional[str]) -> Dict[int, float] | None:
+    if path_str is None or str(path_str).strip() == "":
+        return None
+    payload = json.loads(Path(path_str).read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"Layer budget table must be a JSON object: {path_str}")
+    return {int(k): float(v) for k, v in payload.items()}
 
 
 def load_prompts(prompt_path: Path, max_prompts: Optional[int]) -> List[Tuple[int, str]]:
@@ -107,6 +370,10 @@ def git_commit_hash() -> str:
 def reset_kv_state(pipeline, quantizer):
     if pipeline.kv_cache1 is None:
         return
+    if quantizer is not None and hasattr(quantizer, "reset_prompt_state"):
+        quantizer.reset_prompt_state()
+    if getattr(pipeline, "flowcache_reuse_manager", None) is not None:
+        pipeline.flowcache_reuse_manager.reset_prompt_state()
     for block in pipeline.kv_cache1:
         block["global_end_index"].fill_(0)
         block["local_end_index"].fill_(0)
@@ -161,6 +428,23 @@ def initialize_pipeline(
     pipeline.generator.to(device)
     pipeline.vae.to(device)
     return pipeline
+
+
+def attach_flowcache_native(pipeline, method_name: str, args: argparse.Namespace) -> None:
+    if not method_name.startswith("FLOWCACHE_NATIVE"):
+        if hasattr(pipeline, "flowcache_reuse_manager"):
+            pipeline.flowcache_reuse_manager = None
+        return
+
+    if not hasattr(pipeline, "denoising_step_list"):
+        raise RuntimeError("FLOWCACHE_NATIVE methods require a denoising-step Self-Forcing config.")
+
+    from utils.flowcache_reuse import FlowCacheReuseManager
+
+    pipeline.flowcache_reuse_manager = FlowCacheReuseManager(
+        rel_l1_thresh=args.flowcache_native_rel_l1_thresh,
+        warmup_steps=args.flowcache_native_warmup_steps,
+    )
 
 
 def tensor_shape_to_resolution(video: torch.Tensor) -> Tuple[int, int]:
@@ -278,7 +562,44 @@ def run(args: argparse.Namespace) -> None:
         raise RuntimeError("CUDA is required for Self-Forcing generation.")
 
     device = torch.device(args.device)
-    method_name, quantizer, cache_policy = parse_method(args.method, args.bits, args.block_size)
+    method_name, quantizer = parse_method(
+        args.method,
+        args.bits,
+        args.block_size,
+        args.prq_residual_bits,
+        args.qaq_outlier_threshold,
+        args.age_tier_recent_ratio,
+        args.age_tier_recent_bits,
+        args.age_tier_recent_method,
+        args.age_tier_old_method,
+        args.tptq_recent_ratio,
+        args.tptq_recent_bits,
+        args.tptq_recent_method,
+        args.tptq_residual_bits,
+        args.tptq_outlier_threshold,
+        args.tptq_outlier_max_ratio,
+        args.flowcache_recent_ratio,
+        args.flowcache_recent_bits,
+        args.flowcache_recent_method,
+        args.flowcache_old_method,
+        args.flowcache_min_layer_budget_scale,
+        args.flowcache_max_layer_budget_scale,
+        args.flowcache_important_old_ratio,
+        args.flowcache_importance_alpha,
+        args.flowcache_importance_beta,
+        args.flowcache_layer_budget_path,
+        args.flowcache_prune_retained_old_ratio,
+        args.flowcache_prune_refresh_gap_chunks,
+        args.spatial_fg_method,
+        args.spatial_fg_bits,
+        args.spatial_bg_method,
+        args.spatial_bg_bits,
+        args.spatial_mask_policy,
+        args.spatial_variance_threshold,
+        args.spatial_min_foreground_ratio,
+        args.spatial_max_foreground_ratio,
+        args.spatial_target_foreground_ratio,
+    )
 
     results_root = args.results_root if args.results_root.is_absolute() else (REPO_ROOT / args.results_root)
     output_dir = results_root / "videos" / method_name
@@ -318,6 +639,9 @@ def run(args: argparse.Namespace) -> None:
         device=device,
         low_memory=low_memory,
     )
+    attach_flowcache_native(pipeline, method_name, args)
+    if quantizer is not None and hasattr(quantizer, "set_runtime_context"):
+        quantizer.set_runtime_context(frame_seq_length=int(getattr(pipeline, "frame_seq_length", 0)))
     num_frame_per_block = int(getattr(pipeline, "num_frame_per_block", 1))
     if args.num_output_frames % num_frame_per_block != 0:
         lower = args.num_output_frames - (args.num_output_frames % num_frame_per_block)
@@ -333,11 +657,14 @@ def run(args: argparse.Namespace) -> None:
     ensure_kv_cache_capacity(pipeline, args.num_output_frames, dtype=torch.bfloat16, device=device)
     if quantizer is not None:
         quantizer.reset_stats()
-        for block in pipeline.kv_cache1:
+        num_layers = len(pipeline.kv_cache1)
+        for block_idx, block in enumerate(pipeline.kv_cache1):
             block["kv_cache_size"] = int(block["k"].shape[1])
             block["batch_size"] = int(block["k"].shape[0])
             block["num_heads"] = int(block["k"].shape[2])
             block["head_dim"] = int(block["k"].shape[3])
+            block["layer_id"] = int(block_idx)
+            block["num_layers"] = int(num_layers)
             block["quantizer"] = quantizer
             block["quant_state"] = None
             block["quantize_cadence"] = cache_policy["cadence"]
@@ -516,6 +843,12 @@ def run(args: argparse.Namespace) -> None:
         "first_video_shape": list(first_video_shape) if first_video_shape is not None else None,
         "cache_policy": cache_policy,
     }
+    if quantizer is not None and hasattr(quantizer, "diagnostics"):
+        extra_metrics = quantizer.diagnostics()
+        if isinstance(extra_metrics, dict):
+            efficiency.update(extra_metrics)
+    if getattr(pipeline, "flowcache_reuse_manager", None) is not None:
+        efficiency.update(pipeline.flowcache_reuse_manager.diagnostics())
 
     metrics_path = metrics_dir / f"efficiency_{method_name}.json"
     with metrics_path.open("w", encoding="utf-8") as f:
@@ -526,9 +859,51 @@ def run(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate videos with BF16 or KV quantization baselines.")
-    parser.add_argument("--method", type=str, default="BF16", help="BF16, RTN_INT4, RTN_INT2, KIVI_INT4, KIVI_INT2, QUAROT_KV_INT4")
-    parser.add_argument("--bits", type=int, default=None, help="Optional bit-width when using method names RTN/KIVI/QUAROT_KV")
+    parser.add_argument(
+        "--method",
+        type=str,
+        default="BF16",
+        help="BF16, FLOWCACHE_NATIVE, FLOWCACHE_NATIVE_SOFT_PRUNE_INT4, FLOWCACHE_PROFILE, SPATIAL_MIXED, RTN_INT4, KIVI_INT4, QUAROT_KV_INT4, PRQ_INT2, QAQ_INT2, AGE_TIER_INT2, TPTQ_INT2, FLOWCACHE_HYBRID_INT2, FLOWCACHE_ADAPTIVE_INT2, FLOWCACHE_PRUNE_INT2, FLOWCACHE_SOFT_PRUNE_INT2",
+    )
+    parser.add_argument(
+        "--bits", type=int, default=None, help="Optional bit-width when using method names RTN/KIVI/QUAROT_KV/PRQ/QAQ/AGE_TIER/TPTQ/FLOWCACHE_HYBRID/FLOWCACHE_ADAPTIVE/FLOWCACHE_PRUNE/FLOWCACHE_SOFT_PRUNE"
+    )
     parser.add_argument("--block-size", type=int, default=16)
+    parser.add_argument("--prq-residual-bits", type=int, default=4, choices=[2, 4])
+    parser.add_argument("--qaq-outlier-threshold", type=float, default=6.0)
+    parser.add_argument("--age-tier-recent-ratio", type=float, default=0.3)
+    parser.add_argument("--age-tier-recent-bits", type=int, default=4, choices=[2, 4])
+    parser.add_argument("--age-tier-recent-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--age-tier-old-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--tptq-recent-ratio", type=float, default=0.3)
+    parser.add_argument("--tptq-recent-bits", type=int, default=4, choices=[2, 4])
+    parser.add_argument("--tptq-recent-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--tptq-residual-bits", type=int, default=2, choices=[2, 4])
+    parser.add_argument("--tptq-outlier-threshold", type=float, default=6.0)
+    parser.add_argument("--tptq-outlier-max-ratio", type=float, default=0.005)
+    parser.add_argument("--flowcache-recent-ratio", type=float, default=0.25)
+    parser.add_argument("--flowcache-recent-bits", type=int, default=4, choices=[2, 4])
+    parser.add_argument("--flowcache-recent-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--flowcache-old-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--flowcache-min-layer-budget-scale", type=float, default=0.75)
+    parser.add_argument("--flowcache-max-layer-budget-scale", type=float, default=1.25)
+    parser.add_argument("--flowcache-important-old-ratio", type=float, default=0.20)
+    parser.add_argument("--flowcache-importance-alpha", type=float, default=0.7)
+    parser.add_argument("--flowcache-importance-beta", type=float, default=0.3)
+    parser.add_argument("--flowcache-layer-budget-path", type=str, default=None)
+    parser.add_argument("--flowcache-prune-retained-old-ratio", type=float, default=0.30)
+    parser.add_argument("--flowcache-prune-refresh-gap-chunks", type=int, default=1)
+    parser.add_argument("--flowcache-native-rel-l1-thresh", type=float, default=1.50)
+    parser.add_argument("--flowcache-native-warmup-steps", type=int, default=0)
+    parser.add_argument("--spatial-fg-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--spatial-fg-bits", type=int, default=4, choices=[2, 4])
+    parser.add_argument("--spatial-bg-method", type=str, default="RTN", choices=["RTN", "KIVI", "QUAROT_KV"])
+    parser.add_argument("--spatial-bg-bits", type=int, default=2, choices=[2, 4])
+    parser.add_argument("--spatial-mask-policy", type=str, default="hybrid", choices=["threshold", "topk", "hybrid"])
+    parser.add_argument("--spatial-variance-threshold", type=float, default=0.02)
+    parser.add_argument("--spatial-min-foreground-ratio", type=float, default=0.45)
+    parser.add_argument("--spatial-max-foreground-ratio", type=float, default=0.85)
+    parser.add_argument("--spatial-target-foreground-ratio", type=float, default=0.65)
     parser.add_argument("--config-path", type=Path, default=SELF_FORCING_ROOT / "configs" / "self_forcing_dmd.yaml")
     parser.add_argument("--default-config-path", type=Path, default=SELF_FORCING_ROOT / "configs" / "default_config.yaml")
     parser.add_argument("--checkpoint-path", type=Path, default=REPO_ROOT / "checkpoints" / "self_forcing_dmd.pt")

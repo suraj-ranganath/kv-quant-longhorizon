@@ -70,13 +70,14 @@ def main() -> None:
         video_rel = rec.get("generated_video_path")
         if not isinstance(video_rel, str):
             continue
-        video_abs = (repo_root / video_rel).resolve()
+        video_abs = (repo_root / video_rel)
         if not video_abs.exists():
             continue
         prompt = rec.get("prompt")
         if not isinstance(prompt, str) or not prompt.strip():
             continue
         prompt_map[str(video_abs)] = prompt
+        prompt_map[str(video_abs.resolve())] = prompt
         prompt_records_by_video[video_abs.name] = rec
 
     if not prompt_map:
@@ -146,4 +147,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

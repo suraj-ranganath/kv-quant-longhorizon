@@ -1,0 +1,55 @@
+{
+  "method": "QUAROT_KV_INT2",
+  "frame_step": 165,
+  "max_frames": 165,
+  "curve": [
+    {
+      "frame_cap": 165,
+      "imaging_quality": [
+        0.5968108372312604,
+        [
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0007_seed_7.mp4",
+            "video_results": 62.775051648689036
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0006_seed_6.mp4",
+            "video_results": 56.751220321655275
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0004_seed_4.mp4",
+            "video_results": 44.25315964438698
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0003_seed_3.mp4",
+            "video_results": 58.897578383937024
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0005_seed_5.mp4",
+            "video_results": 67.77540810324929
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0002_seed_2.mp4",
+            "video_results": 60.44081855542732
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0001_seed_1.mp4",
+            "video_results": 63.51089708732836
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0009_seed_9.mp4",
+            "video_results": 67.59380257346413
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0008_seed_8.mp4",
+            "video_results": 67.56390586621833
+          },
+          {
+            "video_path": "/data/vaishak/combined-kv-quant/results/combined/backfills/drift/moviegen/c69c6dd7711c8ceb_QUAROT_KV_INT2/QUAROT_KV_INT2_frames_165/prompt_0000_seed_0.mp4",
+            "video_results": 47.24899504690459
+          }
+        ]
+      ]
+    }
+  ]
+}
