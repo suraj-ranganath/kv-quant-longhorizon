@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="700" viewBox="0 0 1500 700">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="750.0" y="34" text-anchor="middle" font-size="22" font-family="Arial" font-weight="700">MovieGen VBench metrics (all tried methods)</text>
+<line x1="110" y1="80.0" x2="1440" y2="80.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="84.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.955</text>
+<line x1="110" y1="170.0" x2="1440" y2="170.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="174.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.764</text>
+<line x1="110" y1="260.0" x2="1440" y2="260.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="264.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.573</text>
+<line x1="110" y1="350.0" x2="1440" y2="350.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="354.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.382</text>
+<line x1="110" y1="440.0" x2="1440" y2="440.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="444.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.191</text>
+<line x1="110" y1="530.0" x2="1440" y2="530.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="534.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">0.000</text>
+<rect x="122.1" y="80.0" width="22.2" height="450.0" fill="#0f766e" rx="2"/>
+<rect x="146.3" y="181.9" width="22.2" height="348.1" fill="#1d4ed8" rx="2"/>
+<rect x="170.5" y="80.5" width="22.2" height="449.5" fill="#c2410c" rx="2"/>
+<rect x="194.6" y="216.8" width="22.2" height="313.2" fill="#7c3aed" rx="2"/>
+<text x="170.5" y="548" text-anchor="end" transform="rotate(-35 170.5,548)" font-size="11" font-family="Arial" fill="#0f172a">BF16</text>
+<rect x="243.0" y="84.8" width="22.2" height="445.2" fill="#0f766e" rx="2"/>
+<rect x="267.2" y="183.7" width="22.2" height="346.3" fill="#1d4ed8" rx="2"/>
+<rect x="291.4" y="87.0" width="22.2" height="443.0" fill="#c2410c" rx="2"/>
+<rect x="315.5" y="225.1" width="22.2" height="304.9" fill="#7c3aed" rx="2"/>
+<text x="291.4" y="548" text-anchor="end" transform="rotate(-35 291.4,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4</text>
+<rect x="363.9" y="124.6" width="22.2" height="405.4" fill="#0f766e" rx="2"/>
+<rect x="388.1" y="263.0" width="22.2" height="267.0" fill="#1d4ed8" rx="2"/>
+<rect x="412.3" y="158.6" width="22.2" height="371.4" fill="#c2410c" rx="2"/>
+<rect x="436.5" y="291.3" width="22.2" height="238.7" fill="#7c3aed" rx="2"/>
+<text x="412.3" y="548" text-anchor="end" transform="rotate(-35 412.3,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT2</text>
+<rect x="484.8" y="99.2" width="22.2" height="430.8" fill="#0f766e" rx="2"/>
+<rect x="509.0" y="209.1" width="22.2" height="320.9" fill="#1d4ed8" rx="2"/>
+<rect x="533.2" y="119.6" width="22.2" height="410.4" fill="#c2410c" rx="2"/>
+<rect x="557.4" y="245.8" width="22.2" height="284.2" fill="#7c3aed" rx="2"/>
+<text x="533.2" y="548" text-anchor="end" transform="rotate(-35 533.2,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT4</text>
+<rect x="605.7" y="145.0" width="22.2" height="385.0" fill="#0f766e" rx="2"/>
+<rect x="629.9" y="237.4" width="22.2" height="292.6" fill="#1d4ed8" rx="2"/>
+<rect x="654.1" y="215.2" width="22.2" height="314.8" fill="#c2410c" rx="2"/>
+<rect x="678.3" y="312.7" width="22.2" height="217.3" fill="#7c3aed" rx="2"/>
+<text x="654.1" y="548" text-anchor="end" transform="rotate(-35 654.1,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT2</text>
+<rect x="726.6" y="82.2" width="22.2" height="447.8" fill="#0f766e" rx="2"/>
+<rect x="750.8" y="182.6" width="22.2" height="347.4" fill="#1d4ed8" rx="2"/>
+<rect x="775.0" y="83.0" width="22.2" height="447.0" fill="#c2410c" rx="2"/>
+<rect x="799.2" y="220.1" width="22.2" height="309.9" fill="#7c3aed" rx="2"/>
+<text x="775.0" y="548" text-anchor="end" transform="rotate(-35 775.0,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT4</text>
+<rect x="847.5" y="118.1" width="22.2" height="411.9" fill="#0f766e" rx="2"/>
+<rect x="871.7" y="247.0" width="22.2" height="283.0" fill="#1d4ed8" rx="2"/>
+<rect x="895.9" y="155.3" width="22.2" height="374.7" fill="#c2410c" rx="2"/>
+<rect x="920.1" y="283.7" width="22.2" height="246.3" fill="#7c3aed" rx="2"/>
+<text x="895.9" y="548" text-anchor="end" transform="rotate(-35 895.9,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT2</text>
+<rect x="968.5" y="84.0" width="22.2" height="446.0" fill="#0f766e" rx="2"/>
+<rect x="992.6" y="183.3" width="22.2" height="346.7" fill="#1d4ed8" rx="2"/>
+<rect x="1016.8" y="86.9" width="22.2" height="443.1" fill="#c2410c" rx="2"/>
+<rect x="1041.0" y="224.4" width="22.2" height="305.6" fill="#7c3aed" rx="2"/>
+<text x="1016.8" y="548" text-anchor="end" transform="rotate(-35 1016.8,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4_REFRESH</text>
+<rect x="1089.4" y="94.5" width="22.2" height="435.5" fill="#0f766e" rx="2"/>
+<rect x="1113.5" y="193.8" width="22.2" height="336.2" fill="#1d4ed8" rx="2"/>
+<rect x="1137.7" y="112.5" width="22.2" height="417.5" fill="#c2410c" rx="2"/>
+<rect x="1161.9" y="238.0" width="22.2" height="292.0" fill="#7c3aed" rx="2"/>
+<text x="1137.7" y="548" text-anchor="end" transform="rotate(-35 1137.7,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT4_REFRESH</text>
+<rect x="1210.3" y="83.0" width="22.2" height="447.0" fill="#0f766e" rx="2"/>
+<rect x="1234.5" y="183.5" width="22.2" height="346.5" fill="#1d4ed8" rx="2"/>
+<rect x="1258.6" y="85.2" width="22.2" height="444.8" fill="#c2410c" rx="2"/>
+<rect x="1282.8" y="225.0" width="22.2" height="305.0" fill="#7c3aed" rx="2"/>
+<text x="1258.6" y="548" text-anchor="end" transform="rotate(-35 1258.6,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4_RECENT2</text>
+<rect x="1331.2" y="85.7" width="22.2" height="444.3" fill="#0f766e" rx="2"/>
+<rect x="1355.4" y="186.0" width="22.2" height="344.0" fill="#1d4ed8" rx="2"/>
+<rect x="1379.5" y="91.5" width="22.2" height="438.5" fill="#c2410c" rx="2"/>
+<rect x="1403.7" y="227.9" width="22.2" height="302.1" fill="#7c3aed" rx="2"/>
+<text x="1379.5" y="548" text-anchor="end" transform="rotate(-35 1379.5,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT4_RECENT2</text>
+<rect x="110" y="658" width="14" height="14" fill="#0f766e"/>
+<text x="130" y="670" font-size="12" font-family="Arial" fill="#0f172a">background_consistency</text>
+<rect x="290" y="658" width="14" height="14" fill="#1d4ed8"/>
+<text x="310" y="670" font-size="12" font-family="Arial" fill="#0f172a">imaging_quality</text>
+<rect x="470" y="658" width="14" height="14" fill="#c2410c"/>
+<text x="490" y="670" font-size="12" font-family="Arial" fill="#0f172a">subject_consistency</text>
+<rect x="650" y="658" width="14" height="14" fill="#7c3aed"/>
+<text x="670" y="670" font-size="12" font-family="Arial" fill="#0f172a">aesthetic_quality</text>
+</svg>

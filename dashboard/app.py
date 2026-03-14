@@ -26,6 +26,13 @@ METHOD_ORDER = [
     "KIVI_INT2",
     "QUAROT_KV_INT4",
     "QUAROT_KV_INT2",
+    "RTN_INT4_REFRESH",
+    "KIVI_INT4_REFRESH",
+    "QUAROT_KV_INT4_REFRESH",
+    "RTN_K2_V4",
+    "KIVI_K2_V4",
+    "RTN_INT4_RECENT2",
+    "QUAROT_KV_INT4_RECENT2",
 ]
 
 VIDEO_RE = re.compile(r"prompt_(\d+)_seed_(\d+)\.mp4$")
@@ -168,6 +175,20 @@ def _find_file(search_dirs: list[Path], filename: str) -> Path | None:
     return None
 
 
+def _load_method_manifest(run: RunLayout) -> dict[str, dict[str, Any]]:
+    meta_path = run.root / "run_meta.json"
+    payload = _read_json(meta_path) if meta_path.exists() else None
+    manifest = payload.get("method_manifest") if isinstance(payload, dict) else None
+    if isinstance(manifest, dict):
+        return {str(k): v for k, v in manifest.items() if isinstance(v, dict)}
+
+    manifest_path = _find_file(run.table_dirs + [run.root], "method_manifest.json")
+    file_payload = _read_json(manifest_path) if manifest_path else None
+    if isinstance(file_payload, dict):
+        return {str(k): v for k, v in file_payload.items() if isinstance(v, dict)}
+    return {}
+
+
 def _extract_vbench_scalar(value: Any) -> float | None:
     if isinstance(value, list) and value:
         first = value[0]
@@ -226,6 +247,8 @@ def _storyeval_group_name(root: Path) -> str:
 def _metric_column_config() -> dict[str, Any]:
     return {
         "method": st.column_config.TextColumn("method", help="Quantization method name."),
+        "status": st.column_config.TextColumn("status", help="Method completion status in the selected run."),
+        "source_run": st.column_config.TextColumn("source_run", help="Original run directory used to source this method."),
         "videos": st.column_config.NumberColumn(
             "videos",
             help="Number of generated videos discovered for the method in this run.",
@@ -305,6 +328,11 @@ def _metric_column_config() -> dict[str, Any]:
             "peak_vram_gb",
             help=f"Peak GPU memory in GB. {QUANT_VRAM_NOTE}",
             format="%.3f GB",
+        ),
+        "drift_last_imaging_quality": st.column_config.NumberColumn(
+            "drift_last_imaging_quality",
+            help="Last available imaging_quality value from the method's drift curve. Higher is better.",
+            format="%.4f",
         ),
     }
 
@@ -543,11 +571,14 @@ def load_metric_payload(run: RunLayout, prefix: str, method: str) -> dict[str, A
 @st.cache_data(show_spinner=False)
 def build_metric_table(run: RunLayout, methods: list[str]) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
+    manifest = _load_method_manifest(run)
 
     for method in methods:
         efficiency = load_metric_payload(run, "efficiency", method) or {}
         fidelity = load_metric_payload(run, "fidelity", method) or {}
         vbench = load_metric_payload(run, "vbench", method) or {}
+        drift = load_metric_payload(run, "drift", method) or {}
+        method_meta = manifest.get(method, {})
 
         records = load_generation_records(run, method)
         num_videos = 0
@@ -557,9 +588,19 @@ def build_metric_table(run: RunLayout, methods: list[str]) -> pd.DataFrame:
                 num_videos = max(num_videos, len(list(method_dir.glob("prompt_*_seed_*.mp4"))))
 
         fidelity_agg = fidelity.get("aggregate", {}) if isinstance(fidelity, dict) else {}
+        drift_curve = drift.get("curve", []) if isinstance(drift, dict) else []
+        drift_last = None
+        if drift_curve:
+            drift_value = drift_curve[-1].get("imaging_quality")
+            if isinstance(drift_value, list) and drift_value:
+                drift_last = drift_value[0]
+            elif isinstance(drift_value, (int, float)):
+                drift_last = drift_value
 
         row: dict[str, Any] = {
             "method": method,
+            "status": method_meta.get("status"),
+            "source_run": method_meta.get("source_run"),
             "videos": num_videos,
             "logged_prompts": len(records),
             "psnr": fidelity_agg.get("psnr"),
@@ -579,6 +620,9 @@ def build_metric_table(run: RunLayout, methods: list[str]) -> pd.DataFrame:
             "peak_vram_gb": (float(efficiency["peak_vram_bytes"]) / (1024**3)) if efficiency.get("peak_vram_bytes") is not None else None,
             "quantize_time_s": efficiency.get("quantize_time_s"),
             "dequantize_time_s": efficiency.get("dequantize_time_s"),
+            "drift_points": len(drift_curve),
+            "drift_last_imaging_quality": drift_last,
+            "note": method_meta.get("note"),
         }
         rows.append(row)
 
@@ -743,6 +787,8 @@ def build_storyeval_metric_table(run: RunLayout, methods: list[str]) -> pd.DataF
         drift_curve = drift_by_method.get(method, {}).get("curve", []) if isinstance(drift_by_method.get(method), dict) else []
         row = {
             "method": method,
+            "status": summary.get("status"),
+            "source_run": summary.get("source_run"),
             "videos": len([r for r in method_records if not r.get("error")]),
             "logged_prompts": len(method_records),
             "background_consistency": agg.get("background_consistency"),
@@ -755,6 +801,7 @@ def build_storyeval_metric_table(run: RunLayout, methods: list[str]) -> pd.DataF
             ),
             "drift_points": len(drift_curve),
             "drift_last_imaging_quality": drift_curve[-1].get("imaging_quality") if drift_curve else None,
+            "note": summary.get("note"),
         }
         rows.append(row)
     return pd.DataFrame(rows)
@@ -813,7 +860,7 @@ def render_storyeval_overview(run: RunLayout, methods: list[str]) -> None:
 
     if not metric_df.empty:
         st.markdown("### Unified method table")
-        st.dataframe(metric_df, use_container_width=True, hide_index=True)
+        st.dataframe(metric_df, use_container_width=True, hide_index=True, column_config=_metric_column_config())
 
     drift_rows: list[dict[str, Any]] = []
     for method, payload in drift.items():
@@ -1197,7 +1244,7 @@ def render_header() -> None:
         }
         </style>
         <div class="hero">
-            <h1>QVG Baseline Replication Dashboard</h1>
+            <h1>KV-Cache Quantization Dashboard</h1>
             <p>Presentation workspace for Self-Forcing-Wan-1.3B runs: videos, fidelity, VBench, and systems metrics.</p>
         </div>
         """,
@@ -1283,6 +1330,8 @@ def render_overview(df: pd.DataFrame) -> None:
     st.caption(KV_BYTES_NOTE)
     display_cols = [
         "method",
+        "status",
+        "source_run",
         "videos",
         "logged_prompts",
         "psnr",
@@ -1298,6 +1347,7 @@ def render_overview(df: pd.DataFrame) -> None:
         "avg_runtime_s_per_prompt",
         "runtime_overhead_pct_vs_bf16",
         "peak_vram_gb",
+        "drift_last_imaging_quality",
     ]
     table_df = df[display_cols].copy()
     st.dataframe(
@@ -1343,6 +1393,20 @@ def render_overview(df: pd.DataFrame) -> None:
             )
             fig.update_layout(height=360, xaxis_title=None)
             st.plotly_chart(fig, use_container_width=True)
+
+    drift_df = df.dropna(subset=["drift_last_imaging_quality"])
+    if not drift_df.empty:
+        st.markdown("### Drift summary")
+        fig = px.bar(
+            drift_df,
+            x="method",
+            y="drift_last_imaging_quality",
+            color="method",
+            title="Last available drift imaging_quality by method",
+            color_discrete_sequence=px.colors.qualitative.Bold,
+        )
+        fig.update_layout(height=340, xaxis_title=None, showlegend=False)
+        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("### Quality-efficiency tradeoff")
     scatter_df = df.dropna(subset=["compression_ratio", "avg_runtime_s_per_prompt"], how="any")
@@ -1638,7 +1702,7 @@ def render_artifacts(run: RunLayout) -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="QVG Baseline Dashboard", layout="wide")
+    st.set_page_config(page_title="KV-Cache Quantization Dashboard", layout="wide")
     render_header()
 
     runs = discover_runs(RESULTS_ROOT)

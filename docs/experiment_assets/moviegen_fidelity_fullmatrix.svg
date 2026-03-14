@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="700" viewBox="0 0 1500 700">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="750.0" y="34" text-anchor="middle" font-size="22" font-family="Arial" font-weight="700">MovieGen fidelity metrics (all tried methods)</text>
+<line x1="110" y1="80.0" x2="1440" y2="80.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="84.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">inf</text>
+<line x1="110" y1="170.0" x2="1440" y2="170.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="174.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">inf</text>
+<line x1="110" y1="260.0" x2="1440" y2="260.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="264.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">inf</text>
+<line x1="110" y1="350.0" x2="1440" y2="350.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="354.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">inf</text>
+<line x1="110" y1="440.0" x2="1440" y2="440.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="444.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">inf</text>
+<line x1="110" y1="530.0" x2="1440" y2="530.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="100" y="534.0" text-anchor="end" font-size="11" font-family="Arial" fill="#475569">nan</text>
+<rect x="126.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="159.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="193.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="176.5" y="548" text-anchor="end" transform="rotate(-35 176.5,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4</text>
+<rect x="259.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="292.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="326.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="309.5" y="548" text-anchor="end" transform="rotate(-35 309.5,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT2</text>
+<rect x="392.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="425.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="459.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="442.5" y="548" text-anchor="end" transform="rotate(-35 442.5,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT4</text>
+<rect x="525.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="558.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="592.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="575.5" y="548" text-anchor="end" transform="rotate(-35 575.5,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT2</text>
+<rect x="658.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="691.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="725.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="708.5" y="548" text-anchor="end" transform="rotate(-35 708.5,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT4</text>
+<rect x="791.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="824.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="858.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="841.5" y="548" text-anchor="end" transform="rotate(-35 841.5,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT2</text>
+<rect x="924.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="957.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="991.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="974.5" y="548" text-anchor="end" transform="rotate(-35 974.5,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4_REFRESH</text>
+<rect x="1057.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="1090.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="1124.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="1107.5" y="548" text-anchor="end" transform="rotate(-35 1107.5,548)" font-size="11" font-family="Arial" fill="#0f172a">KIVI_INT4_REFRESH</text>
+<rect x="1190.6" y="530.0" width="31.2" height="0.0" fill="#0f766e" rx="2"/>
+<rect x="1223.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="1257.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="1240.5" y="548" text-anchor="end" transform="rotate(-35 1240.5,548)" font-size="11" font-family="Arial" fill="#0f172a">RTN_INT4_RECENT2</text>
+<rect x="1323.6" y="nan" width="31.2" height="nan" fill="#0f766e" rx="2"/>
+<rect x="1356.9" y="530.0" width="31.2" height="0.0" fill="#1d4ed8" rx="2"/>
+<rect x="1390.1" y="530.0" width="31.2" height="0.0" fill="#c2410c" rx="2"/>
+<text x="1373.5" y="548" text-anchor="end" transform="rotate(-35 1373.5,548)" font-size="11" font-family="Arial" fill="#0f172a">QUAROT_KV_INT4_RECENT2</text>
+<rect x="110" y="658" width="14" height="14" fill="#0f766e"/>
+<text x="130" y="670" font-size="12" font-family="Arial" fill="#0f172a">psnr</text>
+<rect x="290" y="658" width="14" height="14" fill="#1d4ed8"/>
+<text x="310" y="670" font-size="12" font-family="Arial" fill="#0f172a">ssim</text>
+<rect x="470" y="658" width="14" height="14" fill="#c2410c"/>
+<text x="490" y="670" font-size="12" font-family="Arial" fill="#0f172a">lpips</text>
+</svg>

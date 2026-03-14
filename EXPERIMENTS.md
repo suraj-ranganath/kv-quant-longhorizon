@@ -13,6 +13,129 @@ This document records the completed and attempted KV-cache quantization experime
 
 This note is intentionally tied to the code and artifacts in this repo rather than to paper-level claims.
 
+## Presentation Composite Runs
+
+These two runs were created by collating existing artifacts only. They do not run new generation jobs and they do not consume GPU. They exist so the dashboard can present one benchmark-level comparison run for:
+
+- baseline methods from the original baseline suites
+- new method families from the later cache-policy runs
+- attempted but incomplete methods where only partial data exists
+
+Dashboard run labels:
+
+- MovieGen: `runs/1773110004_presentation_moviegen_fullmatrix`
+- StoryEval: `storyeval/storyeval_presentation_fullmatrix_1773110004`
+
+Source provenance used in these composite runs:
+
+- MovieGen baseline suite:
+  - `results/runs/1772751420_baseline10s_10prompts_v3`
+- MovieGen new-method suite:
+  - `results/runs/1773038789_newideas10s_10prompts`
+- MovieGen partial refresh-only QuaRot attempt:
+  - `results/runs/1773037963_newideas10s_10prompts`
+- StoryEval baseline suite:
+  - `results/benchmarks/storyeval/storyeval_*_10prompts_10s_1772778648`
+- StoryEval new-method suite:
+  - `results/benchmarks/storyeval/storyeval_*_10prompts_10s_1773038789`
+
+Important interpretation note:
+
+- these are mixed-source presentation runs
+- they are valid for method comparison and presentation inside this repo because the benchmark setup is matched (`10 prompts`, `10s`, `fps=16`, `target_frames=165`)
+- MovieGen fidelity values still inherit the BF16 reference from the source run used for that method
+- drift is only available where it was actually computed in the source artifacts
+
+### MovieGen Full-Matrix Table
+
+Full CSV:
+
+- `docs/experiment_assets/moviegen_fullmatrix_summary.csv`
+
+| method | status | videos | psnr | lpips | imaging_quality | compression_ratio | avg_runtime_s_per_prompt | peak_vram_gb | drift_last_imaging_quality |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BF16 | complete | 10 |  |  | 0.7390 | 1.0000 | 58.5726 | 19.2801 | 0.7394 |
+| RTN_INT4 | complete | 10 | 21.3205 | 0.1803 | 0.7353 | 3.2000 | 86.2636 | 19.9831 |  |
+| RTN_INT2 | complete | 10 | 15.0444 | 0.4750 | 0.5668 | 5.3333 | 87.1161 | 19.9831 |  |
+| KIVI_INT4 | complete | 10 | 13.0698 | 0.5709 | 0.6812 | 3.1933 | 92.6862 | 19.9904 |  |
+| KIVI_INT2 | complete | 10 | 11.4240 | 0.6714 | 0.6211 | 5.3149 | 95.4773 | 19.9904 |  |
+| QUAROT_KV_INT4 | complete | 10 | 22.6420 | 0.1483 | 0.7376 | 3.2000 | 236.6028 | 19.9831 |  |
+| QUAROT_KV_INT2 | complete | 10 | 14.7310 | 0.4670 | 0.6008 | 5.3333 | 242.0181 | 19.9831 |  |
+| RTN_INT4_REFRESH | complete | 10 | 21.4496 | 0.1777 | 0.7361 | 3.2000 | 65.0466 | 22.6361 | 0.7352 |
+| KIVI_INT4_REFRESH | complete | 10 | 13.7329 | 0.5095 | 0.7137 | 3.1933 | 68.0524 | 22.6322 | 0.7116 |
+| QUAROT_KV_INT4_REFRESH | partial_failed | 2 |  |  |  |  |  |  |  |
+| RTN_K2_V4 | partial_failed | 5 |  |  |  |  |  |  |  |
+| KIVI_K2_V4 | partial_failed | 3 |  |  |  |  |  |  |  |
+| RTN_INT4_RECENT2 | complete | 10 | 23.6918 | 0.1482 | 0.7356 | 2.4348 | 68.8637 | 21.3741 | 0.7351 |
+| QUAROT_KV_INT4_RECENT2 | complete | 10 | inf | 0.1834 | 0.7302 | 2.4348 | 111.3048 | 21.6854 | 0.7290 |
+
+### MovieGen Plots
+
+Fidelity:
+
+![](docs/experiment_assets/moviegen_fidelity_fullmatrix.svg)
+
+VBench quality:
+
+![](docs/experiment_assets/moviegen_vbench_fullmatrix.svg)
+
+Quality-efficiency tradeoff:
+
+![](docs/experiment_assets/moviegen_quality_efficiency_fullmatrix.svg)
+
+Drift comparison for methods that have computed drift artifacts:
+
+![](docs/experiment_assets/moviegen_drift_fullmatrix.svg)
+
+### StoryEval Full-Matrix Table
+
+Full CSV:
+
+- `docs/experiment_assets/storyeval_fullmatrix_summary.csv`
+
+| method | status | videos | imaging_quality | background_consistency | subject_consistency | aesthetic_quality | avg_runtime_s_per_prompt | peak_vram_gb | drift_last_imaging_quality |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BF16 | complete | 10 | 0.6932 | 0.9322 | 0.9207 | 0.5559 | 56.8107 | 19.2057 | 0.6951 |
+| RTN_INT4 | complete | 10 | 0.6738 | 0.9235 | 0.9118 | 0.5393 | 88.7893 | 19.9087 | 0.6753 |
+| RTN_INT2 | complete | 10 | 0.4644 | 0.8591 | 0.7528 | 0.4525 | 86.1275 | 19.9087 | 0.4709 |
+| KIVI_INT4 | complete | 10 | 0.6348 | 0.8913 | 0.8354 | 0.5121 | 92.9985 | 19.9160 | 0.6352 |
+| KIVI_INT2 | complete | 10 | 0.5312 | 0.7984 | 0.6049 | 0.3797 | 94.7113 | 19.9160 | 0.5271 |
+| QUAROT_KV_INT4 | complete | 10 | 0.6870 | 0.9262 | 0.9203 | 0.5451 | 239.5797 | 19.9087 | 0.6889 |
+| QUAROT_KV_INT2 | complete | 10 | 0.4775 | 0.8607 | 0.7535 | 0.4586 | 239.0473 | 19.9087 | 0.4802 |
+| RTN_INT4_REFRESH | complete | 10 | 0.6779 | 0.9235 | 0.9136 | 0.5408 | 64.6068 | 22.5617 | 0.6787 |
+| KIVI_INT4_REFRESH | complete | 10 | 0.6448 | 0.8808 | 0.8295 | 0.4995 | 66.7335 | 22.5578 | 0.6414 |
+| QUAROT_KV_INT4_REFRESH | not_run | 0 |  |  |  |  |  |  |  |
+| RTN_K2_V4 | not_run | 0 |  |  |  |  |  |  |  |
+| KIVI_K2_V4 | not_run | 0 |  |  |  |  |  |  |  |
+| RTN_INT4_RECENT2 | complete | 10 | 0.6803 | 0.9235 | 0.9142 | 0.5452 | 68.6420 | 21.2996 | 0.6836 |
+| QUAROT_KV_INT4_RECENT2 | complete | 10 | 0.6665 | 0.9188 | 0.9049 | 0.5383 | 112.9255 | 21.6109 | 0.6698 |
+
+### StoryEval Plots
+
+VBench quality:
+
+![](docs/experiment_assets/storyeval_vbench_fullmatrix.svg)
+
+Runtime and peak VRAM:
+
+![](docs/experiment_assets/storyeval_runtime_vram_fullmatrix.svg)
+
+Drift comparison:
+
+![](docs/experiment_assets/storyeval_drift_fullmatrix.svg)
+
+### How To View These In The Dashboard
+
+1. Set `Benchmark = moviegen`
+2. Choose `runs/1773110004_presentation_moviegen_fullmatrix`
+3. Use the `Methods` multiselect to compare baseline methods, new methods, and partial methods in one place
+
+For StoryEval:
+
+1. Set `Benchmark = storyeval`
+2. Choose `storyeval/storyeval_presentation_fullmatrix_1773110004`
+3. Use the `Methods` multiselect to compare baseline methods, new methods, and placeholder rows for methods that were not run on StoryEval
+
 ## Experimental Context
 
 ### Model and generation setup
