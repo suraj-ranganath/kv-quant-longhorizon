@@ -23,11 +23,11 @@ from pptx.util import Inches, Pt
 
 
 ROOT = Path(__file__).resolve().parent
-PRESENTATION_MD = ROOT / "presentation.md"
-OUTPUT_PPTX = ROOT / "final_presentation.pptx"
-VRAM_CHART = ROOT / "vram_compression.png"
-RUNTIME_CHART = ROOT / "runtime_quality.png"
-DRIFT_CHART = ROOT / "temporal_drift.png"
+PRESENTATION_MD = ROOT / "docs" / "presentations" / "presentation.md"
+OUTPUT_PPTX = ROOT / "docs" / "presentations" / "final_presentation.pptx"
+VRAM_CHART = ROOT / "docs" / "figures" / "vram_compression.png"
+RUNTIME_CHART = ROOT / "docs" / "figures" / "runtime_quality.png"
+DRIFT_CHART = ROOT / "docs" / "figures" / "temporal_drift.png"
 
 DATASET_CANDIDATES = [
     ROOT / "results" / "combined" / "combined_comparison_dataset.csv",

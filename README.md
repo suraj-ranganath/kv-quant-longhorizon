@@ -49,7 +49,7 @@ Each comparison uses the same six presentation methods:
 - `RTN_INT4_REFRESH`
 - `QUAROT_KV_INT4`
 
-The full curated media notes, prompt texts, and dashboard walkthrough live in [docs/results_gallery.md](/data/suraj/combined-kv-quant-copilot-final/docs/results_gallery.md).
+The full curated media notes, prompt texts, and dashboard walkthrough live in [docs/results_gallery.md](docs/results_gallery.md).
 
 ## Headline Findings
 
@@ -127,7 +127,7 @@ We evaluate 33 method variants across several design families:
 - `FlowCache variants`: hybrid, adaptive, prune, soft-prune, and native-style reuse ideas
 - `Spatial mixed precision`: foreground/background precision partitioning
 
-The full grouped catalog, rationale, and method-by-method description are in [docs/method_catalog.md](/data/suraj/combined-kv-quant-copilot-final/docs/method_catalog.md).
+The full grouped catalog, rationale, and method-by-method description are in [docs/method_catalog.md](docs/method_catalog.md).
 
 ## Repository Highlights
 
@@ -149,20 +149,20 @@ The `scripts/` directory contains the full experiment flow:
 
 Notable entry points:
 
-- [scripts/09_run_full_research_pipeline.sh](/data/suraj/combined-kv-quant-copilot-final/scripts/09_run_full_research_pipeline.sh): end-to-end research pipeline
-- [scripts/13_launch_dashboard.sh](/data/suraj/combined-kv-quant-copilot-final/scripts/13_launch_dashboard.sh): Streamlit presentation launcher
-- [scripts/30_build_combined_comparison_dataset.py](/data/suraj/combined-kv-quant-copilot-final/scripts/30_build_combined_comparison_dataset.py): unified comparison dataset
-- [scripts/26_generate_analysis_figures.py](/data/suraj/combined-kv-quant-copilot-final/scripts/26_generate_analysis_figures.py): paper/deck-friendly plots
+- [scripts/09_run_full_research_pipeline.sh](scripts/09_run_full_research_pipeline.sh): end-to-end research pipeline
+- [scripts/13_launch_dashboard.sh](scripts/13_launch_dashboard.sh): Streamlit presentation launcher
+- [scripts/30_build_combined_comparison_dataset.py](scripts/30_build_combined_comparison_dataset.py): unified comparison dataset
+- [scripts/26_generate_analysis_figures.py](scripts/26_generate_analysis_figures.py): paper/deck-friendly plots
 
 ### 2. Combined comparison dataset
 
-The public-facing comparison layer is built around [results/combined/combined_comparison_dataset.csv](/data/suraj/combined-kv-quant-copilot-final/results/combined/combined_comparison_dataset.csv), which merges prompt-level records, method summaries, evaluation outputs, and provenance across runs.
+The public-facing comparison layer is built around [results/combined/combined_comparison_dataset.csv](results/combined/combined_comparison_dataset.csv), which merges prompt-level records, method summaries, evaluation outputs, and provenance across runs.
 
 This is what powers the dashboard and most of the comparative analysis in the repo.
 
 ### 3. Presentation dashboard
 
-The dashboard at [dashboard/app.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/app.py) provides:
+The dashboard at [dashboard/app.py](dashboard/app.py) provides:
 
 - benchmark and run selection
 - method filtering across the combined dataset
@@ -177,7 +177,7 @@ The dashboard at [dashboard/app.py](/data/suraj/combined-kv-quant-copilot-final/
 - raw method tables
 - caveats and provenance views
 
-A full tab-by-tab guide is in [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md).
+A full tab-by-tab guide is in [docs/dashboard_guide.md](docs/dashboard_guide.md).
 
 ## Figures
 
@@ -185,15 +185,15 @@ These are the static figures we used repeatedly while explaining the systems/qua
 
 ### Memory vs compression
 
-![VRAM vs compression](vram_compression.png)
+![VRAM vs compression](docs/figures/vram_compression.png)
 
 ### Runtime vs quality
 
-![Runtime vs quality](runtime_quality.png)
+![Runtime vs quality](docs/figures/runtime_quality.png)
 
 ### Temporal drift
 
-![Temporal drift](temporal_drift.png)
+![Temporal drift](docs/figures/temporal_drift.png)
 
 ## Public-Facing Repo Layout
 
@@ -208,21 +208,23 @@ These are the static figures we used repeatedly while explaining the systems/qua
 │   ├── environment_setup.md
 │   ├── dashboard_guide.md
 │   ├── method_catalog.md
-│   └── results_gallery.md
+│   ├── results_gallery.md
+│   ├── figures/
+│   ├── presentations/
+│   ├── reports/
+│   └── dashboard/
 ├── results/
 │   ├── benchmarks/
 │   ├── combined/
 │   └── ...
-├── report.md
-├── reportv2.md
-└── presentation.md
+└── generate_deck.py
 ```
 
 ## Quick Start
 
 ### Environment setup
 
-Use the detailed environment notes in [docs/environment_setup.md](/data/suraj/combined-kv-quant-copilot-final/docs/environment_setup.md).
+Use the detailed environment notes in [docs/environment_setup.md](docs/environment_setup.md).
 
 Minimal flow:
 
@@ -264,7 +266,7 @@ Use it to:
 - see BF16-relative deltas for fidelity and drift
 - drill down to prompt-level rows and provenance
 
-The detailed guide is in [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md).
+The detailed guide is in [docs/dashboard_guide.md](docs/dashboard_guide.md).
 
 ## Results Interpretation Guide
 
@@ -285,11 +287,14 @@ The repo is intentionally opinionated about how to read the study:
 
 ## Additional Reading
 
-- [docs/dashboard_guide.md](/data/suraj/combined-kv-quant-copilot-final/docs/dashboard_guide.md): dashboard capabilities and analysis surfaces
-- [docs/method_catalog.md](/data/suraj/combined-kv-quant-copilot-final/docs/method_catalog.md): grouped description of the 33 methods
-- [docs/results_gallery.md](/data/suraj/combined-kv-quant-copilot-final/docs/results_gallery.md): curated demos used in presentation
-- [reportv2.md](/data/suraj/combined-kv-quant-copilot-final/reportv2.md): fuller narrative write-up of the study
-- [presentation.md](/data/suraj/combined-kv-quant-copilot-final/presentation.md): deck-oriented summary and talk structure
+- [docs/dashboard_guide.md](docs/dashboard_guide.md): dashboard capabilities and analysis surfaces
+- [docs/method_catalog.md](docs/method_catalog.md): grouped description of the 33 methods
+- [docs/results_gallery.md](docs/results_gallery.md): curated demos used in presentation
+- [docs/reports/reportv2.md](docs/reports/reportv2.md): fuller narrative write-up of the study
+- [docs/reports/report.md](docs/reports/report.md): compact report-style summary
+- [docs/reports/qa_defense.md](docs/reports/qa_defense.md): defense notes and anticipated questions
+- [docs/presentations/presentation.md](docs/presentations/presentation.md): deck-oriented summary and talk structure
+- [docs/presentations/final_presentation.pptx](docs/presentations/final_presentation.pptx): generated slide deck
 
 ## Future Work
 

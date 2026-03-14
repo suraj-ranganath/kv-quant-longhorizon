@@ -13,7 +13,7 @@ The dashboard integrates:
 - drift signals from longer rollout evaluation
 - run provenance and source-catalog context
 
-The main application entry point is [dashboard/app.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/app.py).
+The main application entry point is [dashboard/app.py](../dashboard/app.py).
 
 ## Sidebar Controls
 
@@ -203,7 +203,7 @@ If you are presenting from the dashboard, the cleanest sequence is:
 
 ## Related Files
 
-- [dashboard/app.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/app.py)
-- [dashboard/decision_analysis.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/decision_analysis.py)
-- [dashboard/decision_plots.py](/data/suraj/combined-kv-quant-copilot-final/dashboard/decision_plots.py)
-- [results/combined/combined_comparison_dataset.csv](/data/suraj/combined-kv-quant-copilot-final/results/combined/combined_comparison_dataset.csv)
+- [dashboard/app.py](../dashboard/app.py)
+- [dashboard/decision_analysis.py](../dashboard/decision_analysis.py)
+- [dashboard/decision_plots.py](../dashboard/decision_plots.py)
+- [results/combined/combined_comparison_dataset.csv](../results/combined/combined_comparison_dataset.csv)
